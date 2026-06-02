@@ -478,7 +478,17 @@ const labels = {login:'로그인',home:'홈',explore:'탐색',register:'등록',
 const seedItems = window.FRESHSHARE_ITEMS || [];
 let items = [...seedItems];
 let selectedItem = items[0] || null;
-let currentUser = JSON.parse(localStorage.getItem('freshshare_user') || 'null');
+function loadCurrentUser(){
+  const u = JSON.parse(localStorage.getItem('freshshare_user') || 'null');
+  if(u && u.expiresAt && Date.now() > u.expiresAt){
+    // 12시간이 지나 자동 로그아웃
+    localStorage.removeItem('freshshare_user');
+    return null;
+  }
+  return u;
+}
+let currentUser = loadCurrentUser();
+
 const config = window.FRESHSHARE_CONFIG || {};
 const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey)
   ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey)
@@ -529,6 +539,7 @@ async function login(){
 
   if(!userid || userid.length < 4 || !/^[a-z0-9_]+$/.test(userid)){ showHint('아이디는 영문/숫자 4자 이상이어야 합니다'); return; }
   if(!nickname){ showHint('닉네임을 입력하세요'); return; }
+  if(!password || password.length < 4){ showHint('비밀번호는 4자 이상 입력하세요'); return; }
   if(!gu){ showHint('자치구를 선택하세요'); return; }
   if(!dong){ showHint('동을 선택하세요'); return; }
 
@@ -542,11 +553,12 @@ async function login(){
     showHint(`@${userid} (${nickname}) 가입 완료`);
   } else {
     if(!accs[userid]){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
-    if(accs[userid].password && accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
+    if(accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
+
   }
 
   const acc = accs[userid];
-  currentUser = { userid: acc.userid, nickname: acc.nickname, neighborhood: acc.neighborhood, gu: acc.gu, dong: acc.dong, loggedAt: new Date().toISOString() };
+  currentUser = { userid: acc.userid, nickname: acc.nickname, neighborhood: acc.neighborhood, gu: acc.gu, dong: acc.dong, loggedAt: new Date().toISOString(), expiresAt: Date.now() + 12*60*60*1000 };
   if(authMode === 'signin' && nickname && nickname !== acc.nickname){
     accs[userid].nickname = nickname; saveAllAccounts(accs); currentUser.nickname = nickname;
   }
