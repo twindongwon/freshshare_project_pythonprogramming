@@ -481,14 +481,12 @@ let selectedItem = items[0] || null;
 function loadCurrentUser(){
   const u = JSON.parse(localStorage.getItem('freshshare_user') || 'null');
   if(u && u.expiresAt && Date.now() > u.expiresAt){
-    // 12시간이 지나 자동 로그아웃
     localStorage.removeItem('freshshare_user');
     return null;
   }
   return u;
 }
 let currentUser = loadCurrentUser();
-
 const config = window.FRESHSHARE_CONFIG || {};
 const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey)
   ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey)
@@ -554,7 +552,6 @@ async function login(){
   } else {
     if(!accs[userid]){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
     if(accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
-
   }
 
   const acc = accs[userid];
@@ -934,7 +931,6 @@ async function runAIRecognition(){
       body: form,
       headers: { 'ngrok-skip-browser-warning': 'true' }
     });
-
     if(!resp.ok) throw new Error('서버 응답 오류 ' + resp.status);
     const data = await resp.json();
     if(bar) bar.style.width = '100%';
@@ -1051,7 +1047,6 @@ async function detectLocation(){
   }, () => { status.textContent = '위치 권한이 거부되었습니다.'; }, { enableHighAccuracy:false, timeout:8000, maximumAge:60000 });
 }
 
-// chips/tabs toggle
 document.querySelectorAll('.chip').forEach(chip => {
   chip.addEventListener('click', () => {
     if((chip.parentElement.classList.contains('row') || chip.parentElement.classList.contains('pill-row')) && !chip.onclick){
