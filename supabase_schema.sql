@@ -1,13 +1,14 @@
 create table if not exists public.profiles (
-  id uuid primary key default gen_random_uuid(),
+  userid text primary key,
   nickname text not null,
   neighborhood text,
   created_at timestamptz not null default now()
 );
 
 create table if not exists public.listings (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
   owner_nickname text not null,
+  owner_userid text,
   item_name text not null,
   base_food text,
   category text,
@@ -26,10 +27,14 @@ create table if not exists public.listings (
 );
 
 create table if not exists public.messages (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
   listing_id text not null,
-  sender_nickname text not null,
+  from_userid text not null,
+  from_nick text,
+  to_userid text not null,
+  to_nick text,
   body text not null,
+  ts bigint not null,
   created_at timestamptz not null default now()
 );
 
