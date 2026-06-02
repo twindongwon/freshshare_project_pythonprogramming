@@ -528,12 +528,23 @@ function switchAuthMode(mode){
   document.getElementById('login-submit-btn').textContent = mode === 'signup' ? '회원가입' : '로그인';
   refreshAccountList();
 }
+// ===== 온라인 계정 (Supabase profiles 테이블) =====
+// Supabase가 연결돼 있으면 온라인, 없으면 기존처럼 이 브라우저(localStorage) 사용
 function getAllAccounts(){ return JSON.parse(localStorage.getItem('freshshare_accounts') || '{}'); }
 function saveAllAccounts(accs){ localStorage.setItem('freshshare_accounts', JSON.stringify(accs)); }
 
-function refreshAccountList(){
-  const accs = getAllAccounts();
-  const ids = Object.keys(accs);
+async function refreshAccountList(){
+  let ids = [];
+  let accs = {};
+  if(sb){
+    try{
+      const { data } = await sb.from('profiles').select('userid, nickname, neighborhood');
+      if(data){ data.forEach(r => { accs[r.userid] = r; }); ids = data.map(r => r.userid); }
+    }catch(e){ console.error(e); }
+  } else {
+    accs = getAllAccounts();
+    ids = Object.keys(accs);
+  }
   const cntEl = document.getElementById('account-count');
   if(cntEl) cntEl.textContent = `${ids.length}개`;
   const list = document.getElementById('account-list');
@@ -559,25 +570,50 @@ async function login(){
   if(!dong){ showHint('동을 선택하세요'); return; }
 
   const neighborhood = `${gu} ${dong}`;
-  const accs = getAllAccounts();
 
-  if(authMode === 'signup'){
-    if(accs[userid]){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
-    accs[userid] = { userid, nickname, password: password||'', gu, dong, neighborhood, createdAt: new Date().toISOString() };
-    saveAllAccounts(accs);
-    showHint(`@${userid} (${nickname}) 가입 완료`);
+  if(sb){
+    // ===== 온라인 모드: profiles 테이블 사용 =====
+    try{
+      // 해당 아이디 계정 조회
+      const { data: existing, error: selErr } = await sb
+        .from('profiles').select('*').eq('userid', userid).maybeSingle();
+      if(selErr){ showHint('서버 조회 오류. 잠시 후 다시 시도하세요'); return; }
+
+      if(authMode === 'signup'){
+        if(existing){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
+        const { error: insErr } = await sb.from('profiles').insert({
+          userid, nickname, password, gu, dong, neighborhood
+        });
+        if(insErr){ showHint('회원가입 실패: ' + insErr.message); return; }
+        showHint(`@${userid} (${nickname}) 가입 완료`);
+      } else {
+        if(!existing){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
+        if((existing.password || '') !== password){ showHint('비밀번호가 틀렸습니다'); return; }
+        // 닉네임을 바꿨으면 업데이트
+        if(nickname && nickname !== existing.nickname){
+          await sb.from('profiles').update({ nickname, neighborhood, gu, dong }).eq('userid', userid);
+        }
+      }
+    }catch(e){ console.error(e); showHint('서버 연결 실패. config.js의 Supabase 설정을 확인하세요'); return; }
   } else {
-    if(!accs[userid]){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
-    if(accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
+    // ===== 오프라인 모드: 기존 localStorage 방식 =====
+    const accs = getAllAccounts();
+    if(authMode === 'signup'){
+      if(accs[userid]){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
+      accs[userid] = { userid, nickname, password: password||'', gu, dong, neighborhood, createdAt: new Date().toISOString() };
+      saveAllAccounts(accs);
+      showHint(`@${userid} (${nickname}) 가입 완료`);
+    } else {
+      if(!accs[userid]){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
+      if(accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
+      if(nickname && nickname !== accs[userid].nickname){ accs[userid].nickname = nickname; saveAllAccounts(accs); }
+    }
   }
 
-  const acc = accs[userid];
-  currentUser = { userid: acc.userid, nickname: acc.nickname, neighborhood: acc.neighborhood, gu: acc.gu, dong: acc.dong, loggedAt: new Date().toISOString(), expiresAt: Date.now() + 12*60*60*1000 };
-  if(authMode === 'signin' && nickname && nickname !== acc.nickname){
-    accs[userid].nickname = nickname; saveAllAccounts(accs); currentUser.nickname = nickname;
-  }
+  // 로그인 성공 → 세션 저장
+  currentUser = { userid, nickname, neighborhood, gu, dong, loggedAt: new Date().toISOString(), expiresAt: Date.now() + 12*60*60*1000 };
   localStorage.setItem('freshshare_user', JSON.stringify(currentUser));
-  if(sb){ try{ await sb.from('profiles').upsert({ userid, nickname: currentUser.nickname, neighborhood }, { onConflict: 'userid' }); }catch(e){} }
+
   const listingLoc = document.getElementById('listing-location');
   if(listingLoc) listingLoc.value = neighborhood;
   const homeChip = document.querySelector('#screen-home .header .chip');
