@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>FreshShare Interactive Prototype</title>
 <style>
 :root{
@@ -13,26 +14,20 @@
 }
 *{box-sizing:border-box;font-family:'Pretendard','Noto Sans KR',system-ui,sans-serif}
 body{margin:0;background:var(--bg);color:var(--ink);padding:24px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-
-/* Top guide bar */
 .guide{max-width:900px;width:100%;margin-bottom:24px;background:var(--raised);border-radius:var(--r-lg);box-shadow:var(--shadow-out);padding:18px 22px}
 .guide h1{margin:0 0 6px;font-size:18px;color:var(--teal)}
 .guide p{margin:0;font-size:12px;color:var(--muted);line-height:1.6}
 .guide .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .guide .legend span{font-size:11px;background:var(--inset);border-radius:8px;padding:5px 10px;box-shadow:var(--shadow-in)}
-
-/* Phone container */
 .phone-stage{position:relative;width:380px;height:780px}
 .phone{position:absolute;inset:0;width:380px;background:var(--surface);border-radius:36px;padding:18px;box-shadow:var(--shadow-out);min-height:760px;display:none;flex-direction:column;overflow-y:auto}
 .phone.active{display:flex;animation:fadeIn .25s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
 .status{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:4px 8px}
 .header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 14px}
 .header h2{margin:0;font-size:18px;letter-spacing:.3px}
 .back{cursor:pointer;font-size:18px;background:var(--raised);box-shadow:var(--shadow-out);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center}
 .back:active{box-shadow:var(--shadow-press)}
-
 .title-sm{font-size:11px;color:var(--muted);letter-spacing:2px;margin:18px 4px 8px}
 .card{background:var(--raised);border-radius:var(--r-lg);box-shadow:var(--shadow-out);padding:14px;margin-bottom:12px;cursor:pointer;transition:transform .12s}
 .card:hover{transform:translateY(-2px)}
@@ -45,6 +40,7 @@ body{margin:0;background:var(--bg);color:var(--ink);padding:24px;display:flex;fl
 .btn:active{box-shadow:var(--shadow-press)}
 .btn.ghost{background:var(--raised);color:var(--ink);box-shadow:var(--shadow-out)}
 .btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 .chip{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--raised);box-shadow:var(--shadow-out);font-size:11px;color:var(--ink);margin-right:6px;cursor:pointer;user-select:none}
 .chip.on{background:var(--teal);color:#fff}
 .chip:active{box-shadow:var(--shadow-press)}
@@ -77,147 +73,150 @@ h4{margin:6px 0}
 .data-note{font-size:10px;color:var(--muted);line-height:1.45;margin-top:8px;padding-top:8px;border-top:1px dashed #d6cfbc}
 .data-note b{color:var(--teal)}
 .source-link{color:var(--teal2);text-decoration:none;font-weight:700}
-.dataset-chip{display:inline-block;font-size:10px;background:var(--inset);color:var(--ink);border-radius:999px;padding:3px 8px;margin:3px 4px 0 0;box-shadow:var(--shadow-in)}
 .empty-state{font-size:12px;color:var(--muted);text-align:center;padding:18px}
-
-/* Chat bubble */
 .bubble{max-width:75%;padding:9px 12px;border-radius:14px;font-size:12px;line-height:1.5;margin-bottom:8px;box-shadow:var(--shadow-out)}
 .bubble.me{margin-left:auto;background:var(--teal);color:#fff}
 .bubble.you{background:var(--raised);color:var(--ink)}
-
-/* Camera screen */
 .camera-view{background:#1F3D3A;border-radius:var(--r-lg);height:300px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:50px;margin-bottom:14px;box-shadow:var(--shadow-in)}
-.scan-line{position:relative;overflow:hidden}
-.scan-line::after{content:'';position:absolute;left:0;right:0;top:50%;height:2px;background:#0B8B7A;animation:scan 2s linear infinite;box-shadow:0 0 8px #0B8B7A}
-@keyframes scan{0%{top:10%}50%{top:90%}100%{top:10%}}
-
-/* Hint badge */
-.hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:10px 18px;border-radius:99px;box-shadow:var(--shadow-out);z-index:99;opacity:0;transition:opacity .3s;pointer-events:none}
+.hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:10px 18px;border-radius:99px;box-shadow:var(--shadow-out);z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%;text-align:center}
 .hint.show{opacity:1}
 </style></head>
 <body>
 
 <div class="guide">
-  <h1>🥬 FreshShare 인터랙티브 프로토타입</h1>
-  <p>화면 안의 <b>카드·버튼·하단 네비게이션</b>을 클릭하면 화면이 전환됩니다. 좌상단의 <b>← 뒤로</b> 버튼이나 하단 탭으로 자유롭게 이동하세요.</p>
+  <h1>🥬 FreshShare — 동네 신선식품 나눔 프로토타입</h1>
+  <p><b>영수증 사진</b>을 올리면 데탑 백엔드의 <b>Donut AI 모델</b>이 품목과 가격을 자동으로 읽어 등록을 도와줍니다.</p>
   <div class="legend">
-    <span>🏠 홈 (피드)</span>
-    <span>🔍 탐색</span>
-    <span>＋ 등록 (영수증 OCR)</span>
-    <span>📦 상세보기</span>
-    <span>💬 채팅</span>
-    <span>👤 마이페이지</span>
+    <span>로그인 (자치구/동)</span>
+    <span>홈 피드</span>
+    <span>영수증 등록 (백엔드 AI)</span>
+    <span>상세/신선도</span>
+    <span>이웃 채팅</span>
+    <span>마이페이지</span>
   </div>
 </div>
 
 <div class="phone-stage">
 
-<!-- ============================================
-     SCREEN 0: LOGIN
-============================================ -->
+<!-- SCREEN 0: LOGIN -->
 <div class="phone active" id="screen-login">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
-  <div class="header">
-    <h2>🥬 FreshShare 로그인</h2>
-    <span style="width:32px"></span>
-  </div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
+  <div class="header"><h2>🥬 FreshShare</h2><span style="width:32px"></span></div>
 
   <div class="card static" style="text-align:center;padding:24px">
-    <div style="font-size:48px">🥕</div>
-    <h4>동네 식재료를 함께 나눠요</h4>
-    <div class="meta">닉네임과 동네만 입력하면 상품 등록과 채팅을 체험할 수 있습니다.</div>
+    <div style="font-size:48px">🥬</div>
+    <h4>우리 동네 신선식품 나눔</h4>
+    <div class="meta">남는 식재료를 이웃과 나눠요.<br>아이디와 동네를 입력하고 시작하세요.</div>
   </div>
 
-  <span class="label">닉네임</span>
-  <input class="input" id="login-nickname" placeholder="예: 민재" value="민재"/>
+  <div class="tabs" id="auth-tabs">
+    <div class="tab on" data-mode="signin" onclick="switchAuthMode('signin')">로그인</div>
+    <div class="tab" data-mode="signup" onclick="switchAuthMode('signup')">회원가입</div>
+  </div>
 
-  <span class="label" style="margin-top:14px">동네</span>
-  <input class="input" id="login-neighborhood" placeholder="예: 합정동" value="합정동"/>
+  <span class="label" style="margin-top:12px">아이디 <span style="color:#0E5C58">*</span></span>
+  <input class="input" id="login-userid" placeholder="예: minjae01 (영문/숫자 4자 이상)" autocomplete="username"/>
+
+  <span class="label" style="margin-top:14px">닉네임 <span style="color:#0E5C58">*</span></span>
+  <input class="input" id="login-nickname" placeholder="예: 역삼동주민" value=""/>
+
+  <span class="label" style="margin-top:14px" id="pw-label">비밀번호 <span class="meta">(선택, 4자 이상)</span></span>
+  <input class="input" id="login-password" type="password" placeholder="비밀번호"/>
+
+  <span class="label" style="margin-top:14px">자치구</span>
+  <select class="input" id="login-gu" onchange="updateDongOptions()" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
+    <option value="">자치구 선택</option>
+  </select>
+
+  <span class="label" style="margin-top:14px">동(행정동)</span>
+  <select class="input" id="login-dong" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
+    <option value="">먼저 자치구를 선택하세요</option>
+  </select>
+
+  <div class="row" style="gap:8px;margin-top:10px">
+    <button class="btn ghost" style="flex:1;font-size:12px" type="button" onclick="detectLocation()">📍 내 위치 자동 감지</button>
+  </div>
+  <div id="geo-status" class="meta" style="margin-top:6px;text-align:center"></div>
+  <input type="hidden" id="login-neighborhood" value=""/>
 
   <div class="card static" style="margin-top:14px">
-    <div class="kv"><span>저장 방식</span><b id="storage-mode">브라우저 저장</b></div>
-    <div class="data-note">GitHub Pages에서 여러 사용자가 같은 글을 보려면 <b>config.js</b>에 Supabase 값을 연결하세요. 실제 개인정보는 GitHub에 커밋하지 않습니다.</div>
+    <div class="kv"><span>저장 모드</span><b id="storage-mode">확인 중</b></div>
+    <div class="kv"><span>등록된 계정</span><b id="account-count">0개</b></div>
+    <div class="data-note">GitHub Pages에서 여러 사용자가 함께 쓰려면 <b>config.js</b>에 Supabase URL/Key를 넣으세요. 비워두면 이 브라우저에만 저장됩니다.</div>
   </div>
 
-  <button class="btn block" style="margin-top:14px" onclick="login()">로그인하고 시작</button>
+  <button class="btn block" style="margin-top:14px" id="login-submit-btn" onclick="login()">로그인</button>
+
+  <details style="margin-top:12px;font-size:11px;color:var(--muted)">
+    <summary style="cursor:pointer">이 기기에 저장된 계정 보기</summary>
+    <div id="account-list" style="margin-top:8px"></div>
+  </details>
 </div>
 
-<!-- ============================================
-     SCREEN 1: HOME / FEED
-============================================ -->
+<!-- SCREEN 1: HOME -->
 <div class="phone" id="screen-home">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
-  <div class="header">
-    <h2>🥬 FreshShare</h2>
-    <div class="chip" onclick="nav('explore')">📍 마포구 합정동</div>
-  </div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
+  <div class="header"><h2>🥬 FreshShare</h2><div class="chip" onclick="nav('explore')">📍 우리 동네</div></div>
 
   <div class="inset row" style="gap:8px;cursor:pointer" onclick="nav('explore')">
     <span>🔍</span>
     <input class="input" style="background:transparent;box-shadow:none;padding:4px;pointer-events:none" placeholder="식재료 검색..."/>
   </div>
 
-  <div class="title-sm">정렬</div>
+  <div class="title-sm">카테고리</div>
   <div style="overflow-x:auto;white-space:nowrap;margin-bottom:6px">
-    <span class="chip on">추천순</span><span class="chip">거리순</span><span class="chip">신선도순</span><span class="chip">가격순</span><span class="chip">양순</span>
+    <span class="chip on">전체</span><span class="chip">채소</span><span class="chip">과일</span><span class="chip">유제품</span><span class="chip">가공</span>
   </div>
 
   <div id="feed-list">
-    <div class="card static empty-state">data/freshshare_items.js 데이터셋을 불러오는 중...</div>
+    <div class="card static empty-state">데이터를 불러오는 중...</div>
   </div>
 
-  <div class="fab" onclick="nav('register')">＋</div>
+  <div class="fab" onclick="nav('register')">+</div>
 
   <div class="bottom-nav">
     <div class="nav-i on" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
-    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('register')"><div>➕</div>등록</div>
     <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
     <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
   </div>
 </div>
 
-<!-- ============================================
-     SCREEN 2: EXPLORE (탐색)
-============================================ -->
+<!-- SCREEN 2: EXPLORE -->
 <div class="phone" id="screen-explore">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
-  <div class="header">
-    <div class="back" onclick="nav('home')">←</div>
-    <h2>🔍 탐색</h2>
-    <span style="width:32px"></span>
-  </div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
+  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>탐색</h2><span style="width:32px"></span></div>
 
   <div class="inset row" style="gap:8px">
     <span>🔍</span>
-    <input class="input" style="background:transparent;box-shadow:none;padding:4px" placeholder="ex) 토마토, 우유, 빵..."/>
+    <input class="input" style="background:transparent;box-shadow:none;padding:4px" placeholder="예) 토마토, 계란, 두부..."/>
   </div>
 
   <span class="label" style="margin-top:12px">카테고리</span>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥦</div><div style="font-size:10px">채소</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥬</div><div style="font-size:10px">채소</div></div>
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍎</div><div style="font-size:10px">과일</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥩</div><div style="font-size:10px">육류</div></div>
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥛</div><div style="font-size:10px">유제품</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥩</div><div style="font-size:10px">정육</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🐟</div><div style="font-size:10px">수산</div></div>
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍞</div><div style="font-size:10px">베이커리</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍜</div><div style="font-size:10px">가공식품</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🐟</div><div style="font-size:10px">수산물</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🧂</div><div style="font-size:10px">조미료</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥫</div><div style="font-size:10px">가공</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🧊</div><div style="font-size:10px">냉동</div></div>
   </div>
 
-  <span class="label" style="margin-top:14px">🔥 동네 인기 검색어</span>
+  <span class="label" style="margin-top:14px">인기 검색어</span>
   <div class="pill-row">
-    <span class="chip">방울토마토</span><span class="chip">계란</span><span class="chip">양배추</span>
-    <span class="chip">두부</span><span class="chip">우유</span>
+    <span class="chip">방울토마토</span><span class="chip">계란</span><span class="chip">두부</span><span class="chip">우유</span><span class="chip">당근</span>
   </div>
 
-  <span class="label" style="margin-top:14px">📍 합정동 실시간 매물</span>
+  <span class="label" style="margin-top:14px">우리 동네 추천</span>
   <div class="card" onclick="nav('detail')">
     <div class="row" style="gap:12px">
       <div class="thumb">🍅</div>
       <div style="flex:1">
         <b style="font-size:13px">방울토마토 500g</b>
-        <div class="meta">📍 210m · 5분전</div>
+        <div class="meta">📍 210m · 5분 전</div>
         <div style="margin-top:6px"><span class="badge">나눔</span></div>
       </div>
     </div>
@@ -226,295 +225,241 @@ h4{margin:6px 0}
   <div class="bottom-nav">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i on"><div>🔍</div>탐색</div>
-    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('register')"><div>➕</div>등록</div>
     <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
     <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
   </div>
 </div>
 
-<!-- ============================================
-     SCREEN 3: REGISTER + AI OCR
-============================================ -->
+<!-- SCREEN 3: REGISTER -->
 <div class="phone" id="screen-register">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
-  <div class="header">
-    <div class="back" onclick="nav('home')">←</div>
-    <h2>＋ 식재료 등록</h2>
-    <span class="chip">2/3</span>
-  </div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
+  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>식재료 등록</h2><span class="chip">2/3</span></div>
 
   <div class="tabs">
-    <div class="tab" onclick="nav('camera')">사진</div>
-    <div class="tab on">영수증</div>
-    <div class="tab">유통기한</div>
+    <div class="tab" onclick="nav('camera')">📷 사진</div>
+    <div class="tab on">✏️ 직접입력</div>
+    <div class="tab" onclick="nav('camera')">🧾 영수증</div>
   </div>
 
-  <div class="card static scan-line" style="margin-top:14px;text-align:center;padding:22px">
-    <div style="font-size:42px">🧾</div>
-    <div style="font-size:13px;margin-top:6px">영수증을 인식했어요</div>
-    <div class="meta">AI가 품목·구매일을 자동 분석합니다</div>
-  </div>
-
-  <span class="label">AI 신선도 측정 결과</span>
+  <span class="label" style="margin-top:14px">AI 인식 결과</span>
   <div class="card static" id="register-result">
     <div class="row" style="gap:14px">
-      <div class="score"><b>88</b><span>신선</span></div>
+      <div class="score"><b>88</b><span>신선도</span></div>
       <div style="flex:1">
         <div class="kv"><span>품목</span><b>방울토마토 500g</b></div>
         <div class="kv"><span>구매일</span><b>5/17</b></div>
-        <div class="kv"><span>보관환경</span><b>냉장</b></div>
-        <div class="kv"><span>권장 소비기한</span><b style="color:var(--teal2)">D-6 (5/25)</b></div>
+        <div class="kv"><span>보관</span><b>냉장</b></div>
+        <div class="kv"><span>소비기한</span><b style="color:var(--teal2)">D-6 (5/25)</b></div>
       </div>
     </div>
     <div class="bar" style="margin-top:10px"><i style="width:88%"></i></div>
   </div>
 
-  <span class="label">데이터셋 매핑</span>
-  <div class="card static" id="dataset-mapping">
-    <div class="empty-state">품목별 소비기한·보관방법 데이터를 연결하는 중...</div>
-  </div>
-
-  <span class="label">보관 환경</span>
-  <div class="row"><span class="chip on">❄️ 냉장</span><span class="chip">🧊 냉동</span><span class="chip">🌡 실온</span></div>
-
-  <span class="label" style="margin-top:14px">거래 방식</span>
+  <span class="label">기본 정보</span>
   <div class="row"><span class="chip on">나눔</span><span class="chip">교환</span><span class="chip">판매</span></div>
 
-  <span class="label" style="margin-top:14px">위치</span>
-  <input class="input" id="listing-location" value="합정동" placeholder="동네"/>
+  <span class="label" style="margin-top:14px">보관 방식</span>
+  <div class="row"><span class="chip on">냉장</span><span class="chip">냉동</span><span class="chip">실온</span></div>
 
-  <span class="label" style="margin-top:14px">직접 등록</span>
+  <span class="label" style="margin-top:14px">위치</span>
+  <input class="input" id="listing-location" value="" placeholder="동네"/>
+
+  <span class="label" style="margin-top:14px">상세 정보</span>
   <div class="card static">
-    <input class="input" id="listing-name" value="유기농 당근 5개" placeholder="상품명"/>
+    <input class="input" id="listing-name" value="" placeholder="제목"/>
     <div class="row" style="margin-top:8px">
-      <input class="input" id="listing-base-food" value="당근" placeholder="기준 식품"/>
-      <input class="input" id="listing-quantity" value="5개" placeholder="수량"/>
+      <input class="input" id="listing-base-food" value="" placeholder="기본 식품명"/>
+      <input class="input" id="listing-quantity" value="1" placeholder="수량"/>
     </div>
     <div class="row" style="margin-top:8px">
-      <input class="input" id="listing-shelf-life" value="21" placeholder="소비기한 일수"/>
+      <input class="input" id="listing-shelf-life" value="7" placeholder="소비기한(일)"/>
       <input class="input" id="listing-price" value="0" placeholder="가격"/>
     </div>
-    <textarea class="input" id="listing-storage-method" style="margin-top:8px;min-height:70px;resize:none" placeholder="보관 방법">잎 제거 후 씻지 않고 밀폐 봉투에 넣어 냉장 채소칸 보관</textarea>
+    <div class="row" style="margin-top:8px">
+      <input class="input" id="listing-purchase-date" type="date" placeholder="구매일"/>
+    </div>
+    <textarea class="input" id="listing-storage-method" style="margin-top:8px;min-height:70px;resize:none" placeholder="보관 방법 안내"></textarea>
   </div>
 
-  <button class="btn block" style="margin-top:14px" onclick="submitListing()">상품 등록하기</button>
+  <button class="btn block" style="margin-top:14px" onclick="submitListing()">등록하기</button>
 
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
-    <div class="nav-i on"><div>＋</div>등록</div>
+    <div class="nav-i on"><div>➕</div>등록</div>
     <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
     <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
   </div>
 </div>
 
-<!-- ============================================
-     SCREEN 4: CAMERA (사진 촬영)
-============================================ -->
+<!-- SCREEN 4: CAMERA -->
 <div class="phone" id="screen-camera">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
-  <div class="header">
-    <div class="back" onclick="nav('register')">←</div>
-    <h2>📸 식재료 촬영</h2>
-    <span style="width:32px"></span>
-  </div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
+  <div class="header"><div class="back" onclick="nav('register')">←</div><h2>영수증 AI 인식</h2><span style="width:32px"></span></div>
 
-  <div class="camera-view scan-line">🥬</div>
-
-  <div class="card static" style="text-align:center;padding:14px">
-    <div style="font-size:12px;color:var(--muted)">AI가 식재료를 인식 중입니다...</div>
-    <div class="bar" style="margin-top:10px"><i style="width:70%"></i></div>
-  </div>
-
-  <span class="label">예상 인식 결과 (Top 3)</span>
-  <div class="card" onclick="nav('register')">
-    <div class="row" style="justify-content:space-between">
-      <b style="font-size:13px">🥬 양배추</b>
-      <span class="badge">96%</span>
+  <div class="camera-view" id="camera-view" style="position:relative;overflow:hidden;background:#1F3D3A">
+    <img id="photo-preview" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:var(--r-lg)" alt="업로드 사진"/>
+    <div id="photo-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+      <div style="font-size:50px">🧾</div>
+      <div style="font-size:11px;color:#cfe3dc">영수증을 올리면 백엔드 AI가 분석합니다</div>
     </div>
   </div>
-  <div class="card" onclick="nav('register')">
-    <div class="row" style="justify-content:space-between">
-      <b style="font-size:13px">🥦 브로콜리</b>
-      <span class="badge gray">3%</span>
-    </div>
+
+  <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(event)"/>
+
+  <div class="row" style="gap:8px;margin-bottom:10px">
+    <button class="btn" style="flex:1" onclick="document.getElementById('photo-input').click()">📷 사진 촬영/업로드</button>
+    <button class="btn ghost" style="flex:1" id="btn-reanalyze" onclick="runAIRecognition()" disabled>🔄 AI로 분석</button>
   </div>
-  <div class="card" onclick="nav('register')">
-    <div class="row" style="justify-content:space-between">
-      <b style="font-size:13px">🥗 상추</b>
-      <span class="badge gray">1%</span>
+
+  <div class="card static" id="ai-status-card" style="text-align:center;padding:14px;display:none">
+    <div style="font-size:12px;color:var(--muted)" id="ai-status-text">백엔드 분석 준비 중...</div>
+    <div class="bar" style="margin-top:10px"><i id="ai-progress-bar" style="width:10%;transition:width .4s"></i></div>
+  </div>
+
+  <span class="label" id="ai-result-label" style="display:none">AI 인식 품목</span>
+  <div id="ai-results"></div>
+
+  <div class="card static" id="ai-empty" style="text-align:center;padding:18px">
+    <div style="font-size:11px;color:var(--muted);line-height:1.6">
+      위 <b>사진 촬영/업로드</b> 버튼으로 영수증을 올리면<br>
+      데탑 백엔드의 <b>Donut 모델</b>이 품목과 가격을<br>
+      자동으로 읽어 아래에 표시합니다.
     </div>
   </div>
 
   <div class="row" style="gap:8px;margin-top:8px">
-    <button class="btn ghost" style="flex:1" onclick="nav('register')">🔄 재촬영</button>
-    <button class="btn" style="flex:2" onclick="nav('register')">이대로 등록</button>
+    <button class="btn ghost" style="flex:1" onclick="nav('register')">취소</button>
+    <button class="btn" style="flex:2" id="btn-confirm-ai" onclick="confirmAIResult()" disabled>등록 화면에 채우기</button>
   </div>
 
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
-    <div class="nav-i on"><div>＋</div>등록</div>
+    <div class="nav-i on"><div>➕</div>등록</div>
     <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
     <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
   </div>
 </div>
 
-<!-- ============================================
-     SCREEN 5: DETAIL + RATING
-============================================ -->
+<!-- SCREEN 5: DETAIL -->
 <div class="phone" id="screen-detail">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
-  <div class="header">
-    <div class="back" onclick="nav('home')">←</div>
-    <h2>상세</h2>
-    <span style="font-size:18px;cursor:pointer">♡</span>
-  </div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
+  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>상세</h2><span style="font-size:18px;cursor:pointer">♡</span></div>
 
-  <div class="card static" id="detail-hero" style="text-align:center;padding:30px;font-size:64px">🥕</div>
+  <div class="card static" id="detail-hero" style="text-align:center;padding:30px;font-size:64px">🍅</div>
 
-  <div class="card static" id="detail-card">
-    <div class="row" style="justify-content:space-between">
-      <div>
-        <b style="font-size:16px">유기농 당근 5개</b>
-        <div class="meta">합정동 · 320m · 5분 전</div>
-      </div>
-      <div class="score"><b>92</b><span>신선</span></div>
-    </div>
-    <div class="pill-row">
-      <span class="badge">나눔</span>
-      <span class="badge gray">❄️ 냉장 D-5</span>
-      <span class="badge gray">채소</span>
-    </div>
-    <p style="font-size:12px;line-height:1.6;margin:10px 0 0">대형마트에서 한 봉지 사서 절반 남았어요. 깨끗하게 보관 중입니다 :)</p>
-  </div>
+  <div class="card static" id="detail-card"></div>
 
-  <span class="label">소비기한 / 보관 방법</span>
+  <span class="label">보관 방법 / 소비기한 정보</span>
   <div class="card static" id="storage-card">
-    <div class="empty-state">품목별 보관 데이터를 연결하는 중...</div>
+    <div class="empty-state">데이터를 불러오는 중...</div>
   </div>
 
   <span class="label">판매자</span>
   <div class="card" onclick="nav('mypage')">
     <div class="row" style="gap:10px">
-      <div class="thumb" style="width:44px;height:44px;font-size:18px">🙂</div>
+      <div class="thumb" style="width:44px;height:44px;font-size:18px">👤</div>
       <div style="flex:1">
         <b style="font-size:13px">freshneighbor</b>
         <div class="meta"><span class="stars">★★★★★</span> 4.9 · 거래 23회</div>
       </div>
       <span class="badge">신뢰</span>
     </div>
-    <div class="pill-row">
-      <span class="badge gray">친절해요 12</span>
-      <span class="badge gray">신선해요 9</span>
-      <span class="badge gray">시간약속 7</span>
-    </div>
-  </div>
-
-  <span class="label">거래 후 상호 평가</span>
-  <div class="card static">
-    <div style="text-align:center;font-size:22px" class="stars">★ ★ ★ ★ ☆</div>
-    <div class="pill-row" style="justify-content:center">
-      <span class="chip on">친절해요</span><span class="chip">신선해요</span><span class="chip">시간약속</span>
-    </div>
   </div>
 
   <div class="row" style="gap:8px;margin-top:8px">
-    <button class="btn ghost" style="flex:1" onclick="nav('chat')">💬 채팅</button>
-    <button class="btn" style="flex:2" onclick="nav('chat')">거래 요청하기</button>
+    <button class="btn ghost" style="flex:1" onclick="nav('chat')">찜하기</button>
+    <button class="btn" style="flex:2" onclick="nav('chat')">채팅하기</button>
   </div>
 
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
-    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('register')"><div>➕</div>등록</div>
     <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
     <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
   </div>
 </div>
 
-<!-- ============================================
-     SCREEN 6: CHAT
-============================================ -->
+<!-- SCREEN 6: CHAT -->
 <div class="phone" id="screen-chat">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header">
-    <div class="back" onclick="nav('detail')">←</div>
-    <h2>💬 freshneighbor</h2>
-    <span style="width:32px"></span>
+    <div class="back" id="chat-back-btn" onclick="exitChatRoom()">←</div>
+    <h2 id="chat-title">채팅</h2>
+    <span style="width:32px;text-align:right;cursor:pointer" onclick="refreshChatList(true)" title="새로고침">🔄</span>
   </div>
 
-  <div class="inset" id="chat-item-summary" style="margin-bottom:12px;font-size:11px;text-align:center">
-    🥕 유기농 당근 5개 · 나눔 · 합정동 320m
+  <div id="chat-list-view">
+    <div class="inset" style="margin-bottom:12px;font-size:11px;text-align:center;padding:10px">
+      이웃과 1:1로 거래 메시지를 주고받아요.<br>
+      Supabase를 연결하면 다른 기기와도 동기화됩니다.
+    </div>
+    <span class="label">진행 중인 채팅</span>
+    <div id="chat-rooms"></div>
+    <span class="label" style="margin-top:14px">새 채팅 시작하기</span>
+    <div id="chat-new-targets"></div>
   </div>
 
-  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:4px">
-    <div class="bubble you">안녕하세요! 당근 아직 있나요? 😊</div>
-    <div class="bubble me">네! 5개 모두 가능해요 🙌</div>
-    <div class="bubble you">오늘 저녁 7시쯤 합정역 1번 출구에서 픽업 가능할까요?</div>
-    <div class="bubble me">좋아요! 7시에 1번 출구에서 뵐게요. 신선하게 가져갈게요 🥕</div>
-    <div class="bubble you" style="background:var(--inset)">📍 안전거래 추천: 합정역 1번 출구 무인보관함</div>
-  </div>
-
-  <div class="inset row" style="gap:6px;margin-top:8px">
-    <span style="cursor:pointer">📷</span>
-    <input class="input" id="chat-input" style="background:transparent;box-shadow:none;padding:4px" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter') sendChatMessage()"/>
-    <button class="btn" style="padding:6px 14px" onclick="sendChatMessage()">전송</button>
+  <div id="chat-room-view" style="display:none;flex-direction:column;min-height:0">
+    <div class="inset" id="chat-item-summary" style="margin-bottom:12px;font-size:11px;text-align:center;padding:8px">매물 정보...</div>
+    <div id="chat-messages" style="overflow-y:auto;padding:4px;min-height:280px;max-height:380px"></div>
+    <div class="inset row" style="gap:6px;margin-top:8px">
+      <span style="cursor:pointer" title="사진">📷</span>
+      <input class="input" id="chat-input" style="background:transparent;box-shadow:none;padding:4px" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter') sendChatMessage()"/>
+      <button class="btn" style="padding:6px 14px" onclick="sendChatMessage()">전송</button>
+    </div>
   </div>
 
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
-    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('register')"><div>➕</div>등록</div>
     <div class="nav-i on"><div>💬</div>채팅</div>
     <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
   </div>
 </div>
 
-<!-- ============================================
-     SCREEN 7: MY PAGE (내 냉장고)
-============================================ -->
+<!-- SCREEN 7: MY PAGE -->
 <div class="phone" id="screen-mypage">
-  <div class="status"><span>9:41</span><span>● ● ●</span></div>
-  <div class="header">
-    <div class="back" onclick="nav('home')">←</div>
-    <h2>👤 마이페이지</h2>
-    <span style="width:32px">⚙️</span>
-  </div>
+  <div class="status"><span>9:41</span><span>FreshShare</span></div>
+  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>마이페이지</h2><span style="width:32px"></span></div>
 
   <div class="card static">
     <div class="row" style="gap:12px">
-      <div class="thumb" style="font-size:30px">🙂</div>
+      <div class="thumb" style="font-size:30px">👤</div>
       <div style="flex:1">
-        <b style="font-size:15px" id="profile-name">민재 님</b>
-        <div class="meta" id="profile-meta">합정동 · 가입 3개월차</div>
-        <div style="margin-top:6px"><span class="badge">매너온도 38°C</span></div>
+        <b style="font-size:15px" id="profile-name">사용자 님</b>
+        <div class="meta" id="profile-meta">우리 동네 · 거래 3회</div>
+        <div style="margin-top:6px"><span class="badge">신뢰온도 38℃</span></div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center">
       <div><b style="color:var(--teal2)">12</b><div class="meta">나눔</div></div>
-      <div><b style="color:var(--teal2)">8</b><div class="meta">교환</div></div>
+      <div><b style="color:var(--teal2)">8</b><div class="meta">받음</div></div>
       <div><b style="color:var(--teal2)">4.9</b><div class="meta">평점</div></div>
     </div>
   </div>
   <button class="btn ghost block" style="margin-bottom:12px" onclick="logout()">로그아웃</button>
 
-  <span class="label" id="fridge-label">🥬 내 냉장고</span>
+  <span class="label" id="fridge-label">우리 동네 냉장고</span>
   <div id="fridge-list">
-    <div class="card static empty-state">냉장고 데이터셋을 불러오는 중...</div>
+    <div class="card static empty-state">데이터를 불러오는 중...</div>
   </div>
 
-  <span class="label">📊 환경 기여도</span>
+  <span class="label">환경 기여</span>
   <div class="card static">
-    <div class="kv"><span>이번 달 절감량</span><b style="color:var(--teal2)">2.4 kg</b></div>
-    <div class="kv"><span>누적 절감량</span><b>11.8 kg</b></div>
-    <div class="kv"><span>CO₂ 감축 효과</span><b>약 7.2 kg</b></div>
+    <div class="kv"><span>이번 달 나눔</span><b style="color:var(--teal2)">2.4 kg</b></div>
+    <div class="kv"><span>누적 나눔</span><b>11.8 kg</b></div>
+    <div class="kv"><span>CO₂ 절감</span><b>약 7.2 kg</b></div>
   </div>
 
   <div class="bottom-nav">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
-    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('register')"><div>➕</div>등록</div>
     <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
     <div class="nav-i on"><div>👤</div>MY</div>
   </div>
@@ -529,7 +474,7 @@ h4{margin:6px 0}
 <script src="data/freshshare_items.js"></script>
 <script>
 const screens = ['login','home','explore','register','camera','detail','chat','mypage'];
-const labels = {login:'로그인',home:'🏠 홈',explore:'🔍 탐색',register:'＋ 등록',camera:'📸 사진 촬영',detail:'📦 상세',chat:'💬 채팅',mypage:'👤 마이페이지'};
+const labels = {login:'로그인',home:'홈',explore:'탐색',register:'등록',camera:'영수증 인식',detail:'상세',chat:'채팅',mypage:'마이페이지'};
 const seedItems = window.FRESHSHARE_ITEMS || [];
 let items = [...seedItems];
 let selectedItem = items[0] || null;
@@ -539,72 +484,105 @@ const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey)
   ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey)
   : null;
 
-function userLabel(){
-  return currentUser?.nickname || '게스트';
-}
+function userLabel(){ return currentUser?.nickname || '사용자'; }
 
 function nav(target){
   screens.forEach(s => {
     const el = document.getElementById('screen-' + s);
     if(el) el.classList.toggle('active', s === target);
   });
-  showHint(labels[target] + ' 화면으로 이동');
+  showHint(labels[target] + ' 화면');
   if(target === 'chat') renderChat();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+let authMode = 'signin';
+function switchAuthMode(mode){
+  authMode = mode;
+  document.querySelectorAll('#auth-tabs .tab').forEach(t => t.classList.toggle('on', t.dataset.mode === mode));
+  document.getElementById('login-submit-btn').textContent = mode === 'signup' ? '회원가입' : '로그인';
+  refreshAccountList();
+}
+function getAllAccounts(){ return JSON.parse(localStorage.getItem('freshshare_accounts') || '{}'); }
+function saveAllAccounts(accs){ localStorage.setItem('freshshare_accounts', JSON.stringify(accs)); }
+
+function refreshAccountList(){
+  const accs = getAllAccounts();
+  const ids = Object.keys(accs);
+  const cntEl = document.getElementById('account-count');
+  if(cntEl) cntEl.textContent = `${ids.length}개`;
+  const list = document.getElementById('account-list');
+  if(!list) return;
+  if(!ids.length){ list.innerHTML = '<div class="meta" style="padding:8px">저장된 계정이 없습니다. 회원가입으로 만들어보세요.</div>'; return; }
+  list.innerHTML = ids.map(id => {
+    const a = accs[id];
+    return `<div class="kv" style="padding:6px 4px"><span>@${id} · <b>${a.nickname}</b></span><span class="meta">${a.neighborhood||''}</span></div>`;
+  }).join('');
+}
+
 async function login(){
-  const nickname = document.getElementById('login-nickname').value.trim() || '게스트';
-  const neighborhood = document.getElementById('login-neighborhood').value.trim() || '동네 미입력';
-  currentUser = { nickname, neighborhood, loggedAt: new Date().toISOString() };
-  localStorage.setItem('freshshare_user', JSON.stringify(currentUser));
-  if(sb){
-    await sb.from('profiles').insert({ nickname, neighborhood });
+  const userid = (document.getElementById('login-userid').value || '').trim().toLowerCase();
+  const nickname = document.getElementById('login-nickname').value.trim() || '';
+  const password = document.getElementById('login-password').value;
+  const gu = document.getElementById('login-gu').value;
+  const dong = document.getElementById('login-dong').value;
+
+  if(!userid || userid.length < 4 || !/^[a-z0-9_]+$/.test(userid)){ showHint('아이디는 영문/숫자 4자 이상이어야 합니다'); return; }
+  if(!nickname){ showHint('닉네임을 입력하세요'); return; }
+  if(!gu){ showHint('자치구를 선택하세요'); return; }
+  if(!dong){ showHint('동을 선택하세요'); return; }
+
+  const neighborhood = `${gu} ${dong}`;
+  const accs = getAllAccounts();
+
+  if(authMode === 'signup'){
+    if(accs[userid]){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
+    accs[userid] = { userid, nickname, password: password||'', gu, dong, neighborhood, createdAt: new Date().toISOString() };
+    saveAllAccounts(accs);
+    showHint(`@${userid} (${nickname}) 가입 완료`);
+  } else {
+    if(!accs[userid]){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
+    if(accs[userid].password && accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
   }
-  document.getElementById('listing-location').value = neighborhood;
+
+  const acc = accs[userid];
+  currentUser = { userid: acc.userid, nickname: acc.nickname, neighborhood: acc.neighborhood, gu: acc.gu, dong: acc.dong, loggedAt: new Date().toISOString() };
+  if(authMode === 'signin' && nickname && nickname !== acc.nickname){
+    accs[userid].nickname = nickname; saveAllAccounts(accs); currentUser.nickname = nickname;
+  }
+  localStorage.setItem('freshshare_user', JSON.stringify(currentUser));
+  if(sb){ try{ await sb.from('profiles').upsert({ userid, nickname: currentUser.nickname, neighborhood }, { onConflict: 'userid' }); }catch(e){} }
+  const listingLoc = document.getElementById('listing-location');
+  if(listingLoc) listingLoc.value = neighborhood;
+  const homeChip = document.querySelector('#screen-home .header .chip');
+  if(homeChip) homeChip.innerHTML = `📍 ${currentUser.gu} ${currentUser.dong}`;
   await refreshSharedListings();
   renderFridge();
-  showHint(`${nickname} 님 로그인 완료`);
+  showHint(`${currentUser.nickname} 님 환영합니다 (@${userid})`);
   nav('home');
 }
 
-function logout(){
-  localStorage.removeItem('freshshare_user');
-  currentUser = null;
-  nav('login');
-}
+function logout(){ localStorage.removeItem('freshshare_user'); currentUser = null; nav('login'); refreshAccountList(); }
 
 function showHint(text){
   const h = document.getElementById('hint');
-  h.textContent = text;
-  h.classList.add('show');
+  h.textContent = text; h.classList.add('show');
   clearTimeout(window._hintTimer);
-  window._hintTimer = setTimeout(()=>h.classList.remove('show'), 1500);
+  window._hintTimer = setTimeout(()=>h.classList.remove('show'), 1800);
 }
 
 function ddayBadge(item){
   const cls = item.remainingDays <= 2 ? 'badge warn' : 'badge gray';
   return `<span class="${cls}">${item.storageType} D-${item.remainingDays}</span>`;
 }
-
-function priceLabel(item){
-  return item.priceKrw ? `₩${item.priceKrw.toLocaleString('ko-KR')}` : item.tradeType;
-}
-
-function selectItem(id, target='detail'){
-  selectedItem = items.find(item => item.id === id) || selectedItem;
-  renderDetail();
-  nav(target);
-}
+function priceLabel(item){ return item.priceKrw ? `${item.priceKrw.toLocaleString('ko-KR')}원` : item.tradeType; }
+function selectItem(id, target='detail'){ selectedItem = items.find(item => item.id === id) || selectedItem; renderDetail(); nav(target); }
 
 function toListingItem(row){
   return {
-    id: row.id,
-    emoji: row.emoji || '🥬',
-    itemName: row.item_name || row.itemName,
+    id: row.id, emoji: row.emoji || '🧺', itemName: row.item_name || row.itemName,
     baseFood: row.base_food || row.baseFood || row.item_name || row.itemName,
-    category: row.category || '기타',
-    quantity: row.quantity || '',
+    category: row.category || '식품', quantity: row.quantity || '1',
     tradeType: row.trade_type || row.tradeType || '나눔',
     priceKrw: Number(row.price_krw ?? row.priceKrw ?? 0),
     storageType: row.storage_type || row.storageType || '냉장',
@@ -613,161 +591,93 @@ function toListingItem(row){
     remainingDays: Number(row.remaining_days ?? row.remainingDays ?? 3),
     expiryDate: row.expiry_date || row.expiryDate || '',
     freshnessScore: Number(row.freshness_score ?? row.freshnessScore ?? 80),
-    location: row.location || currentUser?.neighborhood || '동네',
+    location: row.location || currentUser?.neighborhood || '우리 동네',
     distanceM: Number(row.distance_m ?? row.distanceM ?? 300),
     listingAge: row.listing_age || row.listingAge || '방금 전',
     purchaseFrequency: row.purchase_frequency || row.purchaseFrequency || '주 1회',
-    preservationMethod: row.preservation_method || row.preservationMethod || '보관방법 미입력',
-    storageTips: row.storage_tips || row.storageTips || '상태 확인 후 거래',
-    expiryBasis: row.expiry_basis || row.expiryBasis || '사용자 직접 등록값',
-    sourceName: row.source_name || row.sourceName || '사용자 등록',
+    preservationMethod: row.preservation_method || row.preservationMethod || '냉장 보관',
+    storageTips: row.storage_tips || row.storageTips || '서늘하고 건조한 곳에 보관',
+    expiryBasis: row.expiry_basis || row.expiryBasis || '구매일 기준 추정',
+    sourceName: row.source_name || row.sourceName || '식약처 참고',
     sourceUrl: row.source_url || row.sourceUrl || '#',
-    aiUsage: row.ai_usage || row.aiUsage || '사용자 등록 상품으로 홈 피드와 채팅에 표시',
-    datasetFields: row.dataset_fields || row.datasetFields || '사용자 등록 데이터',
-    ownerNickname: row.owner_nickname || row.ownerNickname || userLabel()
+    aiUsage: row.ai_usage || row.aiUsage || 'OCR로 품목과 구매일을 추출',
+    datasetFields: row.dataset_fields || row.datasetFields || '품목명, 구매일, 소비기한',
+    ownerNickname: row.owner_nickname || row.ownerNickname || userLabel(),
+    ownerUserid: row.owner_userid || row.ownerUserid || ''
   };
 }
 
-function localListings(){
-  return JSON.parse(localStorage.getItem('freshshare_listings') || '[]');
-}
-
-function saveLocalListings(rows){
-  localStorage.setItem('freshshare_listings', JSON.stringify(rows));
-}
+function localListings(){ return JSON.parse(localStorage.getItem('freshshare_listings') || '[]'); }
+function saveLocalListings(rows){ localStorage.setItem('freshshare_listings', JSON.stringify(rows)); }
 
 async function refreshSharedListings(){
   let shared = [];
   if(sb){
     const { data, error } = await sb.from('listings').select('*').order('created_at', { ascending:false }).limit(30);
     if(!error && data) shared = data.map(toListingItem);
-  } else {
-    shared = localListings().map(toListingItem);
-  }
+  } else { shared = localListings().map(toListingItem); }
   items = [...shared, ...seedItems];
   selectedItem = items[0] || selectedItem;
-  renderFeed();
-  renderRegisterMapping();
-  renderDetail();
-  renderFridge();
+  renderFeed(); renderDetail(); renderFridge();
 }
 
 async function submitListing(){
-  if(!currentUser){
-    showHint('먼저 로그인해주세요');
-    nav('login');
-    return;
-  }
-  const baseFood = document.getElementById('listing-base-food').value.trim() || '식재료';
+  if(!currentUser){ showHint('먼저 로그인하세요'); nav('login'); return; }
+  const baseFood = document.getElementById('listing-base-food').value.trim() || '식품';
   const shelfLifeDays = Number(document.getElementById('listing-shelf-life').value || 7);
-  const purchaseDate = new Date().toISOString().slice(0,10);
-  const remainingDays = Math.max(1, Math.min(shelfLifeDays, 5));
-  const expiry = new Date();
-  expiry.setDate(expiry.getDate() + remainingDays);
+  const purchaseDateInput = document.getElementById('listing-purchase-date');
+  const purchaseDate = (purchaseDateInput && purchaseDateInput.value) ? purchaseDateInput.value : new Date().toISOString().slice(0,10);
+  const daysSincePurchase = Math.max(0, Math.floor((Date.now() - new Date(purchaseDate).getTime()) / (1000*60*60*24)));
+  const remainingDays = Math.max(1, shelfLifeDays - daysSincePurchase);
+  const expiry = new Date(purchaseDate); expiry.setDate(expiry.getDate() + shelfLifeDays);
   const listing = {
-    id: `user-${Date.now()}`,
-    emoji: '🥬',
+    id: `user-${Date.now()}`, emoji: '🧺',
     itemName: document.getElementById('listing-name').value.trim() || `${baseFood} 나눔`,
-    baseFood,
-    category: '사용자등록',
-    quantity: document.getElementById('listing-quantity').value.trim() || '1개',
-    tradeType: document.querySelector('#screen-register .row .chip.on')?.textContent?.replace(/[❄️🧊🌡]/g,'').trim() || '나눔',
+    baseFood, category: '식품',
+    quantity: document.getElementById('listing-quantity').value.trim() || '1',
+    tradeType: document.querySelector('#screen-register .row .chip.on')?.textContent?.trim() || '나눔',
     priceKrw: Number(document.getElementById('listing-price').value || 0),
-    storageType: '냉장',
-    purchaseDate,
-    shelfLifeDays,
-    remainingDays,
-    expiryDate: expiry.toISOString().slice(0,10),
-    freshnessScore: 82,
+    storageType: '냉장', purchaseDate, shelfLifeDays, remainingDays,
+    expiryDate: expiry.toISOString().slice(0,10), freshnessScore: 82,
     location: document.getElementById('listing-location').value.trim() || currentUser.neighborhood,
-    distanceM: 100,
-    listingAge: '방금 전',
-    purchaseFrequency: '사용자 등록',
-    preservationMethod: document.getElementById('listing-storage-method').value.trim() || '보관방법 미입력',
-    storageTips: '거래 전 실제 상태와 소비기한을 서로 확인',
-    expiryBasis: '사용자가 직접 등록한 소비기한 참고값',
-    sourceName: '사용자 등록',
-    sourceUrl: '#',
-    aiUsage: '사용자가 직접 등록한 상품을 홈 피드와 채팅에 표시',
-    datasetFields: '상품명, 기준식품, 수량, 보관방법, 소비기한, 위치',
-    ownerNickname: currentUser.nickname
+    distanceM: 100, listingAge: '방금 전', purchaseFrequency: '주 1회',
+    preservationMethod: document.getElementById('listing-storage-method').value.trim() || '냉장 보관',
+    storageTips: '서늘하고 건조한 곳에 보관', expiryBasis: '구매일 기준 추정',
+    sourceName: '사용자 등록', sourceUrl: '#', aiUsage: '사용자 직접 입력 또는 OCR 자동완성',
+    datasetFields: '품목명, 구매일, 보관방법, 소비기한', ownerNickname: currentUser.nickname, ownerUserid: currentUser.userid
   };
   if(sb){
     await sb.from('listings').insert({
-      id: listing.id,
-      owner_nickname: listing.ownerNickname,
-      item_name: listing.itemName,
-      base_food: listing.baseFood,
-      category: listing.category,
-      quantity: listing.quantity,
-      trade_type: listing.tradeType,
-      price_krw: listing.priceKrw,
-      storage_type: listing.storageType,
-      purchase_date: listing.purchaseDate,
-      shelf_life_days: listing.shelfLifeDays,
-      remaining_days: listing.remainingDays,
-      expiry_date: listing.expiryDate,
-      preservation_method: listing.preservationMethod,
-      location: listing.location
+      id: listing.id, owner_nickname: listing.ownerNickname, owner_userid: listing.ownerUserid,
+      item_name: listing.itemName, base_food: listing.baseFood, category: listing.category,
+      quantity: listing.quantity, trade_type: listing.tradeType, price_krw: listing.priceKrw,
+      storage_type: listing.storageType, purchase_date: listing.purchaseDate,
+      shelf_life_days: listing.shelfLifeDays, remaining_days: listing.remainingDays,
+      expiry_date: listing.expiryDate, preservation_method: listing.preservationMethod, location: listing.location
     });
-  } else {
-    const rows = localListings();
-    rows.unshift(listing);
-    saveLocalListings(rows);
-  }
+  } else { const rows = localListings(); rows.unshift(listing); saveLocalListings(rows); }
   await refreshSharedListings();
   selectedItem = items.find(item => item.id === listing.id) || listing;
-  showHint('상품이 등록되었습니다');
-  nav('detail');
+  showHint('등록 완료'); nav('detail');
 }
 
 function renderFeed(){
   const feed = document.getElementById('feed-list');
   if(!feed) return;
-  feed.innerHTML = items.slice(0, 4).map(item => `
+  feed.innerHTML = items.slice(0, 6).map(item => `
     <div class="card" onclick="selectItem('${item.id}')">
       <div class="row" style="gap:12px">
         <div class="thumb">${item.emoji}</div>
         <div style="flex:1">
           <div class="row" style="justify-content:space-between">
             <b style="font-size:14px">${item.itemName}</b>
-            <span class="score" style="width:48px;height:48px"><b style="font-size:14px">${item.freshnessScore}</b><span>신선</span></span>
+            <span class="score" style="width:48px;height:48px"><b style="font-size:14px">${item.freshnessScore}</b><span>신선도</span></span>
           </div>
           <div class="meta">📍 ${item.distanceM}m · ${item.location} · ${item.listingAge}${item.ownerNickname ? ' · '+item.ownerNickname : ''}</div>
-          <div style="margin-top:6px">
-            <span class="badge">${priceLabel(item)}</span>${ddayBadge(item)}<span class="badge gray">${item.category}</span>
-          </div>
-          <div class="data-note"><b>데이터</b> ${item.baseFood} · 소비기한 ${item.shelfLifeDays}일 · ${item.purchaseFrequency} 구매</div>
+          <div style="margin-top:6px"><span class="badge">${priceLabel(item)}</span>${ddayBadge(item)}<span class="badge gray">${item.category}</span></div>
         </div>
       </div>
-    </div>
-  `).join('') || '<div class="card static empty-state">표시할 데이터가 없습니다.</div>';
-}
-
-function renderRegisterMapping(){
-  const item = items.find(row => row.id === 'tomato-cherry-001') || selectedItem;
-  const result = document.getElementById('register-result');
-  const mapping = document.getElementById('dataset-mapping');
-  if(result && item){
-    result.innerHTML = `
-      <div class="row" style="gap:14px">
-        <div class="score"><b>${item.freshnessScore}</b><span>신선</span></div>
-        <div style="flex:1">
-          <div class="kv"><span>품목</span><b>${item.itemName}</b></div>
-          <div class="kv"><span>구매일</span><b>${item.purchaseDate}</b></div>
-          <div class="kv"><span>보관환경</span><b>${item.storageType}</b></div>
-          <div class="kv"><span>권장 소비기한</span><b style="color:var(--teal2)">D-${item.remainingDays} (${item.expiryDate})</b></div>
-        </div>
-      </div>
-      <div class="bar" style="margin-top:10px"><i style="width:${item.freshnessScore}%"></i></div>`;
-  }
-  if(mapping && item){
-    mapping.innerHTML = `
-      <div class="kv"><span>가져온 데이터</span><b>${item.datasetFields}</b></div>
-      <div class="kv"><span>구매빈도</span><b>${item.purchaseFrequency}</b></div>
-      <div class="kv"><span>보관방법</span><b>${item.storageType}</b></div>
-      <div class="data-note"><b>활용</b> ${item.aiUsage}</div>`;
-  }
+    </div>`).join('') || '<div class="card static empty-state">등록된 매물이 없습니다.</div>';
 }
 
 function renderDetail(){
@@ -781,93 +691,175 @@ function renderDetail(){
       <div class="row" style="justify-content:space-between">
         <div>
           <b style="font-size:16px">${selectedItem.itemName}</b>
-          <div class="meta">${selectedItem.location} · ${selectedItem.distanceM}m · ${selectedItem.listingAge}${selectedItem.ownerNickname ? ' · 등록자 '+selectedItem.ownerNickname : ''}</div>
+          <div class="meta">${selectedItem.location} · ${selectedItem.distanceM}m · ${selectedItem.listingAge}${selectedItem.ownerNickname ? ' · 판매자 '+selectedItem.ownerNickname : ''}</div>
         </div>
-        <div class="score"><b>${selectedItem.freshnessScore}</b><span>신선</span></div>
+        <div class="score"><b>${selectedItem.freshnessScore}</b><span>신선도</span></div>
       </div>
       <div class="pill-row">
-        <span class="badge">${priceLabel(selectedItem)}</span>
-        ${ddayBadge(selectedItem)}
-        <span class="badge gray">${selectedItem.category}</span>
+        <span class="badge">${priceLabel(selectedItem)}</span>${ddayBadge(selectedItem)}<span class="badge gray">${selectedItem.category}</span>
       </div>
-      <p style="font-size:12px;line-height:1.6;margin:10px 0 0">
-        데이터셋 기준으로 ${selectedItem.baseFood}의 소비기한과 보관방법을 자동 매칭했습니다. 거래 전 실제 상태와 제품 표시사항을 확인해주세요.
-      </p>`;
+      <p style="font-size:12px;line-height:1.6;margin:10px 0 0">신선한 ${selectedItem.baseFood} 나눔합니다. 필요한 이웃 분께 드려요 :)</p>`;
   }
   if(storage){
     storage.innerHTML = `
-      <div class="kv"><span>기준 품목</span><b>${selectedItem.baseFood}</b></div>
-      <div class="kv"><span>소비기한</span><b>${selectedItem.shelfLifeDays}일 · ${selectedItem.expiryDate}</b></div>
-      <div class="kv"><span>구매빈도</span><b>${selectedItem.purchaseFrequency}</b></div>
-      <div class="kv"><span>보관방법</span><b>${selectedItem.storageType}</b></div>
-      <div class="data-note"><b>보관 팁</b> ${selectedItem.preservationMethod}</div>
-      <div class="data-note"><b>주의</b> ${selectedItem.storageTips}</div>
-      <div class="data-note"><b>근거</b> ${selectedItem.expiryBasis}<br><a class="source-link" href="${selectedItem.sourceUrl}" target="_blank" rel="noreferrer">${selectedItem.sourceName}</a></div>
-    `;
+      <div class="kv"><span>기본 식품</span><b>${selectedItem.baseFood}</b></div>
+      <div class="kv"><span>소비기한</span><b>약 ${selectedItem.shelfLifeDays}일 · ${selectedItem.expiryDate}</b></div>
+      <div class="kv"><span>구매 빈도</span><b>${selectedItem.purchaseFrequency}</b></div>
+      <div class="kv"><span>보관 방식</span><b>${selectedItem.storageType}</b></div>
+      <div class="data-note"><b>보관 방법</b> ${selectedItem.preservationMethod}</div>
+      <div class="data-note"><b>팁</b> ${selectedItem.storageTips}</div>
+      <div class="data-note"><b>기준</b> ${selectedItem.expiryBasis}<br><a class="source-link" href="${selectedItem.sourceUrl}" target="_blank" rel="noreferrer">${selectedItem.sourceName}</a></div>`;
   }
 }
 
-function chatKey(){
-  return `freshshare_chat_${selectedItem?.id || 'default'}`;
+// ===== 채팅 =====
+let activeRoom = null;
+function allMessages(){ return JSON.parse(localStorage.getItem('freshshare_messages') || '[]'); }
+function saveAllMessages(arr){ localStorage.setItem('freshshare_messages', JSON.stringify(arr)); }
+function makeRoomId(listingId, a, b){ const [x, y] = [a, b].sort(); return `${listingId}::${x}::${y}`; }
+function getRoomMessages(listingId, peerUserid){
+  if(!currentUser) return [];
+  const rid = makeRoomId(listingId, currentUser.userid, peerUserid);
+  return allMessages().filter(m => m.roomId === rid).sort((a,b) => a.ts - b.ts);
 }
-
-function defaultMessages(){
-  return [
-    { sender:'you', text:`안녕하세요! ${selectedItem?.baseFood || '상품'} 아직 있나요?` },
-    { sender:'me', text:`네, 가능합니다. ${selectedItem?.storageType || '냉장'} 보관 중이고 D-${selectedItem?.remainingDays || 0}예요.` }
-  ];
-}
-
-async function loadChatMessages(){
-  if(!selectedItem) return defaultMessages();
-  if(sb){
-    const { data, error } = await sb.from('messages').select('*').eq('listing_id', selectedItem.id).order('created_at', { ascending:true }).limit(100);
-    if(!error && data && data.length){
-      return data.map(row => ({ sender: row.sender_nickname === userLabel() ? 'me' : 'you', text: row.body, nickname: row.sender_nickname }));
+function listMyRooms(){
+  if(!currentUser) return [];
+  const msgs = allMessages(); const rooms = {};
+  msgs.forEach(m => {
+    if(m.from === currentUser.userid || m.to === currentUser.userid){
+      const peer = m.from === currentUser.userid ? m.to : m.from;
+      const peerNick = m.from === currentUser.userid ? m.toNick : m.fromNick;
+      const key = `${m.listingId}::${peer}`;
+      if(!rooms[key] || rooms[key].lastTs < m.ts){
+        rooms[key] = { listingId: m.listingId, peerUserid: peer, peerNick: peerNick || peer, lastBody: m.body, lastTs: m.ts, lastFromMe: m.from === currentUser.userid, unread: 0 };
+      }
     }
+  });
+  const reads = JSON.parse(localStorage.getItem('freshshare_reads_'+currentUser.userid) || '{}');
+  Object.values(rooms).forEach(r => {
+    const rid = makeRoomId(r.listingId, currentUser.userid, r.peerUserid);
+    const lastRead = reads[rid] || 0;
+    r.unread = msgs.filter(m => m.roomId === rid && m.from !== currentUser.userid && m.ts > lastRead).length;
+  });
+  return Object.values(rooms).sort((a,b) => b.lastTs - a.lastTs);
+}
+function markRoomRead(listingId, peerUserid){
+  if(!currentUser) return;
+  const rid = makeRoomId(listingId, currentUser.userid, peerUserid);
+  const reads = JSON.parse(localStorage.getItem('freshshare_reads_'+currentUser.userid) || '{}');
+  reads[rid] = Date.now();
+  localStorage.setItem('freshshare_reads_'+currentUser.userid, JSON.stringify(reads));
+}
+function totalUnreadCount(){ return listMyRooms().reduce((sum, r) => sum + r.unread, 0); }
+function findListingById(id){ return items.find(it => it.id === id) || null; }
+
+async function refreshChatList(showHintFlag){
+  if(!currentUser){
+    document.getElementById('chat-rooms').innerHTML = '<div class="card static empty-state">로그인이 필요합니다</div>';
+    document.getElementById('chat-new-targets').innerHTML = ''; return;
   }
-  return JSON.parse(localStorage.getItem(chatKey()) || 'null') || defaultMessages();
+  if(sb){
+    try{
+      const { data } = await sb.from('messages').select('*').or(`from_userid.eq.${currentUser.userid},to_userid.eq.${currentUser.userid}`).order('ts', { ascending:true }).limit(500);
+      if(data){
+        const cached = allMessages(); const known = new Set(cached.map(m => m.id)); let added = 0;
+        data.forEach(row => {
+          if(!known.has(row.id)){
+            cached.push({ id: row.id, roomId: makeRoomId(row.listing_id, row.from_userid, row.to_userid), listingId: row.listing_id, from: row.from_userid, fromNick: row.from_nick, to: row.to_userid, toNick: row.to_nick, body: row.body, ts: row.ts });
+            added++;
+          }
+        });
+        if(added) saveAllMessages(cached);
+      }
+    }catch(e){}
+  }
+  renderChatRooms(); renderNewChatTargets();
+  if(showHintFlag) showHint(`안 읽은 메시지 ${totalUnreadCount()}개`);
 }
 
-async function renderChat(){
-  const summary = document.getElementById('chat-item-summary');
-  const box = document.getElementById('chat-messages');
-  if(summary && selectedItem){
-    summary.textContent = `${selectedItem.emoji} ${selectedItem.itemName} · ${selectedItem.tradeType} · ${selectedItem.location} · D-${selectedItem.remainingDays}`;
-  }
+function renderChatRooms(){
+  const box = document.getElementById('chat-rooms');
   if(!box) return;
-  const messages = await loadChatMessages();
-  box.innerHTML = messages.map(msg => `<div class="bubble ${msg.sender === 'me' ? 'me' : 'you'}">${msg.nickname ? `<b>${msg.nickname}</b><br>` : ''}${msg.text}</div>`).join('');
+  const rooms = listMyRooms();
+  if(!rooms.length){ box.innerHTML = '<div class="card static empty-state">진행 중인 채팅이 없습니다.<br>아래에서 새 채팅을 시작하세요.</div>'; return; }
+  box.innerHTML = rooms.map(r => {
+    const listing = findListingById(r.listingId) || { emoji:'🧺', itemName:'(삭제된 매물)' };
+    const timeStr = new Date(r.lastTs).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const preview = (r.lastFromMe ? '나: ' : '') + (r.lastBody.length > 24 ? r.lastBody.slice(0,24)+'…' : r.lastBody);
+    const unreadBadge = r.unread > 0 ? `<span class="badge danger" style="margin-left:6px">${r.unread}</span>` : '';
+    return `<div class="card" onclick="enterChatRoom('${r.listingId}', '${r.peerUserid}', '${(r.peerNick||'').replace(/'/g,"\\'")}')">
+        <div class="row" style="gap:10px">
+          <div class="thumb" style="width:42px;height:42px;font-size:18px">${listing.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div class="row" style="justify-content:space-between"><b style="font-size:12px">@${r.peerUserid} (${r.peerNick||'?'})${unreadBadge}</b><span class="meta" style="font-size:10px">${timeStr}</span></div>
+            <div class="meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${listing.itemName} · ${preview}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderNewChatTargets(){
+  const box = document.getElementById('chat-new-targets');
+  if(!box) return;
+  const others = items.filter(it => it.ownerUserid && it.ownerUserid !== currentUser.userid).slice(0, 8);
+  if(!others.length){ box.innerHTML = '<div class="meta" style="padding:8px">대화 가능한 매물이 없습니다. 다른 사용자가 등록하면 표시됩니다.</div>'; return; }
+  box.innerHTML = others.map(it => `
+    <div class="card" onclick="enterChatRoom('${it.id}', '${it.ownerUserid}', '${(it.ownerNickname||'').replace(/'/g,"\\'")}')">
+      <div class="row" style="gap:10px">
+        <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
+        <div style="flex:1"><b style="font-size:12px">${it.itemName}</b><div class="meta">@${it.ownerUserid} (${it.ownerNickname||'?'}) · ${it.location||''}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function enterChatRoom(listingId, peerUserid, peerNick){
+  if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; }
+  if(peerUserid === currentUser.userid){ showHint('내 매물에는 채팅할 수 없습니다'); return; }
+  const listing = findListingById(listingId);
+  activeRoom = { listingId, peerUserid, peerNick, listing };
+  selectedItem = listing || selectedItem;
+  document.getElementById('chat-list-view').style.display = 'none';
+  document.getElementById('chat-room-view').style.display = 'flex';
+  document.getElementById('chat-title').textContent = `@${peerUserid} (${peerNick||'?'})`;
+  const sum = document.getElementById('chat-item-summary');
+  sum.textContent = listing ? `${listing.emoji} ${listing.itemName} · ${listing.tradeType||''} · ${listing.location||''}` : `(삭제된 매물) 대화 이력`;
+  renderChatMessages(); markRoomRead(listingId, peerUserid);
+}
+function exitChatRoom(){
+  activeRoom = null;
+  document.getElementById('chat-list-view').style.display = 'block';
+  document.getElementById('chat-room-view').style.display = 'none';
+  document.getElementById('chat-title').textContent = '채팅';
+  refreshChatList(false);
+}
+function renderChatMessages(){
+  const box = document.getElementById('chat-messages');
+  if(!box || !activeRoom) return;
+  const msgs = getRoomMessages(activeRoom.listingId, activeRoom.peerUserid);
+  if(!msgs.length){ box.innerHTML = `<div class="empty-state">아직 메시지가 없습니다.<br>먼저 인사를 건네보세요!</div>`; return; }
+  box.innerHTML = msgs.map(m => {
+    const mine = m.from === currentUser.userid;
+    const time = new Date(m.ts).toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
+    return `<div class="bubble ${mine ? 'me' : 'you'}">${!mine ? `<b style="font-size:10px;opacity:.7">${m.fromNick||m.from}</b><br>` : ''}${escapeHTML(m.body)}<div style="font-size:9px;opacity:.6;text-align:${mine?'left':'right'};margin-top:2px">${time}</div></div>`;
+  }).join('');
   box.scrollTop = box.scrollHeight;
 }
-
+function escapeHTML(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 async function sendChatMessage(){
-  if(!currentUser){
-    showHint('채팅하려면 로그인해주세요');
-    nav('login');
-    return;
-  }
+  if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; }
+  if(!activeRoom){ showHint('채팅방을 먼저 선택하세요'); return; }
   const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if(!text) return;
-  input.value = '';
-  const messages = await loadChatMessages();
-  const next = [...messages, { sender:'me', text, nickname: currentUser.nickname }];
-  const autoReply = {
-    sender:'you',
-    text:`확인했어요. ${selectedItem?.baseFood || '상품'}은 ${selectedItem?.preservationMethod || '보관방법 확인'} 상태로 전달할게요.`,
-    nickname:selectedItem?.ownerNickname || 'freshneighbor'
-  };
-  next.push(autoReply);
-  if(sb){
-    await sb.from('messages').insert([
-      { listing_id:selectedItem.id, sender_nickname:currentUser.nickname, body:text },
-      { listing_id:selectedItem.id, sender_nickname:autoReply.nickname, body:autoReply.text }
-    ]);
-  } else {
-    localStorage.setItem(chatKey(), JSON.stringify(next));
-  }
-  renderChat();
+  const text = (input.value || '').trim();
+  if(!text) return; input.value = '';
+  const msg = { id: 'm-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), roomId: makeRoomId(activeRoom.listingId, currentUser.userid, activeRoom.peerUserid), listingId: activeRoom.listingId, from: currentUser.userid, fromNick: currentUser.nickname, to: activeRoom.peerUserid, toNick: activeRoom.peerNick, body: text, ts: Date.now() };
+  const all = allMessages(); all.push(msg); saveAllMessages(all);
+  if(sb){ try{ await sb.from('messages').insert({ id: msg.id, listing_id: msg.listingId, from_userid: msg.from, from_nick: msg.fromNick, to_userid: msg.to, to_nick: msg.toNick, body: msg.body, ts: msg.ts }); }catch(e){} }
+  renderChatMessages(); markRoomRead(activeRoom.listingId, activeRoom.peerUserid);
+}
+async function renderChat(){
+  if(!activeRoom){ document.getElementById('chat-list-view').style.display = 'block'; document.getElementById('chat-room-view').style.display = 'none'; }
+  await refreshChatList(false);
 }
 
 function renderFridge(){
@@ -876,70 +868,213 @@ function renderFridge(){
   const profileName = document.getElementById('profile-name');
   const profileMeta = document.getElementById('profile-meta');
   if(profileName) profileName.textContent = `${userLabel()} 님`;
-  if(profileMeta) profileMeta.textContent = `${currentUser?.neighborhood || '동네 미입력'} · 로그인 사용자`;
-  if(label) label.textContent = `🥬 내 냉장고 (${items.length}개)`;
+  if(profileMeta) profileMeta.textContent = `${currentUser?.neighborhood || '우리 동네'} · 활동 중`;
+  if(label) label.textContent = `우리 동네 냉장고 (${items.length})`;
   if(!fridge) return;
   fridge.innerHTML = items.map(item => {
     const badge = item.remainingDays <= 2 ? 'badge danger' : item.remainingDays <= 5 ? 'badge warn' : 'badge';
-    return `
-      <div class="card" onclick="selectItem('${item.id}')">
+    return `<div class="card" onclick="selectItem('${item.id}')">
         <div class="row" style="gap:10px">
           <div class="thumb" style="width:48px;height:48px;font-size:20px">${item.emoji}</div>
-          <div style="flex:1">
-            <b style="font-size:12px">${item.itemName}</b>
-            <div class="meta">${item.purchaseDate} 구매 · ${item.storageType} · ${item.purchaseFrequency}</div>
-          </div>
+          <div style="flex:1"><b style="font-size:12px">${item.itemName}</b><div class="meta">${item.purchaseDate} 구매 · ${item.storageType} · ${item.purchaseFrequency}</div></div>
           <span class="${badge}">D-${item.remainingDays}</span>
         </div>
       </div>`;
-  }).join('');
+  }).join('') || '<div class="card static empty-state">등록된 식재료가 없습니다.</div>';
 }
+
+// ===== 백엔드 Donut OCR 연동 =====
+let _uploadedImageFile = null;
+let _ocrLastResults = [];
+
+function handlePhotoUpload(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  _uploadedImageFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = document.getElementById('photo-preview');
+    if(img){ img.src = e.target.result; img.style.display = 'block'; }
+    const ph = document.getElementById('photo-placeholder');
+    if(ph) ph.style.display = 'none';
+    const reBtn = document.getElementById('btn-reanalyze');
+    if(reBtn) reBtn.disabled = false;
+    showHint('사진 업로드 완료. AI로 분석 버튼을 눌러주세요');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function runAIRecognition(){
+  if(!_uploadedImageFile){ showHint('먼저 사진을 업로드하세요'); return; }
+  const backendUrl = (window.FRESHSHARE_CONFIG || {}).backendUrl;
+  if(!backendUrl){ showHint('config.js에 backendUrl(ngrok 주소)을 설정하세요'); return; }
+  const statusCard = document.getElementById('ai-status-card');
+  const statusText = document.getElementById('ai-status-text');
+  const bar = document.getElementById('ai-progress-bar');
+  if(statusCard) statusCard.style.display = 'block';
+  if(statusText) statusText.textContent = '백엔드 Donut 모델로 분석 중...';
+  if(bar) bar.style.width = '40%';
+  try{
+    const form = new FormData();
+    form.append('file', _uploadedImageFile);
+    const resp = await fetch(backendUrl.replace(/\/$/, '') + '/ocr', { method: 'POST', body: form });
+    if(!resp.ok) throw new Error('서버 응답 오류 ' + resp.status);
+    const data = await resp.json();
+    if(bar) bar.style.width = '100%';
+    const results = (data.items || []).map(it => ({ name: it.name, priceKrw: it.priceKrw || 0, emoji: '🧾' }));
+    _ocrLastResults = results;
+    const box = document.getElementById('ai-results');
+    const label = document.getElementById('ai-result-label');
+    const empty = document.getElementById('ai-empty');
+    if(empty) empty.style.display = 'none';
+    if(label) label.style.display = 'block';
+    if(box){
+      box.innerHTML = results.length
+        ? results.map(it=>`<div class="card static"><div class="row" style="gap:10px;align-items:center">
+            <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
+            <div style="flex:1"><b style="font-size:13px">${escapeHTML(it.name)}</b>
+              <div class="meta">${it.priceKrw ? it.priceKrw.toLocaleString('ko-KR')+'원' : '가격 미인식'}</div></div></div></div>`).join('')
+        : '<div class="card static empty-state">인식된 품목이 없습니다. 다시 촬영해 주세요.</div>';
+    }
+    const confirmBtn = document.getElementById('btn-confirm-ai');
+    if(confirmBtn) confirmBtn.disabled = results.length === 0;
+    if(statusText) statusText.textContent = `분석 완료: 품목 ${results.length}개 인식`;
+    showHint(`Donut 분석 완료: ${results.length}개 품목`);
+  }catch(e){
+    console.error(e);
+    if(statusText) statusText.textContent = '백엔드 연결 실패: config.js의 backendUrl과 ngrok 실행 상태를 확인하세요';
+    if(bar) bar.style.width = '0%';
+    showHint('백엔드 연결 실패');
+  }
+}
+
+function confirmAIResult(){
+  if(_ocrLastResults && _ocrLastResults.length){
+    const first = _ocrLastResults[0];
+    const nameInput = document.getElementById('listing-name');
+    const baseInput = document.getElementById('listing-base-food');
+    const priceInput = document.getElementById('listing-price');
+    if(nameInput) nameInput.value = first.name;
+    if(baseInput) baseInput.value = first.name;
+    if(priceInput && first.priceKrw) priceInput.value = first.priceKrw;
+  }
+  showHint('등록 화면에 자동 입력했습니다');
+  nav('register');
+}
+
+// ===== 서울 자치구/동 =====
+const SEOUL_DISTRICTS = {
+  '강남구':['역삼1동','역삼2동','삼성1동','삼성2동','대치1동','대치2동','대치4동','청담동','논현1동','논현2동','신사동','압구정동','세곡동','일원본동','수서동','개포1동','개포2동','도곡1동','도곡2동'],
+  '강동구':['천호1동','천호2동','천호3동','성내1동','성내2동','성내3동','길동','둔촌1동','둔촌2동','암사1동','암사2동','암사3동','명일1동','명일2동','고덕1동','고덕2동','상일동','강일동'],
+  '강북구':['미아동','번1동','번2동','번3동','수유1동','수유2동','수유3동','우이동','인수동','삼각산동','송중동','송천동'],
+  '강서구':['화곡1동','화곡2동','화곡3동','화곡본동','등촌1동','등촌2동','등촌3동','가양1동','가양2동','발산1동','우장산동','공항동','방화1동','방화2동'],
+  '관악구':['보라매동','은천동','성현동','중앙동','청림동','행운동','낙성대동','청룡동','신림동','난향동','조원동','대학동','삼성동','미성동','난곡동'],
+  '광진구':['중곡1동','중곡2동','중곡3동','중곡4동','능동','구의1동','구의2동','구의3동','광장동','자양1동','자양2동','자양3동','자양4동','화양동','군자동'],
+  '구로구':['신도림동','구로1동','구로2동','구로3동','구로4동','구로5동','가리봉동','고척1동','고척2동','개봉1동','개봉2동','개봉3동','오류1동','오류2동','수궁동','항동'],
+  '금천구':['가산동','독산1동','독산2동','독산3동','독산4동','시흥1동','시흥2동','시흥3동','시흥4동','시흥5동'],
+  '노원구':['월계1동','월계2동','월계3동','공릉1동','공릉2동','하계1동','하계2동','중계본동','중계1동','중계4동','중계2·3동','상계1동','상계2동','상계3·4동','상계5동','상계6·7동','상계8동','상계9동','상계10동'],
+  '도봉구':['쌍문1동','쌍문2동','쌍문3동','쌍문4동','방학1동','방학2동','방학3동','창1동','창2동','창3동','창4동','창5동','도봉1동','도봉2동'],
+  '동대문구':['용신동','제기동','전농1동','전농2동','답십리1동','답십리2동','장안1동','장안2동','청량리동','회기동','휘경1동','휘경2동','이문1동','이문2동'],
+  '동작구':['노량진1동','노량진2동','상도1동','상도2동','상도3동','상도4동','흑석동','사당1동','사당2동','사당3동','사당4동','대방동','신대방1동','신대방2동'],
+  '마포구':['공덕동','아현동','도화동','용강동','대흥동','염리동','신수동','서강동','서교동','합정동','망원1동','망원2동','연남동','성산1동','성산2동','상암동'],
+  '서대문구':['충현동','천연동','북아현동','신촌동','연희동','홍제1동','홍제2동','홍제3동','홍은1동','홍은2동','남가좌1동','남가좌2동','북가좌1동','북가좌2동'],
+  '서초구':['서초1동','서초2동','서초3동','서초4동','잠원동','반포본동','반포1동','반포2동','반포3동','반포4동','방배본동','방배1동','방배2동','방배3동','방배4동','양재1동','양재2동','내곡동'],
+  '성동구':['왕십리도선동','왕십리2동','마장동','사근동','행당1동','행당2동','응봉동','금호1가동','금호2·3가동','금호4가동','옥수동','성수1가1동','성수1가2동','성수2가1동','성수2가3동','송정동','용답동'],
+  '성북구':['성북동','삼선동','동선동','돈암1동','돈암2동','안암동','보문동','정릉1동','정릉2동','정릉3동','정릉4동','길음1동','길음2동','종암동','월곡1동','월곡2동','장위1동','장위2동','장위3동','석관동'],
+  '송파구':['풍납1동','풍납2동','거여1동','거여2동','마천1동','마천2동','방이1동','방이2동','오금동','송파1동','송파2동','석촌동','삼전동','가락1동','가락2동','문정1동','문정2동','장지동','위례동','잠실본동','잠실2동','잠실3동','잠실4동','잠실6동','잠실7동'],
+  '양천구':['목1동','목2동','목3동','목4동','목5동','신월1동','신월2동','신월3동','신월4동','신월5동','신월6동','신월7동','신정1동','신정2동','신정3동','신정4동','신정6동','신정7동'],
+  '영등포구':['영등포본동','영등포동','여의동','당산1동','당산2동','도림동','문래동','양평1동','양평2동','신길1동','신길3동','신길4동','신길5동','신길6동','신길7동','대림1동','대림2동','대림3동'],
+  '용산구':['후암동','용산2가동','남영동','청파동','원효로1동','원효로2동','효창동','용문동','한강로동','이촌1동','이촌2동','이태원1동','이태원2동','한남동','서빙고동','보광동'],
+  '은평구':['녹번동','불광1동','불광2동','갈현1동','갈현2동','구산동','대조동','응암1동','응암2동','응암3동','역촌동','신사1동','신사2동','증산동','수색동','진관동'],
+  '종로구':['청운효자동','사직동','삼청동','부암동','평창동','무악동','교남동','가회동','종로1·2·3·4가동','종로5·6가동','이화동','혜화동','창신1동','창신2동','창신3동','숭인1동','숭인2동'],
+  '중구':['소공동','회현동','명동','필동','장충동','광희동','을지로동','신당동','다산동','약수동','청구동','신당5동','동화동','황학동','중림동'],
+  '중랑구':['면목본동','면목2동','면목4동','면목5동','면목7동','면목3·8동','상봉1동','상봉2동','중화1동','중화2동','묵1동','묵2동','망우본동','망우3동','신내1동','신내2동']
+};
+
+function populateGuOptions(){
+  const sel = document.getElementById('login-gu');
+  if(!sel) return;
+  const keys = Object.keys(SEOUL_DISTRICTS).sort((a,b)=>a.localeCompare(b,'ko'));
+  sel.innerHTML = '<option value="">자치구 선택</option>' + keys.map(g => `<option value="${g}">${g}</option>`).join('');
+}
+function updateDongOptions(){
+  const gu = document.getElementById('login-gu').value;
+  const sel = document.getElementById('login-dong');
+  if(!sel) return;
+  if(!gu){ sel.innerHTML = '<option value="">먼저 자치구를 선택하세요</option>'; return; }
+  const dongs = [...new Set(SEOUL_DISTRICTS[gu] || [])].sort((a,b)=>a.localeCompare(b,'ko'));
+  sel.innerHTML = '<option value="">동 선택</option>' + dongs.map(d => `<option value="${d}">${d}</option>`).join('');
+}
+
+async function detectLocation(){
+  const status = document.getElementById('geo-status');
+  if(!navigator.geolocation){ status.textContent = '이 브라우저는 위치 감지를 지원하지 않습니다.'; return; }
+  status.textContent = '위치를 확인하는 중...';
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const { latitude, longitude } = pos.coords;
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ko`;
+      const resp = await fetch(url, { headers: { 'Accept':'application/json' }});
+      const data = await resp.json();
+      const addr = data.address || {};
+      let gu = addr.borough || addr.city_district || addr.county || '';
+      let dong = addr.quarter || addr.neighbourhood || addr.suburb || '';
+      const matchGu = Object.keys(SEOUL_DISTRICTS).find(g => gu && gu.includes(g));
+      if(matchGu){
+        document.getElementById('login-gu').value = matchGu;
+        updateDongOptions();
+        if(dong){
+          const dongClean = dong.replace(/\s+/g,'');
+          const matchDong = SEOUL_DISTRICTS[matchGu].find(d => d.includes(dongClean) || dongClean.includes(d.replace(/[0-9]/g,'')));
+          if(matchDong){ document.getElementById('login-dong').value = matchDong; status.innerHTML = `감지된 위치: <b>${matchGu} ${matchDong}</b>`; }
+          else { status.innerHTML = `자치구 감지: <b>${matchGu}</b> (동은 직접 선택)`; }
+        } else { status.innerHTML = `자치구 감지: <b>${matchGu}</b>`; }
+      } else { status.innerHTML = `서울 외 지역이거나 인식 실패 (${gu||'알 수 없음'}). 직접 선택하세요.`; }
+    } catch(e){ status.textContent = '위치 변환 실패. 직접 선택하세요.'; }
+  }, () => { status.textContent = '위치 권한이 거부되었습니다.'; }, { enableHighAccuracy:false, timeout:8000, maximumAge:60000 });
+}
+
+// chips/tabs toggle
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    if((chip.parentElement.classList.contains('row') || chip.parentElement.classList.contains('pill-row')) && !chip.onclick){
+      Array.from(chip.parentElement.querySelectorAll('.chip')).forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+    }
+  });
+});
+document.querySelectorAll('.tabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if(!tab.onclick){ Array.from(tab.parentElement.querySelectorAll('.tab')).forEach(t => t.classList.remove('on')); tab.classList.add('on'); }
+  });
+});
 
 function bootDataset(){
   const mode = document.getElementById('storage-mode');
-  if(mode) mode.textContent = sb ? 'Supabase 온라인 공유' : '브라우저 저장 데모';
+  if(mode) mode.textContent = sb ? 'Supabase 연결됨' : '이 브라우저 저장';
+  populateGuOptions();
   if(currentUser){
     document.getElementById('login-nickname').value = currentUser.nickname;
+    if(currentUser.gu){ document.getElementById('login-gu').value = currentUser.gu; updateDongOptions(); if(currentUser.dong) document.getElementById('login-dong').value = currentUser.dong; }
     document.getElementById('login-neighborhood').value = currentUser.neighborhood;
-    document.getElementById('listing-location').value = currentUser.neighborhood;
+    const listingLoc = document.getElementById('listing-location');
+    if(listingLoc) listingLoc.value = currentUser.neighborhood;
+    const homeChip = document.querySelector('#screen-home .header .chip');
+    if(homeChip && currentUser.gu && currentUser.dong) homeChip.innerHTML = `📍 ${currentUser.gu} ${currentUser.dong}`;
   }
   refreshSharedListings();
-  renderFeed();
-  renderRegisterMapping();
-  renderDetail();
-  renderFridge();
-  renderChat();
-  if(items.length) showHint(`데이터셋 ${items.length}건 연결 완료`);
+  renderFeed(); renderDetail(); renderFridge(); renderChat();
+  if(items.length) showHint(`매물 ${items.length}개 불러옴`);
+  const pd = document.getElementById('listing-purchase-date');
+  if(pd && !pd.value) pd.value = new Date().toISOString().slice(0,10);
+  refreshAccountList();
+  setInterval(() => {
+    if(currentUser && document.getElementById('screen-chat')?.classList.contains('active') && !activeRoom){ refreshChatList(false); }
+    else if(currentUser && activeRoom && document.getElementById('screen-chat')?.classList.contains('active')){ renderChatMessages(); }
+  }, 5000);
   if(currentUser) nav('home');
 }
 
-// chips toggle within same row
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', e => {
-    if(chip.parentElement.classList.contains('row') ||
-       chip.parentElement.classList.contains('pill-row')){
-      // Only toggle if not a nav chip
-      if(!chip.onclick) {
-        Array.from(chip.parentElement.querySelectorAll('.chip'))
-             .forEach(c => c.classList.remove('on'));
-        chip.classList.add('on');
-      }
-    }
-  });
-});
-
-// Tabs in register page
-document.querySelectorAll('.tabs .tab').forEach(tab => {
-  tab.addEventListener('click', e => {
-    if(!tab.onclick){
-      Array.from(tab.parentElement.querySelectorAll('.tab')).forEach(t => t.classList.remove('on'));
-      tab.classList.add('on');
-    }
-  });
-});
-
 bootDataset();
 </script>
-
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body></html>
