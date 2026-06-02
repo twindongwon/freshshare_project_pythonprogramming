@@ -61,19 +61,29 @@ def run_donut(image: Image.Image) -> dict:
 def to_freshshare(parsed: dict) -> dict:
     """Donut 결과(CORD 포맷)를 프론트가 쓰기 쉬운 형태로 변환"""
     items = []
-    menu = parsed.get("menu", [])
+    # parsed 자체가 리스트로 올 때 대비
+    if isinstance(parsed, list):
+        parsed = {"menu": parsed}
+
+    menu = parsed.get("menu", []) if isinstance(parsed, dict) else []
     if isinstance(menu, dict):
         menu = [menu]
     for m in menu:
+        if not isinstance(m, dict):
+            continue
         name = m.get("nm", "")
         price = m.get("price", "")
         price_num = int(re.sub(r"[^0-9]", "", str(price)) or 0)
         items.append({"name": name, "priceKrw": price_num})
 
-    total = parsed.get("total", {})
+    total = parsed.get("total", {}) if isinstance(parsed, dict) else {}
     total_price = ""
     if isinstance(total, dict):
         total_price = total.get("total_price", "")
+    elif isinstance(total, list) and total:
+        first = total[0]
+        if isinstance(first, dict):
+            total_price = first.get("total_price", "")
 
     return {
         "items": items,
