@@ -4,5 +4,5 @@ window.FRESHSHARE_CONFIG = {
   supabaseAnonKey: "",
   // 데탑에서 ngrok으로 띄운 백엔드 주소. 켤 때마다 바뀌면 여기만 교체하세요.
   // 예: "https://abcd-1234.ngrok-free.app"
-  backendUrl: "https://3e69-61-72-65-110.ngrok-free.app"
+  backendUrl: "https://uncured-subangular-journey.ngrok-free.dev"
 };
