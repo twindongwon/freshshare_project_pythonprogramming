@@ -1,0 +1,7 @@
+node_modules/
+freshshare_extracted_context.json
+*.tmp
+*.log
+outputs/freshshare_mapping/*.png
+private_data/*.local.json
+private_data/*_real.json

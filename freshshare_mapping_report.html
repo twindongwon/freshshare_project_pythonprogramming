@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FreshShare 교재·프로토타입·데이터 매핑</title>
+  <style>
+    :root{--ink:#172033;--muted:#667085;--line:#d9e2ec;--green:#0f766e;--blue:#2563eb;--soft:#f5fbf9;--warn:#f59e0b}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Pretendard,"Noto Sans KR",system-ui,sans-serif;color:var(--ink);background:#f8fafc;line-height:1.55}
+    header{background:var(--green);color:white;padding:28px 32px}
+    header h1{margin:0;font-size:26px}
+    header p{margin:8px 0 0;color:#dff7ef}
+    main{max-width:1180px;margin:0 auto;padding:24px}
+    section{background:white;border:1px solid var(--line);border-radius:12px;margin-bottom:18px;padding:20px}
+    h2{font-size:18px;margin:0 0 12px;color:var(--green)}
+    table{width:100%;border-collapse:collapse;font-size:13px;background:white}
+    th,td{border:1px solid var(--line);padding:10px;vertical-align:top}
+    th{background:#ecfdf5;color:#064e3b}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .kpi{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:14px}
+    .kpi b{font-size:24px;color:var(--green)}
+    .tag{display:inline-block;border-radius:999px;background:#eef2ff;color:#1d4ed8;padding:3px 8px;font-size:11px;margin:2px}
+    .warn{background:#fffbeb;color:#92400e}
+    .source{font-size:12px;color:var(--muted)}
+    a{color:var(--blue)}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FreshShare 교재·프로토타입·데이터 매핑 보고서</h1>
+    <p>강의교재 PDF와 freshshare_interactive.html을 연결하고, GitHub 업로드용 데이터셋 구조까지 유지하는 HTML 산출물입니다.</p>
+  </header>
+  <main>
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="kpi"><span>교재 매핑 챕터</span><br><b>9+</b><div>데이터 기획, PRD, UI/UX, MCP</div></div>
+        <div class="kpi"><span>프로토타입 화면</span><br><b>7</b><div>홈·탐색·등록·카메라·상세·채팅·MY</div></div>
+        <div class="kpi"><span>연결 데이터</span><br><b id="item-count">0</b><div>품목별 소비기한·보관방법</div></div>
+        <div class="kpi"><span>GitHub 데이터 파일</span><br><b>2</b><div>JSON + CSV</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>강의교재 ↔ FreshShare 적용 매핑</h2>
+      <table>
+        <thead>
+          <tr><th>교재 위치</th><th>강의 핵심</th><th>FreshShare 적용</th><th>결과 파일/화면</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ch.3~5</td><td>실제 데이터셋 기반 서비스 기획</td><td>AIHub OCR/음식이미지, 식약처 소비기한, 품목별 보관방법을 기능에 연결</td><td>data/freshshare_items.json, 등록 화면</td></tr>
+          <tr><td>Ch.6~10</td><td>문제 정의와 PRD 작성</td><td>1인 가구가 남는 식재료를 제때 소비·공유하지 못하는 문제를 OCR/D-day/거래 추천으로 해결</td><td>엑셀 PRD/데이터 매핑 탭</td></tr>
+          <tr><td>Ch.18~21</td><td>모바일 UI 구조와 사용자 흐름</td><td>홈 → 상세 → 채팅, 등록 → 데이터 매핑 → 상세, MY → 냉장고 D-day 흐름</td><td>freshshare_interactive.html</td></tr>
+          <tr><td>Ch.25~29</td><td>Claude MCP, File System, Context7, GitHub 연결</td><td>프로젝트 폴더를 File System MCP로 제한 연결하고, data 폴더를 GitHub에 올릴 데이터셋으로 관리</td><td>data/, GitHub 저장소 구조</td></tr>
+          <tr><td>Ch.30~31</td><td>챗봇 역할과 시나리오</td><td>거래 채팅에서 보관방법, 안전거래 장소, 소비기한 확인 문구 제공</td><td>채팅 화면</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>품목별 데이터셋 미리보기</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>품목</th><th>소비기한</th><th>보관 방법</th><th>구매빈도</th><th>HTML 활용</th><th>출처</th>
+          </tr>
+        </thead>
+        <tbody id="dataset-body">
+          <tr><td colspan="6">data/freshshare_items.js를 불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>GitHub에 올릴 구조</h2>
+      <table>
+        <thead><tr><th>경로</th><th>역할</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>freshshare_interactive.html</td><td>프로토타입</td><td>data/freshshare_items.js를 읽어서 홈·상세·등록·MY 화면을 렌더링</td></tr>
+          <tr><td>data/freshshare_items.json</td><td>원본 데이터셋</td><td>품목별 소비기한, 보관방법, 구매빈도, 출처 URL 포함</td></tr>
+          <tr><td>data/freshshare_items.csv</td><td>엑셀/발표용 데이터</td><td>동일 데이터를 표 형태로 확인 가능</td></tr>
+          <tr><td>freshshare_mapping_report.html</td><td>제출 설명서</td><td>PDF 교재와 HTML 프로토타입 매핑을 별도 HTML로 유지</td></tr>
+        </tbody>
+      </table>
+      <p class="source">참고: 제품별 실제 소비기한은 제품 표시사항을 우선하고, 여기의 일수는 MVP 자동 추천을 위한 참고값입니다.</p>
+    </section>
+  </main>
+  <script src="data/freshshare_items.js"></script>
+  <script>
+    const rows = window.FRESHSHARE_ITEMS || [];
+    document.getElementById('item-count').textContent = rows.length;
+    document.getElementById('dataset-body').innerHTML = rows.map(item => `
+      <tr>
+        <td>${item.emoji} <b>${item.itemName}</b><br><span class="tag">${item.category}</span><span class="tag">${item.storageType}</span></td>
+        <td>${item.shelfLifeDays}일<br>D-${item.remainingDays}<br>${item.expiryDate}</td>
+        <td>${item.preservationMethod}<br><span class="source">${item.storageTips}</span></td>
+        <td>${item.purchaseFrequency}</td>
+        <td>${item.aiUsage}</td>
+        <td><a href="${item.sourceUrl}" target="_blank" rel="noreferrer">${item.sourceName}</a><br><span class="source">${item.expiryBasis}</span></td>
+      </tr>
+    `).join('');
+  </script>
+</body>
+</html>

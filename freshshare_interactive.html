@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"/>
+<title>FreshShare Interactive Prototype</title>
+<style>
+:root{
+  --bg:#EFE9DC; --surface:#F5F0E3; --raised:#FBF7EA; --inset:#E6DFCF;
+  --ink:#1F3D3A; --teal:#0E5C58; --teal2:#0B8B7A; --muted:#8A8676;
+  --danger:#C0392B; --warn:#D9A441;
+  --r:14px; --r-lg:20px;
+  --shadow-out:8px 8px 18px #d9d2c0, -6px -6px 14px #fdf7e6;
+  --shadow-in:inset 6px 6px 12px #d9d2c0, inset -6px -6px 12px #fdf7e6;
+  --shadow-press:inset 4px 4px 8px #c8c1ae, inset -3px -3px 8px #fff8e3;
+}
+*{box-sizing:border-box;font-family:'Pretendard','Noto Sans KR',system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);padding:24px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+
+/* Top guide bar */
+.guide{max-width:900px;width:100%;margin-bottom:24px;background:var(--raised);border-radius:var(--r-lg);box-shadow:var(--shadow-out);padding:18px 22px}
+.guide h1{margin:0 0 6px;font-size:18px;color:var(--teal)}
+.guide p{margin:0;font-size:12px;color:var(--muted);line-height:1.6}
+.guide .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.guide .legend span{font-size:11px;background:var(--inset);border-radius:8px;padding:5px 10px;box-shadow:var(--shadow-in)}
+
+/* Phone container */
+.phone-stage{position:relative;width:380px;height:780px}
+.phone{position:absolute;inset:0;width:380px;background:var(--surface);border-radius:36px;padding:18px;box-shadow:var(--shadow-out);min-height:760px;display:none;flex-direction:column;overflow-y:auto}
+.phone.active{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.status{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:4px 8px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 14px}
+.header h2{margin:0;font-size:18px;letter-spacing:.3px}
+.back{cursor:pointer;font-size:18px;background:var(--raised);box-shadow:var(--shadow-out);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.back:active{box-shadow:var(--shadow-press)}
+
+.title-sm{font-size:11px;color:var(--muted);letter-spacing:2px;margin:18px 4px 8px}
+.card{background:var(--raised);border-radius:var(--r-lg);box-shadow:var(--shadow-out);padding:14px;margin-bottom:12px;cursor:pointer;transition:transform .12s}
+.card:hover{transform:translateY(-2px)}
+.card:active{box-shadow:var(--shadow-press)}
+.card.static{cursor:default}
+.card.static:hover{transform:none}
+.inset{background:var(--inset);border-radius:var(--r);box-shadow:var(--shadow-in);padding:10px 12px}
+.row{display:flex;gap:8px;align-items:center}
+.btn{background:var(--teal);color:#fff;border:none;padding:10px 16px;border-radius:14px;font-weight:600;box-shadow:var(--shadow-out);cursor:pointer;font-size:13px}
+.btn:active{box-shadow:var(--shadow-press)}
+.btn.ghost{background:var(--raised);color:var(--ink);box-shadow:var(--shadow-out)}
+.btn.block{width:100%}
+.chip{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--raised);box-shadow:var(--shadow-out);font-size:11px;color:var(--ink);margin-right:6px;cursor:pointer;user-select:none}
+.chip.on{background:var(--teal);color:#fff}
+.chip:active{box-shadow:var(--shadow-press)}
+.input{background:var(--raised);box-shadow:var(--shadow-in);border:none;border-radius:12px;padding:11px 14px;width:100%;font-size:13px;color:var(--ink);outline:none}
+.tabs{display:flex;background:var(--inset);border-radius:14px;box-shadow:var(--shadow-in);padding:4px;gap:4px}
+.tab{flex:1;text-align:center;padding:8px;font-size:12px;border-radius:10px;cursor:pointer;color:var(--muted);user-select:none}
+.tab.on{background:var(--raised);box-shadow:var(--shadow-out);color:var(--ink);font-weight:600}
+.score{width:64px;height:64px;border-radius:50%;background:var(--raised);box-shadow:var(--shadow-out);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score b{font-size:20px;color:var(--teal2)} .score span{font-size:9px;color:var(--muted)}
+.thumb{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#cfe3dc,#a9c9bf);box-shadow:var(--shadow-out);display:flex;align-items:center;justify-content:center;font-size:24px}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:600;background:var(--teal);color:#fff;margin-right:4px}
+.badge.warn{background:var(--warn)} .badge.gray{background:var(--inset);color:var(--ink);box-shadow:var(--shadow-in)}
+.badge.danger{background:var(--danger)}
+.meta{font-size:11px;color:var(--muted)}
+.bottom-nav{margin-top:auto;display:flex;justify-content:space-around;background:var(--raised);box-shadow:var(--shadow-out);border-radius:18px;padding:10px}
+.nav-i{font-size:11px;color:var(--muted);text-align:center;cursor:pointer;flex:1;user-select:none}
+.nav-i.on{color:var(--teal2);font-weight:700}
+.nav-i div{font-size:18px}
+.nav-i:active{transform:scale(0.95)}
+.bar{height:8px;background:var(--inset);border-radius:99px;box-shadow:var(--shadow-in);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--teal2);border-radius:99px}
+.fab{margin:8px auto;width:54px;height:54px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:var(--shadow-out);cursor:pointer}
+.fab:active{box-shadow:var(--shadow-press)}
+.stars{color:var(--warn);font-size:13px}
+h4{margin:6px 0}
+.kv{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px dashed #d6cfbc}
+.kv:last-child{border:none}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.label{font-size:10px;color:var(--muted);letter-spacing:1.5px;margin-bottom:6px;display:block}
+.data-note{font-size:10px;color:var(--muted);line-height:1.45;margin-top:8px;padding-top:8px;border-top:1px dashed #d6cfbc}
+.data-note b{color:var(--teal)}
+.source-link{color:var(--teal2);text-decoration:none;font-weight:700}
+.dataset-chip{display:inline-block;font-size:10px;background:var(--inset);color:var(--ink);border-radius:999px;padding:3px 8px;margin:3px 4px 0 0;box-shadow:var(--shadow-in)}
+.empty-state{font-size:12px;color:var(--muted);text-align:center;padding:18px}
+
+/* Chat bubble */
+.bubble{max-width:75%;padding:9px 12px;border-radius:14px;font-size:12px;line-height:1.5;margin-bottom:8px;box-shadow:var(--shadow-out)}
+.bubble.me{margin-left:auto;background:var(--teal);color:#fff}
+.bubble.you{background:var(--raised);color:var(--ink)}
+
+/* Camera screen */
+.camera-view{background:#1F3D3A;border-radius:var(--r-lg);height:300px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:50px;margin-bottom:14px;box-shadow:var(--shadow-in)}
+.scan-line{position:relative;overflow:hidden}
+.scan-line::after{content:'';position:absolute;left:0;right:0;top:50%;height:2px;background:#0B8B7A;animation:scan 2s linear infinite;box-shadow:0 0 8px #0B8B7A}
+@keyframes scan{0%{top:10%}50%{top:90%}100%{top:10%}}
+
+/* Hint badge */
+.hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:10px 18px;border-radius:99px;box-shadow:var(--shadow-out);z-index:99;opacity:0;transition:opacity .3s;pointer-events:none}
+.hint.show{opacity:1}
+</style></head>
+<body>
+
+<div class="guide">
+  <h1>🥬 FreshShare 인터랙티브 프로토타입</h1>
+  <p>화면 안의 <b>카드·버튼·하단 네비게이션</b>을 클릭하면 화면이 전환됩니다. 좌상단의 <b>← 뒤로</b> 버튼이나 하단 탭으로 자유롭게 이동하세요.</p>
+  <div class="legend">
+    <span>🏠 홈 (피드)</span>
+    <span>🔍 탐색</span>
+    <span>＋ 등록 (영수증 OCR)</span>
+    <span>📦 상세보기</span>
+    <span>💬 채팅</span>
+    <span>👤 마이페이지</span>
+  </div>
+</div>
+
+<div class="phone-stage">
+
+<!-- ============================================
+     SCREEN 0: LOGIN
+============================================ -->
+<div class="phone active" id="screen-login">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <h2>🥬 FreshShare 로그인</h2>
+    <span style="width:32px"></span>
+  </div>
+
+  <div class="card static" style="text-align:center;padding:24px">
+    <div style="font-size:48px">🥕</div>
+    <h4>동네 식재료를 함께 나눠요</h4>
+    <div class="meta">닉네임과 동네만 입력하면 상품 등록과 채팅을 체험할 수 있습니다.</div>
+  </div>
+
+  <span class="label">닉네임</span>
+  <input class="input" id="login-nickname" placeholder="예: 민재" value="민재"/>
+
+  <span class="label" style="margin-top:14px">동네</span>
+  <input class="input" id="login-neighborhood" placeholder="예: 합정동" value="합정동"/>
+
+  <div class="card static" style="margin-top:14px">
+    <div class="kv"><span>저장 방식</span><b id="storage-mode">브라우저 저장</b></div>
+    <div class="data-note">GitHub Pages에서 여러 사용자가 같은 글을 보려면 <b>config.js</b>에 Supabase 값을 연결하세요. 실제 개인정보는 GitHub에 커밋하지 않습니다.</div>
+  </div>
+
+  <button class="btn block" style="margin-top:14px" onclick="login()">로그인하고 시작</button>
+</div>
+
+<!-- ============================================
+     SCREEN 1: HOME / FEED
+============================================ -->
+<div class="phone" id="screen-home">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <h2>🥬 FreshShare</h2>
+    <div class="chip" onclick="nav('explore')">📍 마포구 합정동</div>
+  </div>
+
+  <div class="inset row" style="gap:8px;cursor:pointer" onclick="nav('explore')">
+    <span>🔍</span>
+    <input class="input" style="background:transparent;box-shadow:none;padding:4px;pointer-events:none" placeholder="식재료 검색..."/>
+  </div>
+
+  <div class="title-sm">정렬</div>
+  <div style="overflow-x:auto;white-space:nowrap;margin-bottom:6px">
+    <span class="chip on">추천순</span><span class="chip">거리순</span><span class="chip">신선도순</span><span class="chip">가격순</span><span class="chip">양순</span>
+  </div>
+
+  <div id="feed-list">
+    <div class="card static empty-state">data/freshshare_items.js 데이터셋을 불러오는 중...</div>
+  </div>
+
+  <div class="fab" onclick="nav('register')">＋</div>
+
+  <div class="bottom-nav">
+    <div class="nav-i on" onclick="nav('home')"><div>🏠</div>홈</div>
+    <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
+    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
+    <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN 2: EXPLORE (탐색)
+============================================ -->
+<div class="phone" id="screen-explore">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <div class="back" onclick="nav('home')">←</div>
+    <h2>🔍 탐색</h2>
+    <span style="width:32px"></span>
+  </div>
+
+  <div class="inset row" style="gap:8px">
+    <span>🔍</span>
+    <input class="input" style="background:transparent;box-shadow:none;padding:4px" placeholder="ex) 토마토, 우유, 빵..."/>
+  </div>
+
+  <span class="label" style="margin-top:12px">카테고리</span>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥦</div><div style="font-size:10px">채소</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍎</div><div style="font-size:10px">과일</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥩</div><div style="font-size:10px">육류</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥛</div><div style="font-size:10px">유제품</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍞</div><div style="font-size:10px">베이커리</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍜</div><div style="font-size:10px">가공식품</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🐟</div><div style="font-size:10px">수산물</div></div>
+    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🧂</div><div style="font-size:10px">조미료</div></div>
+  </div>
+
+  <span class="label" style="margin-top:14px">🔥 동네 인기 검색어</span>
+  <div class="pill-row">
+    <span class="chip">방울토마토</span><span class="chip">계란</span><span class="chip">양배추</span>
+    <span class="chip">두부</span><span class="chip">우유</span>
+  </div>
+
+  <span class="label" style="margin-top:14px">📍 합정동 실시간 매물</span>
+  <div class="card" onclick="nav('detail')">
+    <div class="row" style="gap:12px">
+      <div class="thumb">🍅</div>
+      <div style="flex:1">
+        <b style="font-size:13px">방울토마토 500g</b>
+        <div class="meta">📍 210m · 5분전</div>
+        <div style="margin-top:6px"><span class="badge">나눔</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
+    <div class="nav-i on"><div>🔍</div>탐색</div>
+    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
+    <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN 3: REGISTER + AI OCR
+============================================ -->
+<div class="phone" id="screen-register">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <div class="back" onclick="nav('home')">←</div>
+    <h2>＋ 식재료 등록</h2>
+    <span class="chip">2/3</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab" onclick="nav('camera')">사진</div>
+    <div class="tab on">영수증</div>
+    <div class="tab">유통기한</div>
+  </div>
+
+  <div class="card static scan-line" style="margin-top:14px;text-align:center;padding:22px">
+    <div style="font-size:42px">🧾</div>
+    <div style="font-size:13px;margin-top:6px">영수증을 인식했어요</div>
+    <div class="meta">AI가 품목·구매일을 자동 분석합니다</div>
+  </div>
+
+  <span class="label">AI 신선도 측정 결과</span>
+  <div class="card static" id="register-result">
+    <div class="row" style="gap:14px">
+      <div class="score"><b>88</b><span>신선</span></div>
+      <div style="flex:1">
+        <div class="kv"><span>품목</span><b>방울토마토 500g</b></div>
+        <div class="kv"><span>구매일</span><b>5/17</b></div>
+        <div class="kv"><span>보관환경</span><b>냉장</b></div>
+        <div class="kv"><span>권장 소비기한</span><b style="color:var(--teal2)">D-6 (5/25)</b></div>
+      </div>
+    </div>
+    <div class="bar" style="margin-top:10px"><i style="width:88%"></i></div>
+  </div>
+
+  <span class="label">데이터셋 매핑</span>
+  <div class="card static" id="dataset-mapping">
+    <div class="empty-state">품목별 소비기한·보관방법 데이터를 연결하는 중...</div>
+  </div>
+
+  <span class="label">보관 환경</span>
+  <div class="row"><span class="chip on">❄️ 냉장</span><span class="chip">🧊 냉동</span><span class="chip">🌡 실온</span></div>
+
+  <span class="label" style="margin-top:14px">거래 방식</span>
+  <div class="row"><span class="chip on">나눔</span><span class="chip">교환</span><span class="chip">판매</span></div>
+
+  <span class="label" style="margin-top:14px">위치</span>
+  <input class="input" id="listing-location" value="합정동" placeholder="동네"/>
+
+  <span class="label" style="margin-top:14px">직접 등록</span>
+  <div class="card static">
+    <input class="input" id="listing-name" value="유기농 당근 5개" placeholder="상품명"/>
+    <div class="row" style="margin-top:8px">
+      <input class="input" id="listing-base-food" value="당근" placeholder="기준 식품"/>
+      <input class="input" id="listing-quantity" value="5개" placeholder="수량"/>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input class="input" id="listing-shelf-life" value="21" placeholder="소비기한 일수"/>
+      <input class="input" id="listing-price" value="0" placeholder="가격"/>
+    </div>
+    <textarea class="input" id="listing-storage-method" style="margin-top:8px;min-height:70px;resize:none" placeholder="보관 방법">잎 제거 후 씻지 않고 밀폐 봉투에 넣어 냉장 채소칸 보관</textarea>
+  </div>
+
+  <button class="btn block" style="margin-top:14px" onclick="submitListing()">상품 등록하기</button>
+
+  <div class="bottom-nav" style="margin-top:14px">
+    <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
+    <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
+    <div class="nav-i on"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
+    <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN 4: CAMERA (사진 촬영)
+============================================ -->
+<div class="phone" id="screen-camera">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <div class="back" onclick="nav('register')">←</div>
+    <h2>📸 식재료 촬영</h2>
+    <span style="width:32px"></span>
+  </div>
+
+  <div class="camera-view scan-line">🥬</div>
+
+  <div class="card static" style="text-align:center;padding:14px">
+    <div style="font-size:12px;color:var(--muted)">AI가 식재료를 인식 중입니다...</div>
+    <div class="bar" style="margin-top:10px"><i style="width:70%"></i></div>
+  </div>
+
+  <span class="label">예상 인식 결과 (Top 3)</span>
+  <div class="card" onclick="nav('register')">
+    <div class="row" style="justify-content:space-between">
+      <b style="font-size:13px">🥬 양배추</b>
+      <span class="badge">96%</span>
+    </div>
+  </div>
+  <div class="card" onclick="nav('register')">
+    <div class="row" style="justify-content:space-between">
+      <b style="font-size:13px">🥦 브로콜리</b>
+      <span class="badge gray">3%</span>
+    </div>
+  </div>
+  <div class="card" onclick="nav('register')">
+    <div class="row" style="justify-content:space-between">
+      <b style="font-size:13px">🥗 상추</b>
+      <span class="badge gray">1%</span>
+    </div>
+  </div>
+
+  <div class="row" style="gap:8px;margin-top:8px">
+    <button class="btn ghost" style="flex:1" onclick="nav('register')">🔄 재촬영</button>
+    <button class="btn" style="flex:2" onclick="nav('register')">이대로 등록</button>
+  </div>
+
+  <div class="bottom-nav" style="margin-top:14px">
+    <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
+    <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
+    <div class="nav-i on"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
+    <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN 5: DETAIL + RATING
+============================================ -->
+<div class="phone" id="screen-detail">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <div class="back" onclick="nav('home')">←</div>
+    <h2>상세</h2>
+    <span style="font-size:18px;cursor:pointer">♡</span>
+  </div>
+
+  <div class="card static" id="detail-hero" style="text-align:center;padding:30px;font-size:64px">🥕</div>
+
+  <div class="card static" id="detail-card">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <b style="font-size:16px">유기농 당근 5개</b>
+        <div class="meta">합정동 · 320m · 5분 전</div>
+      </div>
+      <div class="score"><b>92</b><span>신선</span></div>
+    </div>
+    <div class="pill-row">
+      <span class="badge">나눔</span>
+      <span class="badge gray">❄️ 냉장 D-5</span>
+      <span class="badge gray">채소</span>
+    </div>
+    <p style="font-size:12px;line-height:1.6;margin:10px 0 0">대형마트에서 한 봉지 사서 절반 남았어요. 깨끗하게 보관 중입니다 :)</p>
+  </div>
+
+  <span class="label">소비기한 / 보관 방법</span>
+  <div class="card static" id="storage-card">
+    <div class="empty-state">품목별 보관 데이터를 연결하는 중...</div>
+  </div>
+
+  <span class="label">판매자</span>
+  <div class="card" onclick="nav('mypage')">
+    <div class="row" style="gap:10px">
+      <div class="thumb" style="width:44px;height:44px;font-size:18px">🙂</div>
+      <div style="flex:1">
+        <b style="font-size:13px">freshneighbor</b>
+        <div class="meta"><span class="stars">★★★★★</span> 4.9 · 거래 23회</div>
+      </div>
+      <span class="badge">신뢰</span>
+    </div>
+    <div class="pill-row">
+      <span class="badge gray">친절해요 12</span>
+      <span class="badge gray">신선해요 9</span>
+      <span class="badge gray">시간약속 7</span>
+    </div>
+  </div>
+
+  <span class="label">거래 후 상호 평가</span>
+  <div class="card static">
+    <div style="text-align:center;font-size:22px" class="stars">★ ★ ★ ★ ☆</div>
+    <div class="pill-row" style="justify-content:center">
+      <span class="chip on">친절해요</span><span class="chip">신선해요</span><span class="chip">시간약속</span>
+    </div>
+  </div>
+
+  <div class="row" style="gap:8px;margin-top:8px">
+    <button class="btn ghost" style="flex:1" onclick="nav('chat')">💬 채팅</button>
+    <button class="btn" style="flex:2" onclick="nav('chat')">거래 요청하기</button>
+  </div>
+
+  <div class="bottom-nav" style="margin-top:14px">
+    <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
+    <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
+    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
+    <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN 6: CHAT
+============================================ -->
+<div class="phone" id="screen-chat">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <div class="back" onclick="nav('detail')">←</div>
+    <h2>💬 freshneighbor</h2>
+    <span style="width:32px"></span>
+  </div>
+
+  <div class="inset" id="chat-item-summary" style="margin-bottom:12px;font-size:11px;text-align:center">
+    🥕 유기농 당근 5개 · 나눔 · 합정동 320m
+  </div>
+
+  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:4px">
+    <div class="bubble you">안녕하세요! 당근 아직 있나요? 😊</div>
+    <div class="bubble me">네! 5개 모두 가능해요 🙌</div>
+    <div class="bubble you">오늘 저녁 7시쯤 합정역 1번 출구에서 픽업 가능할까요?</div>
+    <div class="bubble me">좋아요! 7시에 1번 출구에서 뵐게요. 신선하게 가져갈게요 🥕</div>
+    <div class="bubble you" style="background:var(--inset)">📍 안전거래 추천: 합정역 1번 출구 무인보관함</div>
+  </div>
+
+  <div class="inset row" style="gap:6px;margin-top:8px">
+    <span style="cursor:pointer">📷</span>
+    <input class="input" id="chat-input" style="background:transparent;box-shadow:none;padding:4px" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter') sendChatMessage()"/>
+    <button class="btn" style="padding:6px 14px" onclick="sendChatMessage()">전송</button>
+  </div>
+
+  <div class="bottom-nav" style="margin-top:14px">
+    <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
+    <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
+    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i on"><div>💬</div>채팅</div>
+    <div class="nav-i" onclick="nav('mypage')"><div>👤</div>MY</div>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN 7: MY PAGE (내 냉장고)
+============================================ -->
+<div class="phone" id="screen-mypage">
+  <div class="status"><span>9:41</span><span>● ● ●</span></div>
+  <div class="header">
+    <div class="back" onclick="nav('home')">←</div>
+    <h2>👤 마이페이지</h2>
+    <span style="width:32px">⚙️</span>
+  </div>
+
+  <div class="card static">
+    <div class="row" style="gap:12px">
+      <div class="thumb" style="font-size:30px">🙂</div>
+      <div style="flex:1">
+        <b style="font-size:15px" id="profile-name">민재 님</b>
+        <div class="meta" id="profile-meta">합정동 · 가입 3개월차</div>
+        <div style="margin-top:6px"><span class="badge">매너온도 38°C</span></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center">
+      <div><b style="color:var(--teal2)">12</b><div class="meta">나눔</div></div>
+      <div><b style="color:var(--teal2)">8</b><div class="meta">교환</div></div>
+      <div><b style="color:var(--teal2)">4.9</b><div class="meta">평점</div></div>
+    </div>
+  </div>
+  <button class="btn ghost block" style="margin-bottom:12px" onclick="logout()">로그아웃</button>
+
+  <span class="label" id="fridge-label">🥬 내 냉장고</span>
+  <div id="fridge-list">
+    <div class="card static empty-state">냉장고 데이터셋을 불러오는 중...</div>
+  </div>
+
+  <span class="label">📊 환경 기여도</span>
+  <div class="card static">
+    <div class="kv"><span>이번 달 절감량</span><b style="color:var(--teal2)">2.4 kg</b></div>
+    <div class="kv"><span>누적 절감량</span><b>11.8 kg</b></div>
+    <div class="kv"><span>CO₂ 감축 효과</span><b>약 7.2 kg</b></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
+    <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
+    <div class="nav-i" onclick="nav('register')"><div>＋</div>등록</div>
+    <div class="nav-i" onclick="nav('chat')"><div>💬</div>채팅</div>
+    <div class="nav-i on"><div>👤</div>MY</div>
+  </div>
+</div>
+
+</div><!-- /phone-stage -->
+
+<div class="hint" id="hint"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="data/freshshare_items.js"></script>
+<script>
+const screens = ['login','home','explore','register','camera','detail','chat','mypage'];
+const labels = {login:'로그인',home:'🏠 홈',explore:'🔍 탐색',register:'＋ 등록',camera:'📸 사진 촬영',detail:'📦 상세',chat:'💬 채팅',mypage:'👤 마이페이지'};
+const seedItems = window.FRESHSHARE_ITEMS || [];
+let items = [...seedItems];
+let selectedItem = items[0] || null;
+let currentUser = JSON.parse(localStorage.getItem('freshshare_user') || 'null');
+const config = window.FRESHSHARE_CONFIG || {};
+const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey)
+  ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey)
+  : null;
+
+function userLabel(){
+  return currentUser?.nickname || '게스트';
+}
+
+function nav(target){
+  screens.forEach(s => {
+    const el = document.getElementById('screen-' + s);
+    if(el) el.classList.toggle('active', s === target);
+  });
+  showHint(labels[target] + ' 화면으로 이동');
+  if(target === 'chat') renderChat();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+async function login(){
+  const nickname = document.getElementById('login-nickname').value.trim() || '게스트';
+  const neighborhood = document.getElementById('login-neighborhood').value.trim() || '동네 미입력';
+  currentUser = { nickname, neighborhood, loggedAt: new Date().toISOString() };
+  localStorage.setItem('freshshare_user', JSON.stringify(currentUser));
+  if(sb){
+    await sb.from('profiles').insert({ nickname, neighborhood });
+  }
+  document.getElementById('listing-location').value = neighborhood;
+  await refreshSharedListings();
+  renderFridge();
+  showHint(`${nickname} 님 로그인 완료`);
+  nav('home');
+}
+
+function logout(){
+  localStorage.removeItem('freshshare_user');
+  currentUser = null;
+  nav('login');
+}
+
+function showHint(text){
+  const h = document.getElementById('hint');
+  h.textContent = text;
+  h.classList.add('show');
+  clearTimeout(window._hintTimer);
+  window._hintTimer = setTimeout(()=>h.classList.remove('show'), 1500);
+}
+
+function ddayBadge(item){
+  const cls = item.remainingDays <= 2 ? 'badge warn' : 'badge gray';
+  return `<span class="${cls}">${item.storageType} D-${item.remainingDays}</span>`;
+}
+
+function priceLabel(item){
+  return item.priceKrw ? `₩${item.priceKrw.toLocaleString('ko-KR')}` : item.tradeType;
+}
+
+function selectItem(id, target='detail'){
+  selectedItem = items.find(item => item.id === id) || selectedItem;
+  renderDetail();
+  nav(target);
+}
+
+function toListingItem(row){
+  return {
+    id: row.id,
+    emoji: row.emoji || '🥬',
+    itemName: row.item_name || row.itemName,
+    baseFood: row.base_food || row.baseFood || row.item_name || row.itemName,
+    category: row.category || '기타',
+    quantity: row.quantity || '',
+    tradeType: row.trade_type || row.tradeType || '나눔',
+    priceKrw: Number(row.price_krw ?? row.priceKrw ?? 0),
+    storageType: row.storage_type || row.storageType || '냉장',
+    purchaseDate: row.purchase_date || row.purchaseDate || new Date().toISOString().slice(0,10),
+    shelfLifeDays: Number(row.shelf_life_days ?? row.shelfLifeDays ?? 7),
+    remainingDays: Number(row.remaining_days ?? row.remainingDays ?? 3),
+    expiryDate: row.expiry_date || row.expiryDate || '',
+    freshnessScore: Number(row.freshness_score ?? row.freshnessScore ?? 80),
+    location: row.location || currentUser?.neighborhood || '동네',
+    distanceM: Number(row.distance_m ?? row.distanceM ?? 300),
+    listingAge: row.listing_age || row.listingAge || '방금 전',
+    purchaseFrequency: row.purchase_frequency || row.purchaseFrequency || '주 1회',
+    preservationMethod: row.preservation_method || row.preservationMethod || '보관방법 미입력',
+    storageTips: row.storage_tips || row.storageTips || '상태 확인 후 거래',
+    expiryBasis: row.expiry_basis || row.expiryBasis || '사용자 직접 등록값',
+    sourceName: row.source_name || row.sourceName || '사용자 등록',
+    sourceUrl: row.source_url || row.sourceUrl || '#',
+    aiUsage: row.ai_usage || row.aiUsage || '사용자 등록 상품으로 홈 피드와 채팅에 표시',
+    datasetFields: row.dataset_fields || row.datasetFields || '사용자 등록 데이터',
+    ownerNickname: row.owner_nickname || row.ownerNickname || userLabel()
+  };
+}
+
+function localListings(){
+  return JSON.parse(localStorage.getItem('freshshare_listings') || '[]');
+}
+
+function saveLocalListings(rows){
+  localStorage.setItem('freshshare_listings', JSON.stringify(rows));
+}
+
+async function refreshSharedListings(){
+  let shared = [];
+  if(sb){
+    const { data, error } = await sb.from('listings').select('*').order('created_at', { ascending:false }).limit(30);
+    if(!error && data) shared = data.map(toListingItem);
+  } else {
+    shared = localListings().map(toListingItem);
+  }
+  items = [...shared, ...seedItems];
+  selectedItem = items[0] || selectedItem;
+  renderFeed();
+  renderRegisterMapping();
+  renderDetail();
+  renderFridge();
+}
+
+async function submitListing(){
+  if(!currentUser){
+    showHint('먼저 로그인해주세요');
+    nav('login');
+    return;
+  }
+  const baseFood = document.getElementById('listing-base-food').value.trim() || '식재료';
+  const shelfLifeDays = Number(document.getElementById('listing-shelf-life').value || 7);
+  const purchaseDate = new Date().toISOString().slice(0,10);
+  const remainingDays = Math.max(1, Math.min(shelfLifeDays, 5));
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + remainingDays);
+  const listing = {
+    id: `user-${Date.now()}`,
+    emoji: '🥬',
+    itemName: document.getElementById('listing-name').value.trim() || `${baseFood} 나눔`,
+    baseFood,
+    category: '사용자등록',
+    quantity: document.getElementById('listing-quantity').value.trim() || '1개',
+    tradeType: document.querySelector('#screen-register .row .chip.on')?.textContent?.replace(/[❄️🧊🌡]/g,'').trim() || '나눔',
+    priceKrw: Number(document.getElementById('listing-price').value || 0),
+    storageType: '냉장',
+    purchaseDate,
+    shelfLifeDays,
+    remainingDays,
+    expiryDate: expiry.toISOString().slice(0,10),
+    freshnessScore: 82,
+    location: document.getElementById('listing-location').value.trim() || currentUser.neighborhood,
+    distanceM: 100,
+    listingAge: '방금 전',
+    purchaseFrequency: '사용자 등록',
+    preservationMethod: document.getElementById('listing-storage-method').value.trim() || '보관방법 미입력',
+    storageTips: '거래 전 실제 상태와 소비기한을 서로 확인',
+    expiryBasis: '사용자가 직접 등록한 소비기한 참고값',
+    sourceName: '사용자 등록',
+    sourceUrl: '#',
+    aiUsage: '사용자가 직접 등록한 상품을 홈 피드와 채팅에 표시',
+    datasetFields: '상품명, 기준식품, 수량, 보관방법, 소비기한, 위치',
+    ownerNickname: currentUser.nickname
+  };
+  if(sb){
+    await sb.from('listings').insert({
+      id: listing.id,
+      owner_nickname: listing.ownerNickname,
+      item_name: listing.itemName,
+      base_food: listing.baseFood,
+      category: listing.category,
+      quantity: listing.quantity,
+      trade_type: listing.tradeType,
+      price_krw: listing.priceKrw,
+      storage_type: listing.storageType,
+      purchase_date: listing.purchaseDate,
+      shelf_life_days: listing.shelfLifeDays,
+      remaining_days: listing.remainingDays,
+      expiry_date: listing.expiryDate,
+      preservation_method: listing.preservationMethod,
+      location: listing.location
+    });
+  } else {
+    const rows = localListings();
+    rows.unshift(listing);
+    saveLocalListings(rows);
+  }
+  await refreshSharedListings();
+  selectedItem = items.find(item => item.id === listing.id) || listing;
+  showHint('상품이 등록되었습니다');
+  nav('detail');
+}
+
+function renderFeed(){
+  const feed = document.getElementById('feed-list');
+  if(!feed) return;
+  feed.innerHTML = items.slice(0, 4).map(item => `
+    <div class="card" onclick="selectItem('${item.id}')">
+      <div class="row" style="gap:12px">
+        <div class="thumb">${item.emoji}</div>
+        <div style="flex:1">
+          <div class="row" style="justify-content:space-between">
+            <b style="font-size:14px">${item.itemName}</b>
+            <span class="score" style="width:48px;height:48px"><b style="font-size:14px">${item.freshnessScore}</b><span>신선</span></span>
+          </div>
+          <div class="meta">📍 ${item.distanceM}m · ${item.location} · ${item.listingAge}${item.ownerNickname ? ' · '+item.ownerNickname : ''}</div>
+          <div style="margin-top:6px">
+            <span class="badge">${priceLabel(item)}</span>${ddayBadge(item)}<span class="badge gray">${item.category}</span>
+          </div>
+          <div class="data-note"><b>데이터</b> ${item.baseFood} · 소비기한 ${item.shelfLifeDays}일 · ${item.purchaseFrequency} 구매</div>
+        </div>
+      </div>
+    </div>
+  `).join('') || '<div class="card static empty-state">표시할 데이터가 없습니다.</div>';
+}
+
+function renderRegisterMapping(){
+  const item = items.find(row => row.id === 'tomato-cherry-001') || selectedItem;
+  const result = document.getElementById('register-result');
+  const mapping = document.getElementById('dataset-mapping');
+  if(result && item){
+    result.innerHTML = `
+      <div class="row" style="gap:14px">
+        <div class="score"><b>${item.freshnessScore}</b><span>신선</span></div>
+        <div style="flex:1">
+          <div class="kv"><span>품목</span><b>${item.itemName}</b></div>
+          <div class="kv"><span>구매일</span><b>${item.purchaseDate}</b></div>
+          <div class="kv"><span>보관환경</span><b>${item.storageType}</b></div>
+          <div class="kv"><span>권장 소비기한</span><b style="color:var(--teal2)">D-${item.remainingDays} (${item.expiryDate})</b></div>
+        </div>
+      </div>
+      <div class="bar" style="margin-top:10px"><i style="width:${item.freshnessScore}%"></i></div>`;
+  }
+  if(mapping && item){
+    mapping.innerHTML = `
+      <div class="kv"><span>가져온 데이터</span><b>${item.datasetFields}</b></div>
+      <div class="kv"><span>구매빈도</span><b>${item.purchaseFrequency}</b></div>
+      <div class="kv"><span>보관방법</span><b>${item.storageType}</b></div>
+      <div class="data-note"><b>활용</b> ${item.aiUsage}</div>`;
+  }
+}
+
+function renderDetail(){
+  if(!selectedItem) return;
+  const hero = document.getElementById('detail-hero');
+  const card = document.getElementById('detail-card');
+  const storage = document.getElementById('storage-card');
+  if(hero) hero.textContent = selectedItem.emoji;
+  if(card){
+    card.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <b style="font-size:16px">${selectedItem.itemName}</b>
+          <div class="meta">${selectedItem.location} · ${selectedItem.distanceM}m · ${selectedItem.listingAge}${selectedItem.ownerNickname ? ' · 등록자 '+selectedItem.ownerNickname : ''}</div>
+        </div>
+        <div class="score"><b>${selectedItem.freshnessScore}</b><span>신선</span></div>
+      </div>
+      <div class="pill-row">
+        <span class="badge">${priceLabel(selectedItem)}</span>
+        ${ddayBadge(selectedItem)}
+        <span class="badge gray">${selectedItem.category}</span>
+      </div>
+      <p style="font-size:12px;line-height:1.6;margin:10px 0 0">
+        데이터셋 기준으로 ${selectedItem.baseFood}의 소비기한과 보관방법을 자동 매칭했습니다. 거래 전 실제 상태와 제품 표시사항을 확인해주세요.
+      </p>`;
+  }
+  if(storage){
+    storage.innerHTML = `
+      <div class="kv"><span>기준 품목</span><b>${selectedItem.baseFood}</b></div>
+      <div class="kv"><span>소비기한</span><b>${selectedItem.shelfLifeDays}일 · ${selectedItem.expiryDate}</b></div>
+      <div class="kv"><span>구매빈도</span><b>${selectedItem.purchaseFrequency}</b></div>
+      <div class="kv"><span>보관방법</span><b>${selectedItem.storageType}</b></div>
+      <div class="data-note"><b>보관 팁</b> ${selectedItem.preservationMethod}</div>
+      <div class="data-note"><b>주의</b> ${selectedItem.storageTips}</div>
+      <div class="data-note"><b>근거</b> ${selectedItem.expiryBasis}<br><a class="source-link" href="${selectedItem.sourceUrl}" target="_blank" rel="noreferrer">${selectedItem.sourceName}</a></div>
+    `;
+  }
+}
+
+function chatKey(){
+  return `freshshare_chat_${selectedItem?.id || 'default'}`;
+}
+
+function defaultMessages(){
+  return [
+    { sender:'you', text:`안녕하세요! ${selectedItem?.baseFood || '상품'} 아직 있나요?` },
+    { sender:'me', text:`네, 가능합니다. ${selectedItem?.storageType || '냉장'} 보관 중이고 D-${selectedItem?.remainingDays || 0}예요.` }
+  ];
+}
+
+async function loadChatMessages(){
+  if(!selectedItem) return defaultMessages();
+  if(sb){
+    const { data, error } = await sb.from('messages').select('*').eq('listing_id', selectedItem.id).order('created_at', { ascending:true }).limit(100);
+    if(!error && data && data.length){
+      return data.map(row => ({ sender: row.sender_nickname === userLabel() ? 'me' : 'you', text: row.body, nickname: row.sender_nickname }));
+    }
+  }
+  return JSON.parse(localStorage.getItem(chatKey()) || 'null') || defaultMessages();
+}
+
+async function renderChat(){
+  const summary = document.getElementById('chat-item-summary');
+  const box = document.getElementById('chat-messages');
+  if(summary && selectedItem){
+    summary.textContent = `${selectedItem.emoji} ${selectedItem.itemName} · ${selectedItem.tradeType} · ${selectedItem.location} · D-${selectedItem.remainingDays}`;
+  }
+  if(!box) return;
+  const messages = await loadChatMessages();
+  box.innerHTML = messages.map(msg => `<div class="bubble ${msg.sender === 'me' ? 'me' : 'you'}">${msg.nickname ? `<b>${msg.nickname}</b><br>` : ''}${msg.text}</div>`).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendChatMessage(){
+  if(!currentUser){
+    showHint('채팅하려면 로그인해주세요');
+    nav('login');
+    return;
+  }
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  const messages = await loadChatMessages();
+  const next = [...messages, { sender:'me', text, nickname: currentUser.nickname }];
+  const autoReply = {
+    sender:'you',
+    text:`확인했어요. ${selectedItem?.baseFood || '상품'}은 ${selectedItem?.preservationMethod || '보관방법 확인'} 상태로 전달할게요.`,
+    nickname:selectedItem?.ownerNickname || 'freshneighbor'
+  };
+  next.push(autoReply);
+  if(sb){
+    await sb.from('messages').insert([
+      { listing_id:selectedItem.id, sender_nickname:currentUser.nickname, body:text },
+      { listing_id:selectedItem.id, sender_nickname:autoReply.nickname, body:autoReply.text }
+    ]);
+  } else {
+    localStorage.setItem(chatKey(), JSON.stringify(next));
+  }
+  renderChat();
+}
+
+function renderFridge(){
+  const label = document.getElementById('fridge-label');
+  const fridge = document.getElementById('fridge-list');
+  const profileName = document.getElementById('profile-name');
+  const profileMeta = document.getElementById('profile-meta');
+  if(profileName) profileName.textContent = `${userLabel()} 님`;
+  if(profileMeta) profileMeta.textContent = `${currentUser?.neighborhood || '동네 미입력'} · 로그인 사용자`;
+  if(label) label.textContent = `🥬 내 냉장고 (${items.length}개)`;
+  if(!fridge) return;
+  fridge.innerHTML = items.map(item => {
+    const badge = item.remainingDays <= 2 ? 'badge danger' : item.remainingDays <= 5 ? 'badge warn' : 'badge';
+    return `
+      <div class="card" onclick="selectItem('${item.id}')">
+        <div class="row" style="gap:10px">
+          <div class="thumb" style="width:48px;height:48px;font-size:20px">${item.emoji}</div>
+          <div style="flex:1">
+            <b style="font-size:12px">${item.itemName}</b>
+            <div class="meta">${item.purchaseDate} 구매 · ${item.storageType} · ${item.purchaseFrequency}</div>
+          </div>
+          <span class="${badge}">D-${item.remainingDays}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function bootDataset(){
+  const mode = document.getElementById('storage-mode');
+  if(mode) mode.textContent = sb ? 'Supabase 온라인 공유' : '브라우저 저장 데모';
+  if(currentUser){
+    document.getElementById('login-nickname').value = currentUser.nickname;
+    document.getElementById('login-neighborhood').value = currentUser.neighborhood;
+    document.getElementById('listing-location').value = currentUser.neighborhood;
+  }
+  refreshSharedListings();
+  renderFeed();
+  renderRegisterMapping();
+  renderDetail();
+  renderFridge();
+  renderChat();
+  if(items.length) showHint(`데이터셋 ${items.length}건 연결 완료`);
+  if(currentUser) nav('home');
+}
+
+// chips toggle within same row
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', e => {
+    if(chip.parentElement.classList.contains('row') ||
+       chip.parentElement.classList.contains('pill-row')){
+      // Only toggle if not a nav chip
+      if(!chip.onclick) {
+        Array.from(chip.parentElement.querySelectorAll('.chip'))
+             .forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+      }
+    }
+  });
+});
+
+// Tabs in register page
+document.querySelectorAll('.tabs .tab').forEach(tab => {
+  tab.addEventListener('click', e => {
+    if(!tab.onclick){
+      Array.from(tab.parentElement.querySelectorAll('.tab')).forEach(t => t.classList.remove('on'));
+      tab.classList.add('on');
+    }
+  });
+});
+
+bootDataset();
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body></html>
