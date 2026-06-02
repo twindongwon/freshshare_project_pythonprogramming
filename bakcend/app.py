@@ -1,105 +1,46 @@
 # backend/app.py
-# FreshShare 백엔드: Donut 모델로 영수증 이미지를 JSON으로 파싱
+# FreshShare 백엔드: PaddleOCR로 한글 영수증 이미지를 텍스트로 읽고 파싱
 # 실행: uvicorn app:app --host 0.0.0.0 --port 8000
 import io
 import re
-import torch
+import numpy as np
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
-from transformers import DonutProcessor, VisionEncoderDecoderModel
+from paddleocr import PaddleOCR
 
-app = FastAPI(title="FreshShare Donut OCR API")
+app = FastAPI(title="FreshShare PaddleOCR API")
 
-# CORS: Netlify 프론트에서 호출할 수 있게 허용 (배포 후 도메인으로 좁히세요)
+# CORS: Netlify 프론트에서 호출할 수 있게 허용
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      # 예: ["https://your-site.netlify.app"]
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-MODEL_NAME = "naver-clova-ix/donut-base-finetuned-cord-v2"
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MODEL_NAME = "paddleocr-korean"
 
-print(f"[FreshShare] 모델 로딩 중... ({MODEL_NAME}) device={DEVICE}")
-processor = DonutProcessor.from_pretrained(MODEL_NAME)
-model = VisionEncoderDecoderModel.from_pretrained(MODEL_NAME).to(DEVICE)
-model.eval()
-print("[FreshShare] 모델 로딩 완료")
+print("[FreshShare] PaddleOCR 모델 로딩 중...")
+# 한국어 인식 모델 로드 (처음 실행 시 모델 자동 다운로드)
+ocr_engine = PaddleOCR(use_angle_cls=True, lang="korean")
+print("[FreshShare] PaddleOCR 모델 로딩 완료")
 
 
-def run_donut(image: Image.Image) -> dict:
-    """영수증 이미지를 Donut으로 파싱해 dict로 반환"""
-    task_prompt = "<s_cord-v2>"
-    decoder_input_ids = processor.tokenizer(
-        task_prompt, add_special_tokens=False, return_tensors="pt"
-    ).input_ids.to(DEVICE)
-
-    pixel_values = processor(image, return_tensors="pt").pixel_values.to(DEVICE)
-
-    with torch.no_grad():
-        outputs = model.generate(
-            pixel_values,
-            decoder_input_ids=decoder_input_ids,
-            max_length=model.decoder.config.max_position_embeddings,
-            pad_token_id=processor.tokenizer.pad_token_id,
-            eos_token_id=processor.tokenizer.eos_token_id,
-            use_cache=True,
-            bad_words_ids=[[processor.tokenizer.unk_token_id]],
-            return_dict_in_generate=True,
-        )
-
-    seq = processor.batch_decode(outputs.sequences)[0]
-    seq = seq.replace(processor.tokenizer.eos_token, "").replace(
-        processor.tokenizer.pad_token, ""
-    )
-    seq = re.sub(r"<.*?>", "", seq, count=1).strip()
-    return processor.token2json(seq)
+def run_ocr(image: Image.Image):
+    """이미지를 PaddleOCR로 읽어 줄 단위 (텍스트, 신뢰도) 리스트 반환"""
+    img_array = np.array(image)
+    result = ocr_engine.ocr(img_array, cls=True)
+    lines = []
+    if result and result[0]:
+        for line in result[0]:
+            text = line[1][0]
+            conf = float(line[1][1])
+            lines.append((text, conf))
+    return lines
 
 
-def to_freshshare(parsed: dict) -> dict:
-    """Donut 결과(CORD 포맷)를 프론트가 쓰기 쉬운 형태로 변환"""
-    items = []
-    # parsed 자체가 리스트로 올 때 대비
-    if isinstance(parsed, list):
-        parsed = {"menu": parsed}
-
-    menu = parsed.get("menu", []) if isinstance(parsed, dict) else []
-    if isinstance(menu, dict):
-        menu = [menu]
-    for m in menu:
-        if not isinstance(m, dict):
-            continue
-        name = m.get("nm", "")
-        price = m.get("price", "")
-        price_num = int(re.sub(r"[^0-9]", "", str(price)) or 0)
-        items.append({"name": name, "priceKrw": price_num})
-
-    total = parsed.get("total", {}) if isinstance(parsed, dict) else {}
-    total_price = ""
-    if isinstance(total, dict):
-        total_price = total.get("total_price", "")
-    elif isinstance(total, list) and total:
-        first = total[0]
-        if isinstance(first, dict):
-            total_price = first.get("total_price", "")
-
-    return {
-        "items": items,
-        "totalPrice": re.sub(r"[^0-9]", "", str(total_price)) or "",
-        "raw": parsed,
-    }
-
-
-@app.get("/")
-def health():
-    return {"status": "ok", "model": MODEL_NAME, "device": DEVICE}
-
-
-@app.post("/ocr")
-async def ocr(file: UploadFile = File(...)):
-    content = await file.read()
-    image = Image.open(io.BytesIO(content)).convert("RGB")
-    parsed = run_donut(image)
-    return to_freshshare(parsed)
+def parse_price(text: str) -> int:
+    """문자열에서 숫자만 뽑아 정수로 (쉼표 제거)"""
+    digits = re.sub(r"[^0-9]", "", text)
+    return int
