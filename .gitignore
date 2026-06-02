@@ -5,3 +5,13 @@ freshshare_extracted_context.json
 outputs/freshshare_mapping/*.png
 private_data/*.local.json
 private_data/*_real.json
+bakcend/venv/ 
+bakcend/__pycache__/ 
+venv/
+__pycache__/
+bakcend/venv/
+bakcend/__pycache__/
+bakcend/venv/ 
+bakcend/__pycache__/ 
+venv/ 
+__pycache__/ 

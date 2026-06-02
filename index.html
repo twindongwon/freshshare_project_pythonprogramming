@@ -89,12 +89,8 @@ h4{margin:6px 0}
   <h1>🥬 FreshShare — 동네 신선식품 나눔 프로토타입</h1>
   <p><b>영수증 사진</b>을 올리면 데탑 백엔드의 AI 모델이 품목과 가격을 자동으로 읽어 등록을 도와줍니다.</p>
   <div class="legend">
-    <span>로그인 (자치구/동)</span>
-    <span>홈 피드</span>
-    <span>영수증 등록 (백엔드 AI)</span>
-    <span>상세/신선도</span>
-    <span>이웃 채팅</span>
-    <span>마이페이지</span>
+    <span>로그인 (자치구/동)</span><span>홈 피드</span><span>영수증 등록 (백엔드 AI)</span>
+    <span>상세/신선도</span><span>이웃 채팅</span><span>마이페이지</span>
   </div>
 </div>
 
@@ -108,7 +104,7 @@ h4{margin:6px 0}
   <div class="card static" style="text-align:center;padding:24px">
     <div style="font-size:48px">🥬</div>
     <h4>우리 동네 신선식품 나눔</h4>
-    <div class="meta">남는 식재료를 이웃과 나눠요.<br>아이디와 동네를 입력하고 시작하세요.</div>
+    <div class="meta">남는 식재료를 이웃과 나눠요.<br>아이디와 비밀번호로 시작하세요.</div>
   </div>
 
   <div class="tabs" id="auth-tabs">
@@ -119,38 +115,41 @@ h4{margin:6px 0}
   <span class="label" style="margin-top:12px">아이디 <span style="color:#0E5C58">*</span></span>
   <input class="input" id="login-userid" placeholder="예: minjae01 (영문/숫자 4자 이상)" autocomplete="username"/>
 
-  <span class="label" style="margin-top:14px">닉네임 <span style="color:#0E5C58">*</span></span>
-  <input class="input" id="login-nickname" placeholder="예: 역삼동주민" value=""/>
-
-  <span class="label" style="margin-top:14px" id="pw-label">비밀번호 <span style="color:#0E5C58">*</span> <span class="meta">(4자 이상)</span></span>
+  <span class="label" style="margin-top:14px">비밀번호 <span style="color:#0E5C58">*</span> <span class="meta">(4자 이상)</span></span>
   <input class="input" id="login-password" type="password" placeholder="비밀번호"/>
 
-  <span class="label" style="margin-top:14px">자치구</span>
-  <select class="input" id="login-gu" onchange="updateDongOptions()" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
-    <option value="">자치구 선택</option>
-  </select>
+  <!-- 닉네임/동네는 회원가입일 때만 표시 -->
+  <div id="signup-fields" style="display:none">
+    <span class="label" style="margin-top:14px">닉네임 <span style="color:#0E5C58">*</span></span>
+    <input class="input" id="login-nickname" placeholder="예: 역삼동주민"/>
 
-  <span class="label" style="margin-top:14px">동(행정동)</span>
-  <select class="input" id="login-dong" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
-    <option value="">먼저 자치구를 선택하세요</option>
-  </select>
+    <span class="label" style="margin-top:14px">자치구 <span style="color:#0E5C58">*</span></span>
+    <select class="input" id="login-gu" onchange="updateDongOptions()" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
+      <option value="">자치구 선택</option>
+    </select>
 
-  <div class="row" style="gap:8px;margin-top:10px">
-    <button class="btn ghost" style="flex:1;font-size:12px" type="button" onclick="detectLocation()">📍 내 위치 자동 감지</button>
+    <span class="label" style="margin-top:14px">동(행정동) <span style="color:#0E5C58">*</span></span>
+    <select class="input" id="login-dong" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
+      <option value="">먼저 자치구를 선택하세요</option>
+    </select>
+
+    <div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn ghost" style="flex:1;font-size:12px" type="button" onclick="detectLocation()">📍 내 위치 자동 감지</button>
+    </div>
+    <div id="geo-status" class="meta" style="margin-top:6px;text-align:center"></div>
   </div>
-  <div id="geo-status" class="meta" style="margin-top:6px;text-align:center"></div>
   <input type="hidden" id="login-neighborhood" value=""/>
 
   <div class="card static" style="margin-top:14px">
     <div class="kv"><span>저장 모드</span><b id="storage-mode">확인 중</b></div>
     <div class="kv"><span>등록된 계정</span><b id="account-count">0개</b></div>
-    <div class="data-note">GitHub Pages에서 여러 사용자가 함께 쓰려면 <b>config.js</b>에 Supabase URL/Key를 넣으세요. 비워두면 이 브라우저에만 저장됩니다.</div>
+    <div class="data-note">온라인 동기화는 <b>config.js</b>의 Supabase URL/Key가 채워져 있어야 작동합니다. 비어 있으면 이 브라우저에만 저장됩니다.</div>
   </div>
 
   <button class="btn block" style="margin-top:14px" id="login-submit-btn" onclick="login()">로그인</button>
 
   <details style="margin-top:12px;font-size:11px;color:var(--muted)">
-    <summary style="cursor:pointer">이 기기에 저장된 계정 보기</summary>
+    <summary style="cursor:pointer">등록된 계정 보기</summary>
     <div id="account-list" style="margin-top:8px"></div>
   </details>
 </div>
@@ -159,23 +158,15 @@ h4{margin:6px 0}
 <div class="phone" id="screen-home">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><h2>🥬 FreshShare</h2><div class="chip" onclick="nav('explore')">📍 우리 동네</div></div>
-
   <div class="inset row" style="gap:8px;cursor:pointer" onclick="nav('explore')">
-    <span>🔍</span>
-    <input class="input" style="background:transparent;box-shadow:none;padding:4px;pointer-events:none" placeholder="식재료 검색..."/>
+    <span>🔍</span><input class="input" style="background:transparent;box-shadow:none;padding:4px;pointer-events:none" placeholder="식재료 검색..."/>
   </div>
-
   <div class="title-sm">카테고리</div>
   <div style="overflow-x:auto;white-space:nowrap;margin-bottom:6px">
     <span class="chip on">전체</span><span class="chip">채소</span><span class="chip">과일</span><span class="chip">유제품</span><span class="chip">가공</span>
   </div>
-
-  <div id="feed-list">
-    <div class="card static empty-state">데이터를 불러오는 중...</div>
-  </div>
-
+  <div id="feed-list"><div class="card static empty-state">데이터를 불러오는 중...</div></div>
   <div class="fab" onclick="nav('register')">+</div>
-
   <div class="bottom-nav">
     <div class="nav-i on" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
@@ -189,12 +180,9 @@ h4{margin:6px 0}
 <div class="phone" id="screen-explore">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('home')">←</div><h2>탐색</h2><span style="width:32px"></span></div>
-
   <div class="inset row" style="gap:8px">
-    <span>🔍</span>
-    <input class="input" style="background:transparent;box-shadow:none;padding:4px" placeholder="예) 토마토, 계란, 두부..."/>
+    <span>🔍</span><input class="input" style="background:transparent;box-shadow:none;padding:4px" placeholder="예) 토마토, 계란, 두부..."/>
   </div>
-
   <span class="label" style="margin-top:12px">카테고리</span>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥬</div><div style="font-size:10px">채소</div></div>
@@ -206,24 +194,15 @@ h4{margin:6px 0}
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥫</div><div style="font-size:10px">가공</div></div>
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🧊</div><div style="font-size:10px">냉동</div></div>
   </div>
-
   <span class="label" style="margin-top:14px">인기 검색어</span>
-  <div class="pill-row">
-    <span class="chip">방울토마토</span><span class="chip">계란</span><span class="chip">두부</span><span class="chip">우유</span><span class="chip">당근</span>
-  </div>
-
+  <div class="pill-row"><span class="chip">방울토마토</span><span class="chip">계란</span><span class="chip">두부</span><span class="chip">우유</span><span class="chip">당근</span></div>
   <span class="label" style="margin-top:14px" id="recommend-label">우리 동네 추천</span>
   <div class="card" id="recommend-card" onclick="nav('detail')">
     <div class="row" style="gap:12px">
       <div class="thumb">🍅</div>
-      <div style="flex:1">
-        <b style="font-size:13px">방울토마토 500g</b>
-        <div class="meta">📍 210m · 5분 전</div>
-        <div style="margin-top:6px"><span class="badge">나눔</span></div>
-      </div>
+      <div style="flex:1"><b style="font-size:13px">방울토마토 500g</b><div class="meta">📍 210m · 5분 전</div><div style="margin-top:6px"><span class="badge">나눔</span></div></div>
     </div>
   </div>
-
   <div class="bottom-nav">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i on"><div>🔍</div>탐색</div>
@@ -237,36 +216,17 @@ h4{margin:6px 0}
 <div class="phone" id="screen-register">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('home')">←</div><h2>식재료 등록</h2><span class="chip">2/3</span></div>
-
   <div class="tabs">
     <div class="tab" onclick="nav('camera')">📷 사진</div>
     <div class="tab on">✏️ 직접입력</div>
     <div class="tab" onclick="nav('camera')">🧾 영수증</div>
   </div>
-
-  <span class="label" style="margin-top:14px">AI 인식 결과</span>
-  <div class="card static" id="register-result">
-    <div class="row" style="gap:14px">
-      <div class="score"><b>88</b><span>신선도</span></div>
-      <div style="flex:1">
-        <div class="kv"><span>품목</span><b>방울토마토 500g</b></div>
-        <div class="kv"><span>구매일</span><b>5/17</b></div>
-        <div class="kv"><span>보관</span><b>냉장</b></div>
-        <div class="kv"><span>소비기한</span><b style="color:var(--teal2)">D-6 (5/25)</b></div>
-      </div>
-    </div>
-    <div class="bar" style="margin-top:10px"><i style="width:88%"></i></div>
-  </div>
-
-  <span class="label">기본 정보</span>
+  <span class="label" style="margin-top:14px">기본 정보</span>
   <div class="row"><span class="chip on">나눔</span><span class="chip">교환</span><span class="chip">판매</span></div>
-
   <span class="label" style="margin-top:14px">보관 방식</span>
   <div class="row"><span class="chip on">냉장</span><span class="chip">냉동</span><span class="chip">실온</span></div>
-
   <span class="label" style="margin-top:14px">위치</span>
   <input class="input" id="listing-location" value="" placeholder="동네"/>
-
   <span class="label" style="margin-top:14px">상세 정보</span>
   <div class="card static">
     <input class="input" id="listing-name" value="" placeholder="제목"/>
@@ -283,9 +243,7 @@ h4{margin:6px 0}
     </div>
     <textarea class="input" id="listing-storage-method" style="margin-top:8px;min-height:70px;resize:none" placeholder="보관 방법 안내"></textarea>
   </div>
-
   <button class="btn block" style="margin-top:14px" onclick="submitListing()">등록하기</button>
-
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
@@ -299,27 +257,21 @@ h4{margin:6px 0}
 <div class="phone" id="screen-camera">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('register')">←</div><h2>영수증 AI 인식</h2><span style="width:32px"></span></div>
-
   <div class="camera-view" id="camera-view" style="position:relative;overflow:hidden;background:#1F3D3A">
     <img id="photo-preview" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:var(--r-lg)" alt="업로드 사진"/>
     <div id="photo-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
-      <div style="font-size:50px">🧾</div>
-      <div style="font-size:11px;color:#cfe3dc">영수증을 올리면 백엔드 AI가 분석합니다</div>
+      <div style="font-size:50px">🧾</div><div style="font-size:11px;color:#cfe3dc">영수증을 올리면 백엔드 AI가 분석합니다</div>
     </div>
   </div>
-
   <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(event)"/>
-
   <div class="row" style="gap:8px;margin-bottom:10px">
     <button class="btn" style="flex:1" onclick="document.getElementById('photo-input').click()">📷 사진 촬영/업로드</button>
     <button class="btn ghost" style="flex:1" id="btn-reanalyze" onclick="runAIRecognition()" disabled>🔄 AI로 분석</button>
   </div>
-
   <div class="card static" id="ai-status-card" style="text-align:center;padding:14px;display:none">
     <div style="font-size:12px;color:var(--muted)" id="ai-status-text">백엔드 분석 준비 중...</div>
     <div class="bar" style="margin-top:10px"><i id="ai-progress-bar" style="width:10%;transition:width .4s"></i></div>
   </div>
-
   <div class="row" id="ai-result-toolbar" style="display:none;justify-content:space-between;align-items:center;margin-top:6px">
     <span class="label" style="margin:0">AI 인식 품목 <span id="ai-selected-count">0</span>개 선택됨</span>
     <div class="row" style="gap:6px">
@@ -328,20 +280,13 @@ h4{margin:6px 0}
     </div>
   </div>
   <div id="ai-results"></div>
-
   <div class="card static" id="ai-empty" style="text-align:center;padding:18px">
-    <div style="font-size:11px;color:var(--muted);line-height:1.6">
-      위 <b>사진 촬영/업로드</b> 버튼으로 영수증을 올리면<br>
-      데탑 백엔드의 <b>AI 모델</b>이 품목과 가격을<br>
-      자동으로 읽어 아래에 표시합니다.
-    </div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.6">위 <b>사진 촬영/업로드</b> 버튼으로 영수증을 올리면<br>데탑 백엔드의 <b>AI 모델</b>이 품목과 가격을<br>자동으로 읽어 아래에 표시합니다.</div>
   </div>
-
   <div class="row" style="gap:8px;margin-top:8px">
     <button class="btn ghost" style="flex:1" onclick="nav('register')">취소</button>
     <button class="btn" style="flex:2" id="btn-confirm-ai" onclick="confirmAIResult()" disabled>선택 품목 등록</button>
   </div>
-
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
@@ -355,33 +300,22 @@ h4{margin:6px 0}
 <div class="phone" id="screen-detail">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('home')">←</div><h2>상세</h2><span style="font-size:18px;cursor:pointer">♡</span></div>
-
   <div class="card static" id="detail-hero" style="text-align:center;padding:30px;font-size:64px">🍅</div>
-
   <div class="card static" id="detail-card"></div>
-
   <span class="label">보관 방법 / 소비기한 정보</span>
-  <div class="card static" id="storage-card">
-    <div class="empty-state">데이터를 불러오는 중...</div>
-  </div>
-
+  <div class="card static" id="storage-card"><div class="empty-state">데이터를 불러오는 중...</div></div>
   <span class="label">판매자</span>
   <div class="card" onclick="nav('mypage')">
     <div class="row" style="gap:10px">
       <div class="thumb" style="width:44px;height:44px;font-size:18px">👤</div>
-      <div style="flex:1">
-        <b style="font-size:13px" id="detail-seller">판매자</b>
-        <div class="meta" id="detail-seller-meta"><span class="stars">★★★★★</span> 신규 · 거래 0회</div>
-      </div>
+      <div style="flex:1"><b style="font-size:13px" id="detail-seller">판매자</b><div class="meta" id="detail-seller-meta"><span class="stars">★★★★★</span> 신규 · 거래 0회</div></div>
       <span class="badge">신뢰</span>
     </div>
   </div>
-
   <div class="row" style="gap:8px;margin-top:8px">
     <button class="btn ghost" style="flex:1" onclick="nav('chat')">찜하기</button>
-    <button class="btn" style="flex:2" onclick="nav('chat')">채팅하기</button>
+    <button class="btn" style="flex:2" onclick="startChatFromDetail()">채팅하기</button>
   </div>
-
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
@@ -399,18 +333,13 @@ h4{margin:6px 0}
     <h2 id="chat-title">채팅</h2>
     <span style="width:32px;text-align:right;cursor:pointer" onclick="refreshChatList(true)" title="새로고침">🔄</span>
   </div>
-
   <div id="chat-list-view">
-    <div class="inset" style="margin-bottom:12px;font-size:11px;text-align:center;padding:10px">
-      이웃과 1:1로 거래 메시지를 주고받아요.<br>
-      Supabase를 연결하면 다른 기기와도 동기화됩니다.
-    </div>
+    <div class="inset" style="margin-bottom:12px;font-size:11px;text-align:center;padding:10px">이웃과 1:1로 거래 메시지를 주고받아요.<br>Supabase 연결 시 다른 기기와도 동기화됩니다.</div>
     <span class="label">진행 중인 채팅</span>
     <div id="chat-rooms"></div>
     <span class="label" style="margin-top:14px">새 채팅 시작하기</span>
     <div id="chat-new-targets"></div>
   </div>
-
   <div id="chat-room-view" style="display:none;flex-direction:column;min-height:0">
     <div class="inset" id="chat-item-summary" style="margin-bottom:12px;font-size:11px;text-align:center;padding:8px">매물 정보...</div>
     <div id="chat-messages" style="overflow-y:auto;padding:4px;min-height:280px;max-height:380px"></div>
@@ -420,7 +349,6 @@ h4{margin:6px 0}
       <button class="btn" style="padding:6px 14px" onclick="sendChatMessage()">전송</button>
     </div>
   </div>
-
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
@@ -434,15 +362,10 @@ h4{margin:6px 0}
 <div class="phone" id="screen-mypage">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('home')">←</div><h2>마이페이지</h2><span style="width:32px"></span></div>
-
   <div class="card static">
     <div class="row" style="gap:12px">
       <div class="thumb" style="font-size:30px">👤</div>
-      <div style="flex:1">
-        <b style="font-size:15px" id="profile-name">사용자 님</b>
-        <div class="meta" id="profile-meta">우리 동네 · 거래 0회</div>
-        <div style="margin-top:6px"><span class="badge" id="profile-temp">신뢰온도 36.5℃</span></div>
-      </div>
+      <div style="flex:1"><b style="font-size:15px" id="profile-name">사용자 님</b><div class="meta" id="profile-meta">우리 동네 · 거래 0회</div><div style="margin-top:6px"><span class="badge" id="profile-temp">신뢰온도 36.5℃</span></div></div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center">
       <div><b style="color:var(--teal2)" id="stat-share">0</b><div class="meta">나눔</div></div>
@@ -451,19 +374,14 @@ h4{margin:6px 0}
     </div>
   </div>
   <button class="btn ghost block" style="margin-bottom:12px" onclick="logout()">로그아웃</button>
-
   <span class="label" id="fridge-label">우리 동네 냉장고</span>
-  <div id="fridge-list">
-    <div class="card static empty-state">데이터를 불러오는 중...</div>
-  </div>
-
+  <div id="fridge-list"><div class="card static empty-state">데이터를 불러오는 중...</div></div>
   <span class="label">환경 기여</span>
   <div class="card static">
     <div class="kv"><span>이번 달 나눔</span><b style="color:var(--teal2)" id="env-month">0 kg</b></div>
     <div class="kv"><span>누적 나눔</span><b id="env-total">0 kg</b></div>
     <div class="kv"><span>CO₂ 절감</span><b id="env-co2">약 0 kg</b></div>
   </div>
-
   <div class="bottom-nav">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i" onclick="nav('explore')"><div>🔍</div>탐색</div>
@@ -474,7 +392,6 @@ h4{margin:6px 0}
 </div>
 
 </div><!-- /phone-stage -->
-
 <div class="hint" id="hint"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -488,21 +405,16 @@ let items = [...seedItems];
 let selectedItem = items[0] || null;
 function loadCurrentUser(){
   const u = JSON.parse(localStorage.getItem('freshshare_user') || 'null');
-  if(u && u.expiresAt && Date.now() > u.expiresAt){
-    localStorage.removeItem('freshshare_user');
-    return null;
-  }
+  if(u && u.expiresAt && Date.now() > u.expiresAt){ localStorage.removeItem('freshshare_user'); return null; }
   return u;
 }
 let currentUser = loadCurrentUser();
 const config = window.FRESHSHARE_CONFIG || {};
 const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey)
-  ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey)
-  : null;
+  ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey) : null;
 
 function userLabel(){ return currentUser?.nickname || '사용자'; }
 
-// 로그인 여부에 따라 "우리 동네 추천" 표시/숨김
 function updateRecommendVisibility(){
   const recLabel = document.getElementById('recommend-label');
   const recCard = document.getElementById('recommend-card');
@@ -512,10 +424,7 @@ function updateRecommendVisibility(){
 }
 
 function nav(target){
-  screens.forEach(s => {
-    const el = document.getElementById('screen-' + s);
-    if(el) el.classList.toggle('active', s === target);
-  });
+  screens.forEach(s => { const el = document.getElementById('screen-' + s); if(el) el.classList.toggle('active', s === target); });
   showHint(labels[target] + ' 화면');
   if(target === 'chat') renderChat();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -526,118 +435,99 @@ function switchAuthMode(mode){
   authMode = mode;
   document.querySelectorAll('#auth-tabs .tab').forEach(t => t.classList.toggle('on', t.dataset.mode === mode));
   document.getElementById('login-submit-btn').textContent = mode === 'signup' ? '회원가입' : '로그인';
+  const signupFields = document.getElementById('signup-fields');
+  if(signupFields) signupFields.style.display = (mode === 'signup') ? 'block' : 'none';
   refreshAccountList();
 }
-// ===== 온라인 계정 (Supabase profiles 테이블) =====
-// Supabase가 연결돼 있으면 온라인, 없으면 기존처럼 이 브라우저(localStorage) 사용
+
 function getAllAccounts(){ return JSON.parse(localStorage.getItem('freshshare_accounts') || '{}'); }
 function saveAllAccounts(accs){ localStorage.setItem('freshshare_accounts', JSON.stringify(accs)); }
 
 async function refreshAccountList(){
-  let ids = [];
-  let accs = {};
+  let ids = [], accs = {};
   if(sb){
     try{
       const { data } = await sb.from('profiles').select('userid, nickname, neighborhood');
       if(data){ data.forEach(r => { accs[r.userid] = r; }); ids = data.map(r => r.userid); }
     }catch(e){ console.error(e); }
-  } else {
-    accs = getAllAccounts();
-    ids = Object.keys(accs);
-  }
+  } else { accs = getAllAccounts(); ids = Object.keys(accs); }
   const cntEl = document.getElementById('account-count');
   if(cntEl) cntEl.textContent = `${ids.length}개`;
   const list = document.getElementById('account-list');
   if(!list) return;
   if(!ids.length){ list.innerHTML = '<div class="meta" style="padding:8px">저장된 계정이 없습니다. 회원가입으로 만들어보세요.</div>'; return; }
-  list.innerHTML = ids.map(id => {
-    const a = accs[id];
-    return `<div class="kv" style="padding:6px 4px"><span>@${id} · <b>${a.nickname}</b></span><span class="meta">${a.neighborhood||''}</span></div>`;
-  }).join('');
+  list.innerHTML = ids.map(id => { const a = accs[id]; return `<div class="kv" style="padding:6px 4px"><span>@${id} · <b>${a.nickname}</b></span><span class="meta">${a.neighborhood||''}</span></div>`; }).join('');
 }
 
 async function login(){
   const userid = (document.getElementById('login-userid').value || '').trim().toLowerCase();
-  const nickname = document.getElementById('login-nickname').value.trim() || '';
   const password = document.getElementById('login-password').value;
-  const gu = document.getElementById('login-gu').value;
-  const dong = document.getElementById('login-dong').value;
+  const guInput = (document.getElementById('login-gu')?.value) || '';
+  const dongInput = (document.getElementById('login-dong')?.value) || '';
 
   if(!userid || userid.length < 4 || !/^[a-z0-9_]+$/.test(userid)){ showHint('아이디는 영문/숫자 4자 이상이어야 합니다'); return; }
-  if(!nickname){ showHint('닉네임을 입력하세요'); return; }
   if(!password || password.length < 4){ showHint('비밀번호는 4자 이상 입력하세요'); return; }
-  if(!gu){ showHint('자치구를 선택하세요'); return; }
-  if(!dong){ showHint('동을 선택하세요'); return; }
 
-  const neighborhood = `${gu} ${dong}`;
+  let nickname = userid, gu = guInput, dong = dongInput, neighborhood = `${guInput} ${dongInput}`.trim();
 
   if(sb){
-    // ===== 온라인 모드: profiles 테이블 사용 =====
     try{
-      // 해당 아이디 계정 조회
-      const { data: existing, error: selErr } = await sb
-        .from('profiles').select('*').eq('userid', userid).maybeSingle();
+      const { data: existing, error: selErr } = await sb.from('profiles').select('*').eq('userid', userid).maybeSingle();
       if(selErr){ showHint('서버 조회 오류. 잠시 후 다시 시도하세요'); return; }
-
       if(authMode === 'signup'){
+        nickname = (document.getElementById('login-nickname').value || '').trim();
+        if(!nickname){ showHint('닉네임을 입력하세요'); return; }
+        if(!guInput){ showHint('자치구를 선택하세요'); return; }
+        if(!dongInput){ showHint('동을 선택하세요'); return; }
         if(existing){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
-        const { error: insErr } = await sb.from('profiles').insert({
-          userid, nickname, password, gu, dong, neighborhood
-        });
+        neighborhood = `${guInput} ${dongInput}`;
+        const { error: insErr } = await sb.from('profiles').insert({ userid, nickname, password, gu: guInput, dong: dongInput, neighborhood });
         if(insErr){ showHint('회원가입 실패: ' + insErr.message); return; }
         showHint(`@${userid} (${nickname}) 가입 완료`);
       } else {
         if(!existing){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
         if((existing.password || '') !== password){ showHint('비밀번호가 틀렸습니다'); return; }
-        // 닉네임을 바꿨으면 업데이트
-        if(nickname && nickname !== existing.nickname){
-          await sb.from('profiles').update({ nickname, neighborhood, gu, dong }).eq('userid', userid);
-        }
+        nickname = existing.nickname || userid; gu = existing.gu || ''; dong = existing.dong || '';
+        neighborhood = existing.neighborhood || `${gu} ${dong}`.trim();
       }
     }catch(e){ console.error(e); showHint('서버 연결 실패. config.js의 Supabase 설정을 확인하세요'); return; }
   } else {
-    // ===== 오프라인 모드: 기존 localStorage 방식 =====
     const accs = getAllAccounts();
     if(authMode === 'signup'){
+      nickname = (document.getElementById('login-nickname').value || '').trim();
+      if(!nickname){ showHint('닉네임을 입력하세요'); return; }
+      if(!guInput){ showHint('자치구를 선택하세요'); return; }
+      if(!dongInput){ showHint('동을 선택하세요'); return; }
       if(accs[userid]){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
-      accs[userid] = { userid, nickname, password: password||'', gu, dong, neighborhood, createdAt: new Date().toISOString() };
-      saveAllAccounts(accs);
-      showHint(`@${userid} (${nickname}) 가입 완료`);
+      neighborhood = `${guInput} ${dongInput}`;
+      accs[userid] = { userid, nickname, password: password||'', gu: guInput, dong: dongInput, neighborhood, createdAt: new Date().toISOString() };
+      saveAllAccounts(accs); showHint(`@${userid} (${nickname}) 가입 완료`);
     } else {
       if(!accs[userid]){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
       if(accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
-      if(nickname && nickname !== accs[userid].nickname){ accs[userid].nickname = nickname; saveAllAccounts(accs); }
+      const a = accs[userid]; nickname = a.nickname || userid; gu = a.gu || ''; dong = a.dong || ''; neighborhood = a.neighborhood || `${gu} ${dong}`.trim();
     }
   }
 
-  // 로그인 성공 → 세션 저장
   currentUser = { userid, nickname, neighborhood, gu, dong, loggedAt: new Date().toISOString(), expiresAt: Date.now() + 12*60*60*1000 };
   localStorage.setItem('freshshare_user', JSON.stringify(currentUser));
-
   const listingLoc = document.getElementById('listing-location');
   if(listingLoc) listingLoc.value = neighborhood;
   const homeChip = document.querySelector('#screen-home .header .chip');
-  if(homeChip) homeChip.innerHTML = `📍 ${currentUser.gu} ${currentUser.dong}`;
+  if(homeChip) homeChip.innerHTML = `📍 ${gu || ''} ${dong || ''}`.trim() || '📍 우리 동네';
   await refreshSharedListings();
-  renderFridge();
-  updateRecommendVisibility();
+  renderFridge(); updateRecommendVisibility();
   showHint(`${currentUser.nickname} 님 환영합니다 (@${userid})`);
   nav('home');
 }
 
-function logout(){ localStorage.removeItem('freshshare_user'); currentUser = null; updateRecommendVisibility(); nav('login'); refreshAccountList(); }
+function logout(){ localStorage.removeItem('freshshare_user'); currentUser = null; updateRecommendVisibility(); nav('login'); switchAuthMode('signin'); refreshAccountList(); }
 
 function showHint(text){
-  const h = document.getElementById('hint');
-  h.textContent = text; h.classList.add('show');
-  clearTimeout(window._hintTimer);
-  window._hintTimer = setTimeout(()=>h.classList.remove('show'), 1800);
+  const h = document.getElementById('hint'); h.textContent = text; h.classList.add('show');
+  clearTimeout(window._hintTimer); window._hintTimer = setTimeout(()=>h.classList.remove('show'), 1800);
 }
-
-function ddayBadge(item){
-  const cls = item.remainingDays <= 2 ? 'badge warn' : 'badge gray';
-  return `<span class="${cls}">${item.storageType} D-${item.remainingDays}</span>`;
-}
+function ddayBadge(item){ const cls = item.remainingDays <= 2 ? 'badge warn' : 'badge gray'; return `<span class="${cls}">${item.storageType} D-${item.remainingDays}</span>`; }
 function priceLabel(item){ return item.priceKrw ? `${item.priceKrw.toLocaleString('ko-KR')}원` : item.tradeType; }
 function selectItem(id, target='detail'){ selectedItem = items.find(item => item.id === id) || selectedItem; renderDetail(); nav(target); }
 
@@ -669,7 +559,6 @@ function toListingItem(row){
     ownerUserid: row.owner_userid || row.ownerUserid || ''
   };
 }
-
 function localListings(){ return JSON.parse(localStorage.getItem('freshshare_listings') || '[]'); }
 function saveLocalListings(rows){ localStorage.setItem('freshshare_listings', JSON.stringify(rows)); }
 
@@ -696,8 +585,7 @@ async function submitListing(){
   const listing = {
     id: `user-${Date.now()}`, emoji: '🧺',
     itemName: document.getElementById('listing-name').value.trim() || `${baseFood} 나눔`,
-    baseFood, category: '식품',
-    quantity: document.getElementById('listing-quantity').value.trim() || '1',
+    baseFood, category: '식품', quantity: document.getElementById('listing-quantity').value.trim() || '1',
     tradeType: document.querySelector('#screen-register .row .chip.on')?.textContent?.trim() || '나눔',
     priceKrw: Number(document.getElementById('listing-price').value || 0),
     storageType: '냉장', purchaseDate, shelfLifeDays, remainingDays,
@@ -752,15 +640,11 @@ function renderDetail(){
   if(card){
     card.innerHTML = `
       <div class="row" style="justify-content:space-between">
-        <div>
-          <b style="font-size:16px">${selectedItem.itemName}</b>
-          <div class="meta">${selectedItem.location} · ${selectedItem.distanceM}m · ${selectedItem.listingAge}${selectedItem.ownerNickname ? ' · 판매자 '+selectedItem.ownerNickname : ''}</div>
-        </div>
+        <div><b style="font-size:16px">${selectedItem.itemName}</b>
+          <div class="meta">${selectedItem.location} · ${selectedItem.distanceM}m · ${selectedItem.listingAge}${selectedItem.ownerNickname ? ' · 판매자 '+selectedItem.ownerNickname : ''}</div></div>
         <div class="score"><b>${selectedItem.freshnessScore}</b><span>신선도</span></div>
       </div>
-      <div class="pill-row">
-        <span class="badge">${priceLabel(selectedItem)}</span>${ddayBadge(selectedItem)}<span class="badge gray">${selectedItem.category}</span>
-      </div>
+      <div class="pill-row"><span class="badge">${priceLabel(selectedItem)}</span>${ddayBadge(selectedItem)}<span class="badge gray">${selectedItem.category}</span></div>
       <p style="font-size:12px;line-height:1.6;margin:10px 0 0">신선한 ${selectedItem.baseFood} 나눔합니다. 필요한 이웃 분께 드려요 :)</p>`;
   }
   if(storage){
@@ -773,11 +657,16 @@ function renderDetail(){
       <div class="data-note"><b>팁</b> ${selectedItem.storageTips}</div>
       <div class="data-note"><b>기준</b> ${selectedItem.expiryBasis}<br><a class="source-link" href="${selectedItem.sourceUrl}" target="_blank" rel="noreferrer">${selectedItem.sourceName}</a></div>`;
   }
-  // 판매자 이름을 글 작성자 닉네임으로
   const seller = document.getElementById('detail-seller');
   const sellerMeta = document.getElementById('detail-seller-meta');
   if(seller) seller.textContent = selectedItem.ownerNickname || '판매자';
   if(sellerMeta) sellerMeta.innerHTML = `<span class="stars">★★★★★</span> 신규 · 거래 0회`;
+}
+function startChatFromDetail(){
+  if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; }
+  if(selectedItem && selectedItem.ownerUserid && selectedItem.ownerUserid !== currentUser.userid){
+    nav('chat'); enterChatRoom(selectedItem.id, selectedItem.ownerUserid, selectedItem.ownerNickname || '판매자');
+  } else { nav('chat'); }
 }
 
 // ===== 채팅 =====
@@ -785,11 +674,7 @@ let activeRoom = null;
 function allMessages(){ return JSON.parse(localStorage.getItem('freshshare_messages') || '[]'); }
 function saveAllMessages(arr){ localStorage.setItem('freshshare_messages', JSON.stringify(arr)); }
 function makeRoomId(listingId, a, b){ const [x, y] = [a, b].sort(); return `${listingId}::${x}::${y}`; }
-function getRoomMessages(listingId, peerUserid){
-  if(!currentUser) return [];
-  const rid = makeRoomId(listingId, currentUser.userid, peerUserid);
-  return allMessages().filter(m => m.roomId === rid).sort((a,b) => a.ts - b.ts);
-}
+function getRoomMessages(listingId, peerUserid){ if(!currentUser) return []; const rid = makeRoomId(listingId, currentUser.userid, peerUserid); return allMessages().filter(m => m.roomId === rid).sort((a,b) => a.ts - b.ts); }
 function listMyRooms(){
   if(!currentUser) return [];
   const msgs = allMessages(); const rooms = {};
@@ -798,45 +683,25 @@ function listMyRooms(){
       const peer = m.from === currentUser.userid ? m.to : m.from;
       const peerNick = m.from === currentUser.userid ? m.toNick : m.fromNick;
       const key = `${m.listingId}::${peer}`;
-      if(!rooms[key] || rooms[key].lastTs < m.ts){
-        rooms[key] = { listingId: m.listingId, peerUserid: peer, peerNick: peerNick || peer, lastBody: m.body, lastTs: m.ts, lastFromMe: m.from === currentUser.userid, unread: 0 };
-      }
+      if(!rooms[key] || rooms[key].lastTs < m.ts){ rooms[key] = { listingId: m.listingId, peerUserid: peer, peerNick: peerNick || peer, lastBody: m.body, lastTs: m.ts, lastFromMe: m.from === currentUser.userid, unread: 0 }; }
     }
   });
   const reads = JSON.parse(localStorage.getItem('freshshare_reads_'+currentUser.userid) || '{}');
-  Object.values(rooms).forEach(r => {
-    const rid = makeRoomId(r.listingId, currentUser.userid, r.peerUserid);
-    const lastRead = reads[rid] || 0;
-    r.unread = msgs.filter(m => m.roomId === rid && m.from !== currentUser.userid && m.ts > lastRead).length;
-  });
+  Object.values(rooms).forEach(r => { const rid = makeRoomId(r.listingId, currentUser.userid, r.peerUserid); const lastRead = reads[rid] || 0; r.unread = msgs.filter(m => m.roomId === rid && m.from !== currentUser.userid && m.ts > lastRead).length; });
   return Object.values(rooms).sort((a,b) => b.lastTs - a.lastTs);
 }
-function markRoomRead(listingId, peerUserid){
-  if(!currentUser) return;
-  const rid = makeRoomId(listingId, currentUser.userid, peerUserid);
-  const reads = JSON.parse(localStorage.getItem('freshshare_reads_'+currentUser.userid) || '{}');
-  reads[rid] = Date.now();
-  localStorage.setItem('freshshare_reads_'+currentUser.userid, JSON.stringify(reads));
-}
+function markRoomRead(listingId, peerUserid){ if(!currentUser) return; const rid = makeRoomId(listingId, currentUser.userid, peerUserid); const reads = JSON.parse(localStorage.getItem('freshshare_reads_'+currentUser.userid) || '{}'); reads[rid] = Date.now(); localStorage.setItem('freshshare_reads_'+currentUser.userid, JSON.stringify(reads)); }
 function totalUnreadCount(){ return listMyRooms().reduce((sum, r) => sum + r.unread, 0); }
 function findListingById(id){ return items.find(it => it.id === id) || null; }
 
 async function refreshChatList(showHintFlag){
-  if(!currentUser){
-    document.getElementById('chat-rooms').innerHTML = '<div class="card static empty-state">로그인이 필요합니다</div>';
-    document.getElementById('chat-new-targets').innerHTML = ''; return;
-  }
+  if(!currentUser){ document.getElementById('chat-rooms').innerHTML = '<div class="card static empty-state">로그인이 필요합니다</div>'; document.getElementById('chat-new-targets').innerHTML = ''; return; }
   if(sb){
     try{
       const { data } = await sb.from('messages').select('*').or(`from_userid.eq.${currentUser.userid},to_userid.eq.${currentUser.userid}`).order('ts', { ascending:true }).limit(500);
       if(data){
         const cached = allMessages(); const known = new Set(cached.map(m => m.id)); let added = 0;
-        data.forEach(row => {
-          if(!known.has(row.id)){
-            cached.push({ id: row.id, roomId: makeRoomId(row.listing_id, row.from_userid, row.to_userid), listingId: row.listing_id, from: row.from_userid, fromNick: row.from_nick, to: row.to_userid, toNick: row.to_nick, body: row.body, ts: row.ts });
-            added++;
-          }
-        });
+        data.forEach(row => { if(!known.has(row.id)){ cached.push({ id: row.id, roomId: makeRoomId(row.listing_id, row.from_userid, row.to_userid), listingId: row.listing_id, from: row.from_userid, fromNick: row.from_nick, to: row.to_userid, toNick: row.to_nick, body: row.body, ts: row.ts }); added++; } });
         if(added) saveAllMessages(cached);
       }
     }catch(e){}
@@ -844,7 +709,6 @@ async function refreshChatList(showHintFlag){
   renderChatRooms(); renderNewChatTargets();
   if(showHintFlag) showHint(`안 읽은 메시지 ${totalUnreadCount()}개`);
 }
-
 function renderChatRooms(){
   const box = document.getElementById('chat-rooms');
   if(!box) return;
@@ -856,17 +720,11 @@ function renderChatRooms(){
     const preview = (r.lastFromMe ? '나: ' : '') + (r.lastBody.length > 24 ? r.lastBody.slice(0,24)+'…' : r.lastBody);
     const unreadBadge = r.unread > 0 ? `<span class="badge danger" style="margin-left:6px">${r.unread}</span>` : '';
     return `<div class="card" onclick="enterChatRoom('${r.listingId}', '${r.peerUserid}', '${(r.peerNick||'').replace(/'/g,"\\'")}')">
-        <div class="row" style="gap:10px">
-          <div class="thumb" style="width:42px;height:42px;font-size:18px">${listing.emoji}</div>
-          <div style="flex:1;min-width:0">
-            <div class="row" style="justify-content:space-between"><b style="font-size:12px">@${r.peerUserid} (${r.peerNick||'?'})${unreadBadge}</b><span class="meta" style="font-size:10px">${timeStr}</span></div>
-            <div class="meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${listing.itemName} · ${preview}</div>
-          </div>
-        </div>
-      </div>`;
+        <div class="row" style="gap:10px"><div class="thumb" style="width:42px;height:42px;font-size:18px">${listing.emoji}</div>
+          <div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><b style="font-size:12px">@${r.peerUserid} (${r.peerNick||'?'})${unreadBadge}</b><span class="meta" style="font-size:10px">${timeStr}</span></div>
+            <div class="meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${listing.itemName} · ${preview}</div></div></div></div>`;
   }).join('');
 }
-
 function renderNewChatTargets(){
   const box = document.getElementById('chat-new-targets');
   if(!box) return;
@@ -874,13 +732,9 @@ function renderNewChatTargets(){
   if(!others.length){ box.innerHTML = '<div class="meta" style="padding:8px">대화 가능한 매물이 없습니다. 다른 사용자가 등록하면 표시됩니다.</div>'; return; }
   box.innerHTML = others.map(it => `
     <div class="card" onclick="enterChatRoom('${it.id}', '${it.ownerUserid}', '${(it.ownerNickname||'').replace(/'/g,"\\'")}')">
-      <div class="row" style="gap:10px">
-        <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
-        <div style="flex:1"><b style="font-size:12px">${it.itemName}</b><div class="meta">@${it.ownerUserid} (${it.ownerNickname||'?'}) · ${it.location||''}</div></div>
-      </div>
-    </div>`).join('');
+      <div class="row" style="gap:10px"><div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
+        <div style="flex:1"><b style="font-size:12px">${it.itemName}</b><div class="meta">@${it.ownerUserid} (${it.ownerNickname||'?'}) · ${it.location||''}</div></div></div></div>`).join('');
 }
-
 function enterChatRoom(listingId, peerUserid, peerNick){
   if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; }
   if(peerUserid === currentUser.userid){ showHint('내 매물에는 채팅할 수 없습니다'); return; }
@@ -925,108 +779,66 @@ async function sendChatMessage(){
   if(sb){ try{ await sb.from('messages').insert({ id: msg.id, listing_id: msg.listingId, from_userid: msg.from, from_nick: msg.fromNick, to_userid: msg.to, to_nick: msg.toNick, body: msg.body, ts: msg.ts }); }catch(e){} }
   renderChatMessages(); markRoomRead(activeRoom.listingId, activeRoom.peerUserid);
 }
-async function renderChat(){
-  if(!activeRoom){ document.getElementById('chat-list-view').style.display = 'block'; document.getElementById('chat-room-view').style.display = 'none'; }
-  await refreshChatList(false);
-}
+async function renderChat(){ if(!activeRoom){ document.getElementById('chat-list-view').style.display = 'block'; document.getElementById('chat-room-view').style.display = 'none'; } await refreshChatList(false); }
 
 function renderFridge(){
   const label = document.getElementById('fridge-label');
   const fridge = document.getElementById('fridge-list');
   const profileName = document.getElementById('profile-name');
   const profileMeta = document.getElementById('profile-meta');
-
-  // 내가 등록한 매물만 추려서 통계 계산
   const myItems = currentUser ? items.filter(it => it.ownerUserid === currentUser.userid) : [];
-  const shareCount = myItems.length;                       // 나눔 개수 = 내가 올린 매물 수
-  const receiveCount = 0;                                  // 받음(아직 거래기록 없음 → 0)
-  const ratingVal = shareCount > 0 ? 0 : 0;                // 평점(거래 전이므로 0)
-
-  // 환경 기여: 매물 1건당 약 0.5kg로 단순 추정
+  const shareCount = myItems.length, receiveCount = 0, ratingVal = 0;
   const KG_PER_ITEM = 0.5;
   const totalKg = +(shareCount * KG_PER_ITEM).toFixed(1);
-  const co2Kg = +(totalKg * 2.5).toFixed(1);               // 음식물 1kg당 약 2.5kg CO2 절감 추정
-
+  const co2Kg = +(totalKg * 2.5).toFixed(1);
   if(profileName) profileName.textContent = `${userLabel()} 님`;
   if(profileMeta) profileMeta.textContent = `${currentUser?.neighborhood || '우리 동네'} · 거래 ${receiveCount}회`;
-
-  const tempEl = document.getElementById('profile-temp');
-  if(tempEl) tempEl.textContent = '신뢰온도 36.5℃';        // 기본 신뢰온도 36.5
-  const sShare = document.getElementById('stat-share');
-  const sRecv = document.getElementById('stat-receive');
-  const sRate = document.getElementById('stat-rating');
-  if(sShare) sShare.textContent = shareCount;
-  if(sRecv) sRecv.textContent = receiveCount;
-  if(sRate) sRate.textContent = ratingVal;
-
-  const envMonth = document.getElementById('env-month');
-  const envTotal = document.getElementById('env-total');
-  const envCo2 = document.getElementById('env-co2');
-  if(envMonth) envMonth.textContent = `${totalKg} kg`;
-  if(envTotal) envTotal.textContent = `${totalKg} kg`;
-  if(envCo2) envCo2.textContent = `약 ${co2Kg} kg`;
-
+  const tempEl = document.getElementById('profile-temp'); if(tempEl) tempEl.textContent = '신뢰온도 36.5℃';
+  const sShare = document.getElementById('stat-share'); if(sShare) sShare.textContent = shareCount;
+  const sRecv = document.getElementById('stat-receive'); if(sRecv) sRecv.textContent = receiveCount;
+  const sRate = document.getElementById('stat-rating'); if(sRate) sRate.textContent = ratingVal;
+  const envMonth = document.getElementById('env-month'); if(envMonth) envMonth.textContent = `${totalKg} kg`;
+  const envTotal = document.getElementById('env-total'); if(envTotal) envTotal.textContent = `${totalKg} kg`;
+  const envCo2 = document.getElementById('env-co2'); if(envCo2) envCo2.textContent = `약 ${co2Kg} kg`;
   if(label) label.textContent = `우리 동네 냉장고 (${items.length})`;
   if(!fridge) return;
   fridge.innerHTML = items.map(item => {
     const badge = item.remainingDays <= 2 ? 'badge danger' : item.remainingDays <= 5 ? 'badge warn' : 'badge';
-    return `<div class="card" onclick="selectItem('${item.id}')">
-        <div class="row" style="gap:10px">
-          <div class="thumb" style="width:48px;height:48px;font-size:20px">${item.emoji}</div>
-          <div style="flex:1"><b style="font-size:12px">${item.itemName}</b><div class="meta">${item.purchaseDate} 구매 · ${item.storageType} · ${item.purchaseFrequency}</div></div>
-          <span class="${badge}">D-${item.remainingDays}</span>
-        </div>
-      </div>`;
+    return `<div class="card" onclick="selectItem('${item.id}')"><div class="row" style="gap:10px"><div class="thumb" style="width:48px;height:48px;font-size:20px">${item.emoji}</div>
+        <div style="flex:1"><b style="font-size:12px">${item.itemName}</b><div class="meta">${item.purchaseDate} 구매 · ${item.storageType} · ${item.purchaseFrequency}</div></div>
+        <span class="${badge}">D-${item.remainingDays}</span></div></div>`;
   }).join('') || '<div class="card static empty-state">등록된 식재료가 없습니다.</div>';
 }
 
 // ===== 백엔드 OCR 연동 =====
 let _uploadedImageFile = null;
 let _ocrLastResults = [];
-
 function handlePhotoUpload(event){
   const file = event.target.files && event.target.files[0];
   if(!file) return;
   _uploadedImageFile = file;
   const reader = new FileReader();
   reader.onload = (e) => {
-    const img = document.getElementById('photo-preview');
-    if(img){ img.src = e.target.result; img.style.display = 'block'; }
-    const ph = document.getElementById('photo-placeholder');
-    if(ph) ph.style.display = 'none';
-    const reBtn = document.getElementById('btn-reanalyze');
-    if(reBtn) reBtn.disabled = false;
+    const img = document.getElementById('photo-preview'); if(img){ img.src = e.target.result; img.style.display = 'block'; }
+    const ph = document.getElementById('photo-placeholder'); if(ph) ph.style.display = 'none';
+    const reBtn = document.getElementById('btn-reanalyze'); if(reBtn) reBtn.disabled = false;
     showHint('사진 업로드 완료. AI로 분석 버튼을 눌러주세요');
   };
   reader.readAsDataURL(file);
 }
-
-// 체크박스 상태에 따라 선택 개수 갱신 + 등록 버튼 활성화
 function updateOcrSelection(){
-  const checks = document.querySelectorAll('.ocr-check');
-  let count = 0;
+  const checks = document.querySelectorAll('.ocr-check'); let count = 0;
   checks.forEach(c => { if(c.checked) count++; });
-  const countEl = document.getElementById('ai-selected-count');
-  if(countEl) countEl.textContent = count;
-  const confirmBtn = document.getElementById('btn-confirm-ai');
-  if(confirmBtn) confirmBtn.disabled = count === 0;
+  const countEl = document.getElementById('ai-selected-count'); if(countEl) countEl.textContent = count;
+  const confirmBtn = document.getElementById('btn-confirm-ai'); if(confirmBtn) confirmBtn.disabled = count === 0;
 }
-function setAllOcrChecks(state){
-  document.querySelectorAll('.ocr-check').forEach(c => { c.checked = state; });
-  updateOcrSelection();
-}
-// 사용자가 OCR 결과를 수정하면 _ocrLastResults에 반영
+function setAllOcrChecks(state){ document.querySelectorAll('.ocr-check').forEach(c => { c.checked = state; }); updateOcrSelection(); }
 function updateOcrResult(idx, field, value){
   if(_ocrLastResults[idx]){
-    if(field === 'priceKrw'){
-      const num = Number(String(value).replace(/[^0-9]/g, '')) || 0;
-      _ocrLastResults[idx].priceKrw = num;
-    } else {
-      _ocrLastResults[idx][field] = value;
-    }
+    if(field === 'priceKrw'){ _ocrLastResults[idx].priceKrw = Number(String(value).replace(/[^0-9]/g, '')) || 0; }
+    else { _ocrLastResults[idx][field] = value; }
   }
 }
-
 async function runAIRecognition(){
   if(!_uploadedImageFile){ showHint('먼저 사진을 업로드하세요'); return; }
   const backendUrl = (window.FRESHSHARE_CONFIG || {}).backendUrl;
@@ -1038,13 +850,8 @@ async function runAIRecognition(){
   if(statusText) statusText.textContent = '백엔드 AI 모델로 분석 중...';
   if(bar) bar.style.width = '40%';
   try{
-    const form = new FormData();
-    form.append('file', _uploadedImageFile);
-    const resp = await fetch(backendUrl.replace(/\/$/, '') + '/ocr', {
-      method: 'POST',
-      body: form,
-      headers: { 'ngrok-skip-browser-warning': 'true' }
-    });
+    const form = new FormData(); form.append('file', _uploadedImageFile);
+    const resp = await fetch(backendUrl.replace(/\/$/, '') + '/ocr', { method: 'POST', body: form, headers: { 'ngrok-skip-browser-warning': 'true' } });
     if(!resp.ok) throw new Error('서버 응답 오류 ' + resp.status);
     const data = await resp.json();
     if(bar) bar.style.width = '100%';
@@ -1057,18 +864,11 @@ async function runAIRecognition(){
     if(toolbar) toolbar.style.display = results.length ? 'flex' : 'none';
     if(box){
       box.innerHTML = results.length
-        ? results.map((it,i)=>`<div class="card static">
-            <div class="row" style="gap:10px;align-items:center">
-              <input type="checkbox" class="ocr-check" data-idx="${i}" checked onchange="updateOcrSelection()"/>
-              <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
-              <div style="flex:1">
-                <input class="ocr-edit" value="${escapeHTML(it.name)}" oninput="updateOcrResult(${i}, 'name', this.value)" placeholder="품목명"/>
-                <div class="row" style="margin-top:6px;gap:6px;align-items:center">
-                  <input class="ocr-edit" style="flex:1" value="${it.priceKrw || ''}" oninput="updateOcrResult(${i}, 'priceKrw', this.value)" placeholder="가격(숫자)" inputmode="numeric"/>
-                  <span class="meta">원</span>
-                </div>
-              </div>
-            </div></div>`).join('')
+        ? results.map((it,i)=>`<div class="card static"><div class="row" style="gap:10px;align-items:center">
+            <input type="checkbox" class="ocr-check" data-idx="${i}" checked onchange="updateOcrSelection()"/>
+            <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
+            <div style="flex:1"><input class="ocr-edit" value="${escapeHTML(it.name)}" oninput="updateOcrResult(${i}, 'name', this.value)" placeholder="품목명"/>
+              <div class="row" style="margin-top:6px;gap:6px;align-items:center"><input class="ocr-edit" style="flex:1" value="${it.priceKrw || ''}" oninput="updateOcrResult(${i}, 'priceKrw', this.value)" placeholder="가격(숫자)" inputmode="numeric"/><span class="meta">원</span></div></div></div></div>`).join('')
         : '<div class="card static empty-state">인식된 품목이 없습니다. 다시 촬영해 주세요.</div>';
     }
     updateOcrSelection();
@@ -1081,59 +881,33 @@ async function runAIRecognition(){
     showHint('백엔드 연결 실패');
   }
 }
-
-// 체크된 품목들을 각각 매물로 등록
 async function confirmAIResult(){
   if(!currentUser){ showHint('먼저 로그인하세요'); nav('login'); return; }
-  const checks = document.querySelectorAll('.ocr-check');
-  const selected = [];
-  checks.forEach(c => {
-    if(c.checked){
-      const idx = Number(c.dataset.idx);
-      if(_ocrLastResults[idx]) selected.push(_ocrLastResults[idx]);
-    }
-  });
+  const checks = document.querySelectorAll('.ocr-check'); const selected = [];
+  checks.forEach(c => { if(c.checked){ const idx = Number(c.dataset.idx); if(_ocrLastResults[idx]) selected.push(_ocrLastResults[idx]); } });
   if(!selected.length){ showHint('등록할 품목을 하나 이상 선택하세요'); return; }
-
   const today = new Date().toISOString().slice(0,10);
   const shelfLifeDays = 7;
   const expiry = new Date(today); expiry.setDate(expiry.getDate() + shelfLifeDays);
   const expiryStr = expiry.toISOString().slice(0,10);
   const rows = sb ? null : localListings();
   let count = 0;
-
   for(const it of selected){
     const name = (it.name || '식품').trim() || '식품';
     const listing = {
-      id: `user-${Date.now()}-${count}`, emoji: '🧾',
-      itemName: name, baseFood: name, category: '식품', quantity: '1',
-      tradeType: '나눔', priceKrw: Number(it.priceKrw || 0),
-      storageType: '냉장', purchaseDate: today, shelfLifeDays,
-      remainingDays: shelfLifeDays, expiryDate: expiryStr, freshnessScore: 82,
-      location: currentUser.neighborhood, distanceM: 100, listingAge: '방금 전',
-      purchaseFrequency: '주 1회', preservationMethod: '냉장 보관',
-      storageTips: '서늘하고 건조한 곳에 보관', expiryBasis: '구매일 기준 추정',
-      sourceName: '영수증 OCR', sourceUrl: '#', aiUsage: '영수증 OCR 자동 인식',
+      id: `user-${Date.now()}-${count}`, emoji: '🧾', itemName: name, baseFood: name, category: '식품', quantity: '1',
+      tradeType: '나눔', priceKrw: Number(it.priceKrw || 0), storageType: '냉장', purchaseDate: today, shelfLifeDays,
+      remainingDays: shelfLifeDays, expiryDate: expiryStr, freshnessScore: 82, location: currentUser.neighborhood, distanceM: 100,
+      listingAge: '방금 전', purchaseFrequency: '주 1회', preservationMethod: '냉장 보관', storageTips: '서늘하고 건조한 곳에 보관',
+      expiryBasis: '구매일 기준 추정', sourceName: '영수증 OCR', sourceUrl: '#', aiUsage: '영수증 OCR 자동 인식',
       datasetFields: '품목명, 가격, 구매일', ownerNickname: currentUser.nickname, ownerUserid: currentUser.userid
     };
     if(sb){
-      try{
-        await sb.from('listings').insert({
-          id: listing.id, owner_nickname: listing.ownerNickname, owner_userid: listing.ownerUserid,
-          item_name: listing.itemName, base_food: listing.baseFood, category: listing.category,
-          quantity: listing.quantity, trade_type: listing.tradeType, price_krw: listing.priceKrw,
-          storage_type: listing.storageType, purchase_date: listing.purchaseDate,
-          shelf_life_days: listing.shelfLifeDays, remaining_days: listing.remainingDays,
-          expiry_date: listing.expiryDate, preservation_method: listing.preservationMethod, location: listing.location
-        });
-      }catch(e){ console.error(e); }
-    } else {
-      rows.unshift(listing);
-    }
+      try{ await sb.from('listings').insert({ id: listing.id, owner_nickname: listing.ownerNickname, owner_userid: listing.ownerUserid, item_name: listing.itemName, base_food: listing.baseFood, category: listing.category, quantity: listing.quantity, trade_type: listing.tradeType, price_krw: listing.priceKrw, storage_type: listing.storageType, purchase_date: listing.purchaseDate, shelf_life_days: listing.shelfLifeDays, remaining_days: listing.remainingDays, expiry_date: listing.expiryDate, preservation_method: listing.preservationMethod, location: listing.location }); }catch(e){ console.error(e); }
+    } else { rows.unshift(listing); }
     count++;
   }
   if(!sb) saveLocalListings(rows);
-
   await refreshSharedListings();
   showHint(`${count}개 품목이 등록되었습니다`);
   nav('home');
@@ -1167,39 +941,31 @@ const SEOUL_DISTRICTS = {
   '중구':['소공동','회현동','명동','필동','장충동','광희동','을지로동','신당동','다산동','약수동','청구동','신당5동','동화동','황학동','중림동'],
   '중랑구':['면목본동','면목2동','면목4동','면목5동','면목7동','면목3·8동','상봉1동','상봉2동','중화1동','중화2동','묵1동','묵2동','망우본동','망우3동','신내1동','신내2동']
 };
-
 function populateGuOptions(){
-  const sel = document.getElementById('login-gu');
-  if(!sel) return;
+  const sel = document.getElementById('login-gu'); if(!sel) return;
   const keys = Object.keys(SEOUL_DISTRICTS).sort((a,b)=>a.localeCompare(b,'ko'));
   sel.innerHTML = '<option value="">자치구 선택</option>' + keys.map(g => `<option value="${g}">${g}</option>`).join('');
 }
 function updateDongOptions(){
-  const gu = document.getElementById('login-gu').value;
-  const sel = document.getElementById('login-dong');
-  if(!sel) return;
+  const gu = document.getElementById('login-gu').value; const sel = document.getElementById('login-dong'); if(!sel) return;
   if(!gu){ sel.innerHTML = '<option value="">먼저 자치구를 선택하세요</option>'; return; }
   const dongs = [...new Set(SEOUL_DISTRICTS[gu] || [])].sort((a,b)=>a.localeCompare(b,'ko'));
   sel.innerHTML = '<option value="">동 선택</option>' + dongs.map(d => `<option value="${d}">${d}</option>`).join('');
 }
-
 async function detectLocation(){
-  const status = document.getElementById('geo-status');
+  const status = document.getElementById('geo-status'); if(!status) return;
   if(!navigator.geolocation){ status.textContent = '이 브라우저는 위치 감지를 지원하지 않습니다.'; return; }
   status.textContent = '위치를 확인하는 중...';
   navigator.geolocation.getCurrentPosition(async (pos) => {
     const { latitude, longitude } = pos.coords;
     try {
       const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ko`;
-      const resp = await fetch(url, { headers: { 'Accept':'application/json' }});
-      const data = await resp.json();
+      const resp = await fetch(url, { headers: { 'Accept':'application/json' }}); const data = await resp.json();
       const addr = data.address || {};
-      let gu = addr.borough || addr.city_district || addr.county || '';
-      let dong = addr.quarter || addr.neighbourhood || addr.suburb || '';
+      let gu = addr.borough || addr.city_district || addr.county || ''; let dong = addr.quarter || addr.neighbourhood || addr.suburb || '';
       const matchGu = Object.keys(SEOUL_DISTRICTS).find(g => gu && gu.includes(g));
       if(matchGu){
-        document.getElementById('login-gu').value = matchGu;
-        updateDongOptions();
+        document.getElementById('login-gu').value = matchGu; updateDongOptions();
         if(dong){
           const dongClean = dong.replace(/\s+/g,'');
           const matchDong = SEOUL_DISTRICTS[matchGu].find(d => d.includes(dongClean) || dongClean.includes(d.replace(/[0-9]/g,'')));
@@ -1214,36 +980,24 @@ async function detectLocation(){
 document.querySelectorAll('.chip').forEach(chip => {
   chip.addEventListener('click', () => {
     if((chip.parentElement.classList.contains('row') || chip.parentElement.classList.contains('pill-row')) && !chip.onclick){
-      Array.from(chip.parentElement.querySelectorAll('.chip')).forEach(c => c.classList.remove('on'));
-      chip.classList.add('on');
+      Array.from(chip.parentElement.querySelectorAll('.chip')).forEach(c => c.classList.remove('on')); chip.classList.add('on');
     }
   });
 });
 document.querySelectorAll('.tabs .tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    if(!tab.onclick){ Array.from(tab.parentElement.querySelectorAll('.tab')).forEach(t => t.classList.remove('on')); tab.classList.add('on'); }
-  });
+  tab.addEventListener('click', () => { if(!tab.onclick){ Array.from(tab.parentElement.querySelectorAll('.tab')).forEach(t => t.classList.remove('on')); tab.classList.add('on'); } });
 });
 
 function bootDataset(){
-  const mode = document.getElementById('storage-mode');
-  if(mode) mode.textContent = sb ? 'Supabase 연결됨' : '이 브라우저 저장';
-  populateGuOptions();
+  const mode = document.getElementById('storage-mode'); if(mode) mode.textContent = sb ? 'Supabase 연결됨' : '이 브라우저 저장';
+  populateGuOptions(); switchAuthMode('signin');
   if(currentUser){
-    document.getElementById('login-nickname').value = currentUser.nickname;
-    if(currentUser.gu){ document.getElementById('login-gu').value = currentUser.gu; updateDongOptions(); if(currentUser.dong) document.getElementById('login-dong').value = currentUser.dong; }
-    document.getElementById('login-neighborhood').value = currentUser.neighborhood;
-    const listingLoc = document.getElementById('listing-location');
-    if(listingLoc) listingLoc.value = currentUser.neighborhood;
+    const listingLoc = document.getElementById('listing-location'); if(listingLoc) listingLoc.value = currentUser.neighborhood;
     const homeChip = document.querySelector('#screen-home .header .chip');
     if(homeChip && currentUser.gu && currentUser.dong) homeChip.innerHTML = `📍 ${currentUser.gu} ${currentUser.dong}`;
   }
-  refreshSharedListings();
-  renderFeed(); renderDetail(); renderFridge(); renderChat();
-  updateRecommendVisibility();
-  if(items.length) showHint(`매물 ${items.length}개 불러옴`);
-  const pd = document.getElementById('listing-purchase-date');
-  if(pd && !pd.value) pd.value = new Date().toISOString().slice(0,10);
+  refreshSharedListings(); renderFeed(); renderDetail(); renderFridge(); renderChat(); updateRecommendVisibility();
+  const pd = document.getElementById('listing-purchase-date'); if(pd && !pd.value) pd.value = new Date().toISOString().slice(0,10);
   refreshAccountList();
   setInterval(() => {
     if(currentUser && document.getElementById('screen-chat')?.classList.contains('active') && !activeRoom){ refreshChatList(false); }
@@ -1251,7 +1005,6 @@ function bootDataset(){
   }, 5000);
   if(currentUser) nav('home');
 }
-
 bootDataset();
 </script>
 </body></html>
