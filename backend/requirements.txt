@@ -1,8 +1,0 @@
-fastapi
-uvicorn[standard]
-python-multipart
-transformers
-torch
-sentencepiece
-pillow
-protobuf
