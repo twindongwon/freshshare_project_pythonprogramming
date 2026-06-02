@@ -34,17 +34,21 @@ body{margin:0;background:var(--bg);color:var(--ink);padding:24px;display:flex;fl
 .card:active{box-shadow:var(--shadow-press)}
 .card.static{cursor:default}
 .card.static:hover{transform:none}
+.card.done{opacity:.6}
 .inset{background:var(--inset);border-radius:var(--r);box-shadow:var(--shadow-in);padding:10px 12px}
 .row{display:flex;gap:8px;align-items:center}
 .btn{background:var(--teal);color:#fff;border:none;padding:10px 16px;border-radius:14px;font-weight:600;box-shadow:var(--shadow-out);cursor:pointer;font-size:13px}
 .btn:active{box-shadow:var(--shadow-press)}
 .btn.ghost{background:var(--raised);color:var(--ink);box-shadow:var(--shadow-out)}
 .btn.block{width:100%}
+.btn.sm{padding:6px 10px;font-size:11px;border-radius:10px}
+.btn.danger{background:var(--danger)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .chip{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--raised);box-shadow:var(--shadow-out);font-size:11px;color:var(--ink);margin-right:6px;cursor:pointer;user-select:none}
 .chip.on{background:var(--teal);color:#fff}
 .chip:active{box-shadow:var(--shadow-press)}
 .input{background:var(--raised);box-shadow:var(--shadow-in);border:none;border-radius:12px;padding:11px 14px;width:100%;font-size:13px;color:var(--ink);outline:none}
+.input:disabled{opacity:.45}
 .tabs{display:flex;background:var(--inset);border-radius:14px;box-shadow:var(--shadow-in);padding:4px;gap:4px}
 .tab{flex:1;text-align:center;padding:8px;font-size:12px;border-radius:10px;cursor:pointer;color:var(--muted);user-select:none}
 .tab.on{background:var(--raised);box-shadow:var(--shadow-out);color:var(--ink);font-weight:600}
@@ -82,16 +86,15 @@ h4{margin:6px 0}
 .hint.show{opacity:1}
 .ocr-check{width:18px;height:18px;accent-color:var(--teal2);cursor:pointer}
 .ocr-edit{background:var(--inset);box-shadow:var(--shadow-in);border:none;border-radius:8px;padding:6px 8px;font-size:12px;color:var(--ink);outline:none;width:100%}
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.checkbox-row input{width:18px;height:18px;accent-color:var(--teal2);cursor:pointer}
 </style></head>
 <body>
 
 <div class="guide">
   <h1>🥬 FreshShare — 동네 신선식품 나눔 프로토타입</h1>
   <p><b>영수증 사진</b>을 올리면 데탑 백엔드의 AI 모델이 품목과 가격을 자동으로 읽어 등록을 도와줍니다.</p>
-  <div class="legend">
-    <span>로그인 (자치구/동)</span><span>홈 피드</span><span>영수증 등록 (백엔드 AI)</span>
-    <span>상세/신선도</span><span>이웃 채팅</span><span>마이페이지</span>
-  </div>
+  <div class="legend"><span>로그인</span><span>홈 피드</span><span>영수증 등록</span><span>상세</span><span>채팅</span><span>마이페이지</span></div>
 </div>
 
 <div class="phone-stage">
@@ -100,71 +103,41 @@ h4{margin:6px 0}
 <div class="phone active" id="screen-login">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><h2>🥬 FreshShare</h2><span style="width:32px"></span></div>
-
   <div class="card static" style="text-align:center;padding:24px">
-    <div style="font-size:48px">🥬</div>
-    <h4>우리 동네 신선식품 나눔</h4>
+    <div style="font-size:48px">🥬</div><h4>우리 동네 신선식품 나눔</h4>
     <div class="meta">남는 식재료를 이웃과 나눠요.<br>아이디와 비밀번호로 시작하세요.</div>
   </div>
-
   <div class="tabs" id="auth-tabs">
     <div class="tab on" data-mode="signin" onclick="switchAuthMode('signin')">로그인</div>
     <div class="tab" data-mode="signup" onclick="switchAuthMode('signup')">회원가입</div>
   </div>
-
   <span class="label" style="margin-top:12px">아이디 <span style="color:#0E5C58">*</span></span>
   <input class="input" id="login-userid" placeholder="예: minjae01 (영문/숫자 4자 이상)" autocomplete="username"/>
-
   <span class="label" style="margin-top:14px">비밀번호 <span style="color:#0E5C58">*</span> <span class="meta">(4자 이상)</span></span>
   <input class="input" id="login-password" type="password" placeholder="비밀번호"/>
-
-  <!-- 닉네임/동네는 회원가입일 때만 표시 -->
   <div id="signup-fields" style="display:none">
     <span class="label" style="margin-top:14px">닉네임 <span style="color:#0E5C58">*</span></span>
     <input class="input" id="login-nickname" placeholder="예: 역삼동주민"/>
-
     <span class="label" style="margin-top:14px">자치구 <span style="color:#0E5C58">*</span></span>
-    <select class="input" id="login-gu" onchange="updateDongOptions()" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
-      <option value="">자치구 선택</option>
-    </select>
-
+    <select class="input" id="login-gu" onchange="updateDongOptions()"><option value="">자치구 선택</option></select>
     <span class="label" style="margin-top:14px">동(행정동) <span style="color:#0E5C58">*</span></span>
-    <select class="input" id="login-dong" style="appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#0E5C58 50%),linear-gradient(135deg,#0E5C58 50%,transparent 50%);background-position:calc(100% - 20px) 18px,calc(100% - 14px) 18px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px">
-      <option value="">먼저 자치구를 선택하세요</option>
-    </select>
-
-    <div class="row" style="gap:8px;margin-top:10px">
-      <button class="btn ghost" style="flex:1;font-size:12px" type="button" onclick="detectLocation()">📍 내 위치 자동 감지</button>
-    </div>
+    <select class="input" id="login-dong"><option value="">먼저 자치구를 선택하세요</option></select>
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost" style="flex:1;font-size:12px" type="button" onclick="detectLocation()">📍 내 위치 자동 감지</button></div>
     <div id="geo-status" class="meta" style="margin-top:6px;text-align:center"></div>
   </div>
-  <input type="hidden" id="login-neighborhood" value=""/>
-
   <div class="card static" style="margin-top:14px">
     <div class="kv"><span>저장 모드</span><b id="storage-mode">확인 중</b></div>
     <div class="kv"><span>등록된 계정</span><b id="account-count">0개</b></div>
-    <div class="data-note">온라인 동기화는 <b>config.js</b>의 Supabase URL/Key가 채워져 있어야 작동합니다. 비어 있으면 이 브라우저에만 저장됩니다.</div>
   </div>
-
   <button class="btn block" style="margin-top:14px" id="login-submit-btn" onclick="login()">로그인</button>
-
-  <details style="margin-top:12px;font-size:11px;color:var(--muted)">
-    <summary style="cursor:pointer">등록된 계정 보기</summary>
-    <div id="account-list" style="margin-top:8px"></div>
-  </details>
 </div>
 
 <!-- SCREEN 1: HOME -->
 <div class="phone" id="screen-home">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><h2>🥬 FreshShare</h2><div class="chip" onclick="nav('explore')">📍 우리 동네</div></div>
-  <div class="inset row" style="gap:8px;cursor:pointer" onclick="nav('explore')">
-    <span>🔍</span><input class="input" style="background:transparent;box-shadow:none;padding:4px;pointer-events:none" placeholder="식재료 검색..."/>
-  </div>
-  <div class="title-sm">카테고리</div>
-  <div style="overflow-x:auto;white-space:nowrap;margin-bottom:6px">
-    <span class="chip on">전체</span><span class="chip">채소</span><span class="chip">과일</span><span class="chip">유제품</span><span class="chip">가공</span>
-  </div>
+  <div class="inset row" style="gap:8px;cursor:pointer" onclick="nav('explore')"><span>🔍</span><input class="input" style="background:transparent;box-shadow:none;padding:4px;pointer-events:none" placeholder="식재료 검색..."/></div>
+  <div class="title-sm">우리 동네 이웃들의 나눔</div>
   <div id="feed-list"><div class="card static empty-state">데이터를 불러오는 중...</div></div>
   <div class="fab" onclick="nav('register')">+</div>
   <div class="bottom-nav">
@@ -180,29 +153,16 @@ h4{margin:6px 0}
 <div class="phone" id="screen-explore">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('home')">←</div><h2>탐색</h2><span style="width:32px"></span></div>
-  <div class="inset row" style="gap:8px">
-    <span>🔍</span><input class="input" style="background:transparent;box-shadow:none;padding:4px" placeholder="예) 토마토, 계란, 두부..."/>
-  </div>
+  <div class="inset row" style="gap:8px"><span>🔍</span><input class="input" style="background:transparent;box-shadow:none;padding:4px" placeholder="예) 토마토, 계란, 두부..."/></div>
   <span class="label" style="margin-top:12px">카테고리</span>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥬</div><div style="font-size:10px">채소</div></div>
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍎</div><div style="font-size:10px">과일</div></div>
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥛</div><div style="font-size:10px">유제품</div></div>
     <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥩</div><div style="font-size:10px">정육</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🐟</div><div style="font-size:10px">수산</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🍞</div><div style="font-size:10px">베이커리</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🥫</div><div style="font-size:10px">가공</div></div>
-    <div class="card static" style="text-align:center;padding:10px"><div style="font-size:22px">🧊</div><div style="font-size:10px">냉동</div></div>
   </div>
-  <span class="label" style="margin-top:14px">인기 검색어</span>
-  <div class="pill-row"><span class="chip">방울토마토</span><span class="chip">계란</span><span class="chip">두부</span><span class="chip">우유</span><span class="chip">당근</span></div>
   <span class="label" style="margin-top:14px" id="recommend-label">우리 동네 추천</span>
-  <div class="card" id="recommend-card" onclick="nav('detail')">
-    <div class="row" style="gap:12px">
-      <div class="thumb">🍅</div>
-      <div style="flex:1"><b style="font-size:13px">방울토마토 500g</b><div class="meta">📍 210m · 5분 전</div><div style="margin-top:6px"><span class="badge">나눔</span></div></div>
-    </div>
-  </div>
+  <div id="explore-list"></div>
   <div class="bottom-nav">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
     <div class="nav-i on"><div>🔍</div>탐색</div>
@@ -215,14 +175,11 @@ h4{margin:6px 0}
 <!-- SCREEN 3: REGISTER -->
 <div class="phone" id="screen-register">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
-  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>식재료 등록</h2><span class="chip">2/3</span></div>
+  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>식재료 등록</h2><span style="width:32px"></span></div>
   <div class="tabs">
-    <div class="tab" onclick="nav('camera')">📷 사진</div>
+    <div class="tab" onclick="nav('camera')">🧾 영수증으로</div>
     <div class="tab on">✏️ 직접입력</div>
-    <div class="tab" onclick="nav('camera')">🧾 영수증</div>
   </div>
-  <span class="label" style="margin-top:14px">기본 정보</span>
-  <div class="row"><span class="chip on">나눔</span><span class="chip">교환</span><span class="chip">판매</span></div>
   <span class="label" style="margin-top:14px">보관 방식</span>
   <div class="row"><span class="chip on">냉장</span><span class="chip">냉동</span><span class="chip">실온</span></div>
   <span class="label" style="margin-top:14px">위치</span>
@@ -234,14 +191,16 @@ h4{margin:6px 0}
       <input class="input" id="listing-base-food" value="" placeholder="기본 식품명"/>
       <input class="input" id="listing-quantity" value="1" placeholder="수량"/>
     </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="listing-share-check" checked onchange="onShareToggle()"/>
+      <label for="listing-share-check" style="font-size:12px;cursor:pointer">나눔(무료)으로 등록</label>
+    </div>
     <div class="row" style="margin-top:8px">
       <input class="input" id="listing-shelf-life" value="7" placeholder="소비기한(일)"/>
-      <input class="input" id="listing-price" value="0" placeholder="가격"/>
+      <input class="input" id="listing-price" value="0" placeholder="가격(원)" oninput="onPriceInput()"/>
     </div>
-    <div class="row" style="margin-top:8px">
-      <input class="input" id="listing-purchase-date" type="date" placeholder="구매일"/>
-    </div>
-    <textarea class="input" id="listing-storage-method" style="margin-top:8px;min-height:70px;resize:none" placeholder="보관 방법 안내"></textarea>
+    <div class="row" style="margin-top:8px"><input class="input" id="listing-purchase-date" type="date"/></div>
+    <textarea class="input" id="listing-storage-method" style="margin-top:8px;min-height:60px;resize:none" placeholder="보관 방법 안내"></textarea>
   </div>
   <button class="btn block" style="margin-top:14px" onclick="submitListing()">등록하기</button>
   <div class="bottom-nav" style="margin-top:14px">
@@ -257,32 +216,25 @@ h4{margin:6px 0}
 <div class="phone" id="screen-camera">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('register')">←</div><h2>영수증 AI 인식</h2><span style="width:32px"></span></div>
-  <div class="camera-view" id="camera-view" style="position:relative;overflow:hidden;background:#1F3D3A">
-    <img id="photo-preview" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:var(--r-lg)" alt="업로드 사진"/>
-    <div id="photo-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
-      <div style="font-size:50px">🧾</div><div style="font-size:11px;color:#cfe3dc">영수증을 올리면 백엔드 AI가 분석합니다</div>
-    </div>
+  <div class="camera-view" id="camera-view" style="position:relative;overflow:hidden">
+    <img id="photo-preview" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:var(--r-lg)" alt=""/>
+    <div id="photo-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="font-size:50px">🧾</div><div style="font-size:11px;color:#cfe3dc">영수증을 올리면 AI가 분석합니다</div></div>
   </div>
   <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(event)"/>
   <div class="row" style="gap:8px;margin-bottom:10px">
-    <button class="btn" style="flex:1" onclick="document.getElementById('photo-input').click()">📷 사진 촬영/업로드</button>
-    <button class="btn ghost" style="flex:1" id="btn-reanalyze" onclick="runAIRecognition()" disabled>🔄 AI로 분석</button>
+    <button class="btn" style="flex:1" onclick="document.getElementById('photo-input').click()">📷 사진 업로드</button>
+    <button class="btn ghost" style="flex:1" id="btn-reanalyze" onclick="runAIRecognition()" disabled>🔄 AI 분석</button>
   </div>
   <div class="card static" id="ai-status-card" style="text-align:center;padding:14px;display:none">
-    <div style="font-size:12px;color:var(--muted)" id="ai-status-text">백엔드 분석 준비 중...</div>
+    <div style="font-size:12px;color:var(--muted)" id="ai-status-text">분석 준비 중...</div>
     <div class="bar" style="margin-top:10px"><i id="ai-progress-bar" style="width:10%;transition:width .4s"></i></div>
   </div>
-  <div class="row" id="ai-result-toolbar" style="display:none;justify-content:space-between;align-items:center;margin-top:6px">
-    <span class="label" style="margin:0">AI 인식 품목 <span id="ai-selected-count">0</span>개 선택됨</span>
-    <div class="row" style="gap:6px">
-      <span class="chip" onclick="setAllOcrChecks(true)">전체선택</span>
-      <span class="chip" onclick="setAllOcrChecks(false)">전체해제</span>
-    </div>
+  <div class="row" id="ai-result-toolbar" style="display:none;justify-content:space-between;margin-top:6px">
+    <span class="label" style="margin:0">품목 <span id="ai-selected-count">0</span>개 선택</span>
+    <div class="row" style="gap:6px"><span class="chip" onclick="setAllOcrChecks(true)">전체선택</span><span class="chip" onclick="setAllOcrChecks(false)">해제</span></div>
   </div>
   <div id="ai-results"></div>
-  <div class="card static" id="ai-empty" style="text-align:center;padding:18px">
-    <div style="font-size:11px;color:var(--muted);line-height:1.6">위 <b>사진 촬영/업로드</b> 버튼으로 영수증을 올리면<br>데탑 백엔드의 <b>AI 모델</b>이 품목과 가격을<br>자동으로 읽어 아래에 표시합니다.</div>
-  </div>
+  <div class="card static" id="ai-empty" style="text-align:center;padding:18px"><div style="font-size:11px;color:var(--muted);line-height:1.6">사진을 올리면 <b>AI 모델</b>이 품목·가격을<br>자동으로 읽어 표시합니다.</div></div>
   <div class="row" style="gap:8px;margin-top:8px">
     <button class="btn ghost" style="flex:1" onclick="nav('register')">취소</button>
     <button class="btn" style="flex:2" id="btn-confirm-ai" onclick="confirmAIResult()" disabled>선택 품목 등록</button>
@@ -299,18 +251,15 @@ h4{margin:6px 0}
 <!-- SCREEN 5: DETAIL -->
 <div class="phone" id="screen-detail">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
-  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>상세</h2><span style="font-size:18px;cursor:pointer">♡</span></div>
+  <div class="header"><div class="back" onclick="nav('home')">←</div><h2>상세</h2><span style="font-size:18px">♡</span></div>
   <div class="card static" id="detail-hero" style="text-align:center;padding:30px;font-size:64px">🍅</div>
   <div class="card static" id="detail-card"></div>
-  <span class="label">보관 방법 / 소비기한 정보</span>
-  <div class="card static" id="storage-card"><div class="empty-state">데이터를 불러오는 중...</div></div>
+  <span class="label">보관 방법 / 소비기한</span>
+  <div class="card static" id="storage-card"><div class="empty-state">불러오는 중...</div></div>
   <span class="label">판매자</span>
   <div class="card" onclick="nav('mypage')">
-    <div class="row" style="gap:10px">
-      <div class="thumb" style="width:44px;height:44px;font-size:18px">👤</div>
-      <div style="flex:1"><b style="font-size:13px" id="detail-seller">판매자</b><div class="meta" id="detail-seller-meta"><span class="stars">★★★★★</span> 신규 · 거래 0회</div></div>
-      <span class="badge">신뢰</span>
-    </div>
+    <div class="row" style="gap:10px"><div class="thumb" style="width:44px;height:44px;font-size:18px">👤</div>
+      <div style="flex:1"><b style="font-size:13px" id="detail-seller">판매자</b><div class="meta" id="detail-seller-meta"><span class="stars">★★★★★</span> 신규 · 거래 0회</div></div><span class="badge">신뢰</span></div>
   </div>
   <div class="row" style="gap:8px;margin-top:8px">
     <button class="btn ghost" style="flex:1" onclick="nav('chat')">찜하기</button>
@@ -328,26 +277,16 @@ h4{margin:6px 0}
 <!-- SCREEN 6: CHAT -->
 <div class="phone" id="screen-chat">
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
-  <div class="header">
-    <div class="back" id="chat-back-btn" onclick="exitChatRoom()">←</div>
-    <h2 id="chat-title">채팅</h2>
-    <span style="width:32px;text-align:right;cursor:pointer" onclick="refreshChatList(true)" title="새로고침">🔄</span>
-  </div>
+  <div class="header"><div class="back" id="chat-back-btn" onclick="exitChatRoom()">←</div><h2 id="chat-title">채팅</h2><span style="width:32px;text-align:right;cursor:pointer" onclick="refreshChatList(true)">🔄</span></div>
   <div id="chat-list-view">
-    <div class="inset" style="margin-bottom:12px;font-size:11px;text-align:center;padding:10px">이웃과 1:1로 거래 메시지를 주고받아요.<br>Supabase 연결 시 다른 기기와도 동기화됩니다.</div>
-    <span class="label">진행 중인 채팅</span>
-    <div id="chat-rooms"></div>
-    <span class="label" style="margin-top:14px">새 채팅 시작하기</span>
-    <div id="chat-new-targets"></div>
+    <div class="inset" style="margin-bottom:12px;font-size:11px;text-align:center;padding:10px">이웃과 1:1 거래 메시지를 주고받아요.</div>
+    <span class="label">진행 중인 채팅</span><div id="chat-rooms"></div>
+    <span class="label" style="margin-top:14px">새 채팅 시작</span><div id="chat-new-targets"></div>
   </div>
   <div id="chat-room-view" style="display:none;flex-direction:column;min-height:0">
-    <div class="inset" id="chat-item-summary" style="margin-bottom:12px;font-size:11px;text-align:center;padding:8px">매물 정보...</div>
+    <div class="inset" id="chat-item-summary" style="margin-bottom:12px;font-size:11px;text-align:center;padding:8px">매물...</div>
     <div id="chat-messages" style="overflow-y:auto;padding:4px;min-height:280px;max-height:380px"></div>
-    <div class="inset row" style="gap:6px;margin-top:8px">
-      <span style="cursor:pointer" title="사진">📷</span>
-      <input class="input" id="chat-input" style="background:transparent;box-shadow:none;padding:4px" placeholder="메시지 입력..." onkeydown="if(event.key==='Enter') sendChatMessage()"/>
-      <button class="btn" style="padding:6px 14px" onclick="sendChatMessage()">전송</button>
-    </div>
+    <div class="inset row" style="gap:6px;margin-top:8px"><input class="input" id="chat-input" style="background:transparent;box-shadow:none;padding:4px" placeholder="메시지..." onkeydown="if(event.key==='Enter') sendChatMessage()"/><button class="btn" style="padding:6px 14px" onclick="sendChatMessage()">전송</button></div>
   </div>
   <div class="bottom-nav" style="margin-top:14px">
     <div class="nav-i" onclick="nav('home')"><div>🏠</div>홈</div>
@@ -363,19 +302,25 @@ h4{margin:6px 0}
   <div class="status"><span>9:41</span><span>FreshShare</span></div>
   <div class="header"><div class="back" onclick="nav('home')">←</div><h2>마이페이지</h2><span style="width:32px"></span></div>
   <div class="card static">
-    <div class="row" style="gap:12px">
-      <div class="thumb" style="font-size:30px">👤</div>
-      <div style="flex:1"><b style="font-size:15px" id="profile-name">사용자 님</b><div class="meta" id="profile-meta">우리 동네 · 거래 0회</div><div style="margin-top:6px"><span class="badge" id="profile-temp">신뢰온도 36.5℃</span></div></div>
-    </div>
+    <div class="row" style="gap:12px"><div class="thumb" style="font-size:30px">👤</div>
+      <div style="flex:1"><b style="font-size:15px" id="profile-name">사용자 님</b><div class="meta" id="profile-meta">우리 동네 · 거래 0회</div><div style="margin-top:6px"><span class="badge" id="profile-temp">신뢰온도 36.5℃</span></div></div></div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center">
       <div><b style="color:var(--teal2)" id="stat-share">0</b><div class="meta">나눔</div></div>
       <div><b style="color:var(--teal2)" id="stat-receive">0</b><div class="meta">받음</div></div>
       <div><b style="color:var(--teal2)" id="stat-rating">0</b><div class="meta">평점</div></div>
     </div>
   </div>
-  <button class="btn ghost block" style="margin-bottom:12px" onclick="logout()">로그아웃</button>
-  <span class="label" id="fridge-label">우리 동네 냉장고</span>
-  <div id="fridge-list"><div class="card static empty-state">데이터를 불러오는 중...</div></div>
+  <span class="label">동네 변경</span>
+  <div class="card static">
+    <div class="row" style="gap:8px">
+      <select class="input" id="my-gu" onchange="updateMyDongOptions()"><option value="">자치구</option></select>
+      <select class="input" id="my-dong"><option value="">동</option></select>
+    </div>
+    <button class="btn sm block" style="margin-top:8px" onclick="updateMyNeighborhood()">동네 저장</button>
+  </div>
+  <span class="label">내가 올린 글</span>
+  <div id="my-listings"><div class="card static empty-state">불러오는 중...</div></div>
+  <button class="btn ghost block" style="margin:12px 0" onclick="logout()">로그아웃</button>
   <span class="label">환경 기여</span>
   <div class="card static">
     <div class="kv"><span>이번 달 나눔</span><b style="color:var(--teal2)" id="env-month">0 kg</b></div>
@@ -391,7 +336,7 @@ h4{margin:6px 0}
   </div>
 </div>
 
-</div><!-- /phone-stage -->
+</div>
 <div class="hint" id="hint"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -403,606 +348,331 @@ const labels = {login:'로그인',home:'홈',explore:'탐색',register:'등록',
 const seedItems = window.FRESHSHARE_ITEMS || [];
 let items = [...seedItems];
 let selectedItem = items[0] || null;
-function loadCurrentUser(){
-  const u = JSON.parse(localStorage.getItem('freshshare_user') || 'null');
-  if(u && u.expiresAt && Date.now() > u.expiresAt){ localStorage.removeItem('freshshare_user'); return null; }
-  return u;
-}
+function loadCurrentUser(){ const u = JSON.parse(localStorage.getItem('freshshare_user')||'null'); if(u&&u.expiresAt&&Date.now()>u.expiresAt){localStorage.removeItem('freshshare_user');return null;} return u; }
 let currentUser = loadCurrentUser();
 const config = window.FRESHSHARE_CONFIG || {};
-const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey)
-  ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey) : null;
-
+const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey) ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey) : null;
 function userLabel(){ return currentUser?.nickname || '사용자'; }
 
-function updateRecommendVisibility(){
-  const recLabel = document.getElementById('recommend-label');
-  const recCard = document.getElementById('recommend-card');
-  const show = !!currentUser;
-  if(recLabel) recLabel.style.display = show ? 'block' : 'none';
-  if(recCard)  recCard.style.display = show ? 'block' : 'none';
-}
+// 남의 글(내 글 제외)
+function otherItems(){ return currentUser ? items.filter(it => it.ownerUserid !== currentUser.userid) : items; }
+// 내 글
+function myItemsList(){ return currentUser ? items.filter(it => it.ownerUserid === currentUser.userid) : []; }
 
-function nav(target){
-  screens.forEach(s => { const el = document.getElementById('screen-' + s); if(el) el.classList.toggle('active', s === target); });
-  showHint(labels[target] + ' 화면');
-  if(target === 'chat') renderChat();
-  window.scrollTo({top:0, behavior:'smooth'});
-}
+function updateRecommendVisibility(){ const l=document.getElementById('recommend-label'); if(l) l.style.display = currentUser?'block':'none'; }
+function nav(target){ screens.forEach(s=>{const el=document.getElementById('screen-'+s); if(el) el.classList.toggle('active', s===target);}); showHint(labels[target]+' 화면'); if(target==='chat') renderChat(); if(target==='mypage') renderMyPage(); if(target==='explore') renderExplore(); if(target==='home') renderFeed(); window.scrollTo({top:0,behavior:'smooth'}); }
 
-let authMode = 'signin';
-function switchAuthMode(mode){
-  authMode = mode;
-  document.querySelectorAll('#auth-tabs .tab').forEach(t => t.classList.toggle('on', t.dataset.mode === mode));
-  document.getElementById('login-submit-btn').textContent = mode === 'signup' ? '회원가입' : '로그인';
-  const signupFields = document.getElementById('signup-fields');
-  if(signupFields) signupFields.style.display = (mode === 'signup') ? 'block' : 'none';
-  refreshAccountList();
-}
+let authMode='signin';
+function switchAuthMode(mode){ authMode=mode; document.querySelectorAll('#auth-tabs .tab').forEach(t=>t.classList.toggle('on',t.dataset.mode===mode)); document.getElementById('login-submit-btn').textContent = mode==='signup'?'회원가입':'로그인'; const f=document.getElementById('signup-fields'); if(f) f.style.display = mode==='signup'?'block':'none'; refreshAccountList(); }
 
-function getAllAccounts(){ return JSON.parse(localStorage.getItem('freshshare_accounts') || '{}'); }
-function saveAllAccounts(accs){ localStorage.setItem('freshshare_accounts', JSON.stringify(accs)); }
-
-async function refreshAccountList(){
-  let ids = [], accs = {};
-  if(sb){
-    try{
-      const { data } = await sb.from('profiles').select('userid, nickname, neighborhood');
-      if(data){ data.forEach(r => { accs[r.userid] = r; }); ids = data.map(r => r.userid); }
-    }catch(e){ console.error(e); }
-  } else { accs = getAllAccounts(); ids = Object.keys(accs); }
-  const cntEl = document.getElementById('account-count');
-  if(cntEl) cntEl.textContent = `${ids.length}개`;
-  const list = document.getElementById('account-list');
-  if(!list) return;
-  if(!ids.length){ list.innerHTML = '<div class="meta" style="padding:8px">저장된 계정이 없습니다. 회원가입으로 만들어보세요.</div>'; return; }
-  list.innerHTML = ids.map(id => { const a = accs[id]; return `<div class="kv" style="padding:6px 4px"><span>@${id} · <b>${a.nickname}</b></span><span class="meta">${a.neighborhood||''}</span></div>`; }).join('');
-}
+function getAllAccounts(){ return JSON.parse(localStorage.getItem('freshshare_accounts')||'{}'); }
+function saveAllAccounts(a){ localStorage.setItem('freshshare_accounts',JSON.stringify(a)); }
+async function refreshAccountList(){ let ids=[]; if(sb){ try{ const {data}=await sb.from('profiles').select('userid'); if(data) ids=data.map(r=>r.userid); }catch(e){} } else { ids=Object.keys(getAllAccounts()); } const c=document.getElementById('account-count'); if(c) c.textContent=`${ids.length}개`; }
 
 async function login(){
-  const userid = (document.getElementById('login-userid').value || '').trim().toLowerCase();
-  const password = document.getElementById('login-password').value;
-  const guInput = (document.getElementById('login-gu')?.value) || '';
-  const dongInput = (document.getElementById('login-dong')?.value) || '';
-
-  if(!userid || userid.length < 4 || !/^[a-z0-9_]+$/.test(userid)){ showHint('아이디는 영문/숫자 4자 이상이어야 합니다'); return; }
-  if(!password || password.length < 4){ showHint('비밀번호는 4자 이상 입력하세요'); return; }
-
-  let nickname = userid, gu = guInput, dong = dongInput, neighborhood = `${guInput} ${dongInput}`.trim();
-
+  const userid=(document.getElementById('login-userid').value||'').trim().toLowerCase();
+  const password=document.getElementById('login-password').value;
+  const guInput=(document.getElementById('login-gu')?.value)||'';
+  const dongInput=(document.getElementById('login-dong')?.value)||'';
+  if(!userid||userid.length<4||!/^[a-z0-9_]+$/.test(userid)){ showHint('아이디는 영문/숫자 4자 이상'); return; }
+  if(!password||password.length<4){ showHint('비밀번호는 4자 이상'); return; }
+  let nickname=userid, gu=guInput, dong=dongInput, neighborhood=`${guInput} ${dongInput}`.trim();
   if(sb){
     try{
-      const { data: existing, error: selErr } = await sb.from('profiles').select('*').eq('userid', userid).maybeSingle();
-      if(selErr){ showHint('서버 조회 오류. 잠시 후 다시 시도하세요'); return; }
-      if(authMode === 'signup'){
-        nickname = (document.getElementById('login-nickname').value || '').trim();
+      const {data:existing,error}=await sb.from('profiles').select('*').eq('userid',userid).maybeSingle();
+      if(error){ showHint('서버 조회 오류'); return; }
+      if(authMode==='signup'){
+        nickname=(document.getElementById('login-nickname').value||'').trim();
         if(!nickname){ showHint('닉네임을 입력하세요'); return; }
         if(!guInput){ showHint('자치구를 선택하세요'); return; }
         if(!dongInput){ showHint('동을 선택하세요'); return; }
-        if(existing){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
-        neighborhood = `${guInput} ${dongInput}`;
-        const { error: insErr } = await sb.from('profiles').insert({ userid, nickname, password, gu: guInput, dong: dongInput, neighborhood });
-        if(insErr){ showHint('회원가입 실패: ' + insErr.message); return; }
-        showHint(`@${userid} (${nickname}) 가입 완료`);
+        if(existing){ showHint(`이미 @${userid} 계정 있음. 로그인하세요`); return; }
+        neighborhood=`${guInput} ${dongInput}`;
+        const {error:e2}=await sb.from('profiles').insert({userid,nickname,password,gu:guInput,dong:dongInput,neighborhood});
+        if(e2){ showHint('회원가입 실패: '+e2.message); return; }
+        showHint(`@${userid} 가입 완료`);
       } else {
-        if(!existing){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
-        if((existing.password || '') !== password){ showHint('비밀번호가 틀렸습니다'); return; }
-        nickname = existing.nickname || userid; gu = existing.gu || ''; dong = existing.dong || '';
-        neighborhood = existing.neighborhood || `${gu} ${dong}`.trim();
+        if(!existing){ showHint(`@${userid} 계정 없음. 회원가입하세요`); return; }
+        if((existing.password||'')!==password){ showHint('비밀번호가 틀렸습니다'); return; }
+        nickname=existing.nickname||userid; gu=existing.gu||''; dong=existing.dong||''; neighborhood=existing.neighborhood||`${gu} ${dong}`.trim();
       }
-    }catch(e){ console.error(e); showHint('서버 연결 실패. config.js의 Supabase 설정을 확인하세요'); return; }
+    }catch(e){ showHint('서버 연결 실패'); return; }
   } else {
-    const accs = getAllAccounts();
-    if(authMode === 'signup'){
-      nickname = (document.getElementById('login-nickname').value || '').trim();
+    const accs=getAllAccounts();
+    if(authMode==='signup'){
+      nickname=(document.getElementById('login-nickname').value||'').trim();
       if(!nickname){ showHint('닉네임을 입력하세요'); return; }
-      if(!guInput){ showHint('자치구를 선택하세요'); return; }
-      if(!dongInput){ showHint('동을 선택하세요'); return; }
-      if(accs[userid]){ showHint(`이미 @${userid} 계정이 있습니다. 로그인하세요`); return; }
-      neighborhood = `${guInput} ${dongInput}`;
-      accs[userid] = { userid, nickname, password: password||'', gu: guInput, dong: dongInput, neighborhood, createdAt: new Date().toISOString() };
-      saveAllAccounts(accs); showHint(`@${userid} (${nickname}) 가입 완료`);
+      if(!guInput||!dongInput){ showHint('동네를 선택하세요'); return; }
+      if(accs[userid]){ showHint(`이미 @${userid} 계정 있음`); return; }
+      neighborhood=`${guInput} ${dongInput}`;
+      accs[userid]={userid,nickname,password,gu:guInput,dong:dongInput,neighborhood}; saveAllAccounts(accs); showHint(`@${userid} 가입 완료`);
     } else {
-      if(!accs[userid]){ showHint(`@${userid} 계정이 없습니다. 회원가입하세요`); return; }
-      if(accs[userid].password !== password){ showHint('비밀번호가 틀렸습니다'); return; }
-      const a = accs[userid]; nickname = a.nickname || userid; gu = a.gu || ''; dong = a.dong || ''; neighborhood = a.neighborhood || `${gu} ${dong}`.trim();
+      if(!accs[userid]){ showHint(`@${userid} 계정 없음`); return; }
+      if(accs[userid].password!==password){ showHint('비밀번호가 틀렸습니다'); return; }
+      const a=accs[userid]; nickname=a.nickname||userid; gu=a.gu||''; dong=a.dong||''; neighborhood=a.neighborhood||`${gu} ${dong}`.trim();
     }
   }
-
-  currentUser = { userid, nickname, neighborhood, gu, dong, loggedAt: new Date().toISOString(), expiresAt: Date.now() + 12*60*60*1000 };
-  localStorage.setItem('freshshare_user', JSON.stringify(currentUser));
-  const listingLoc = document.getElementById('listing-location');
-  if(listingLoc) listingLoc.value = neighborhood;
-  const homeChip = document.querySelector('#screen-home .header .chip');
-  if(homeChip) homeChip.innerHTML = `📍 ${gu || ''} ${dong || ''}`.trim() || '📍 우리 동네';
-  await refreshSharedListings();
-  renderFridge(); updateRecommendVisibility();
-  showHint(`${currentUser.nickname} 님 환영합니다 (@${userid})`);
-  nav('home');
+  currentUser={userid,nickname,neighborhood,gu,dong,loggedAt:new Date().toISOString(),expiresAt:Date.now()+12*60*60*1000};
+  localStorage.setItem('freshshare_user',JSON.stringify(currentUser));
+  const ll=document.getElementById('listing-location'); if(ll) ll.value=neighborhood;
+  const hc=document.querySelector('#screen-home .header .chip'); if(hc) hc.innerHTML=`📍 ${gu||''} ${dong||''}`.trim()||'📍 우리 동네';
+  await refreshSharedListings(); updateRecommendVisibility();
+  showHint(`${currentUser.nickname} 님 환영합니다`); nav('home');
 }
+function logout(){ localStorage.removeItem('freshshare_user'); currentUser=null; updateRecommendVisibility(); nav('login'); switchAuthMode('signin'); }
 
-function logout(){ localStorage.removeItem('freshshare_user'); currentUser = null; updateRecommendVisibility(); nav('login'); switchAuthMode('signin'); refreshAccountList(); }
+function showHint(t){ const h=document.getElementById('hint'); h.textContent=t; h.classList.add('show'); clearTimeout(window._ht); window._ht=setTimeout(()=>h.classList.remove('show'),1800); }
+function ddayBadge(it){ const c=it.remainingDays<=2?'badge warn':'badge gray'; return `<span class="${c}">${it.storageType} D-${it.remainingDays}</span>`; }
+function priceLabel(it){ return it.priceKrw?`${it.priceKrw.toLocaleString('ko-KR')}원`:'나눔'; }
+function selectItem(id,target='detail'){ selectedItem=items.find(i=>i.id===id)||selectedItem; renderDetail(); nav(target); }
 
-function showHint(text){
-  const h = document.getElementById('hint'); h.textContent = text; h.classList.add('show');
-  clearTimeout(window._hintTimer); window._hintTimer = setTimeout(()=>h.classList.remove('show'), 1800);
-}
-function ddayBadge(item){ const cls = item.remainingDays <= 2 ? 'badge warn' : 'badge gray'; return `<span class="${cls}">${item.storageType} D-${item.remainingDays}</span>`; }
-function priceLabel(item){ return item.priceKrw ? `${item.priceKrw.toLocaleString('ko-KR')}원` : item.tradeType; }
-function selectItem(id, target='detail'){ selectedItem = items.find(item => item.id === id) || selectedItem; renderDetail(); nav(target); }
-
-function toListingItem(row){
-  return {
-    id: row.id, emoji: row.emoji || '🧺', itemName: row.item_name || row.itemName,
-    baseFood: row.base_food || row.baseFood || row.item_name || row.itemName,
-    category: row.category || '식품', quantity: row.quantity || '1',
-    tradeType: row.trade_type || row.tradeType || '나눔',
-    priceKrw: Number(row.price_krw ?? row.priceKrw ?? 0),
-    storageType: row.storage_type || row.storageType || '냉장',
-    purchaseDate: row.purchase_date || row.purchaseDate || new Date().toISOString().slice(0,10),
-    shelfLifeDays: Number(row.shelf_life_days ?? row.shelfLifeDays ?? 7),
-    remainingDays: Number(row.remaining_days ?? row.remainingDays ?? 3),
-    expiryDate: row.expiry_date || row.expiryDate || '',
-    freshnessScore: Number(row.freshness_score ?? row.freshnessScore ?? 80),
-    location: row.location || currentUser?.neighborhood || '우리 동네',
-    distanceM: Number(row.distance_m ?? row.distanceM ?? 300),
-    listingAge: row.listing_age || row.listingAge || '방금 전',
-    purchaseFrequency: row.purchase_frequency || row.purchaseFrequency || '주 1회',
-    preservationMethod: row.preservation_method || row.preservationMethod || '냉장 보관',
-    storageTips: row.storage_tips || row.storageTips || '서늘하고 건조한 곳에 보관',
-    expiryBasis: row.expiry_basis || row.expiryBasis || '구매일 기준 추정',
-    sourceName: row.source_name || row.sourceName || '식약처 참고',
-    sourceUrl: row.source_url || row.sourceUrl || '#',
-    aiUsage: row.ai_usage || row.aiUsage || 'OCR로 품목과 구매일을 추출',
-    datasetFields: row.dataset_fields || row.datasetFields || '품목명, 구매일, 소비기한',
-    ownerNickname: row.owner_nickname || row.ownerNickname || userLabel(),
-    ownerUserid: row.owner_userid || row.ownerUserid || ''
-  };
-}
-function localListings(){ return JSON.parse(localStorage.getItem('freshshare_listings') || '[]'); }
-function saveLocalListings(rows){ localStorage.setItem('freshshare_listings', JSON.stringify(rows)); }
+function toListingItem(r){ return {
+  id:r.id, emoji:r.emoji||'🧺', itemName:r.item_name||r.itemName, baseFood:r.base_food||r.item_name||'식품',
+  category:r.category||'식품', quantity:r.quantity||'1', tradeType:r.trade_type||'나눔',
+  priceKrw:Number(r.price_krw??0), storageType:r.storage_type||'냉장',
+  purchaseDate:r.purchase_date||new Date().toISOString().slice(0,10), shelfLifeDays:Number(r.shelf_life_days??7),
+  remainingDays:Number(r.remaining_days??3), expiryDate:r.expiry_date||'', freshnessScore:Number(r.freshness_score??80),
+  location:r.location||currentUser?.neighborhood||'우리 동네', distanceM:Number(r.distance_m??300),
+  listingAge:r.listing_age||'방금 전', purchaseFrequency:r.purchase_frequency||'주 1회',
+  preservationMethod:r.preservation_method||'냉장 보관', storageTips:r.storage_tips||'서늘한 곳 보관',
+  expiryBasis:r.expiry_basis||'구매일 기준 추정', sourceName:r.source_name||'참고', sourceUrl:r.source_url||'#',
+  status:r.status||'open', ownerNickname:r.owner_nickname||userLabel(), ownerUserid:r.owner_userid||'' }; }
+function localListings(){ return JSON.parse(localStorage.getItem('freshshare_listings')||'[]'); }
+function saveLocalListings(r){ localStorage.setItem('freshshare_listings',JSON.stringify(r)); }
 
 async function refreshSharedListings(){
-  let shared = [];
-  if(sb){
-    const { data, error } = await sb.from('listings').select('*').order('created_at', { ascending:false }).limit(30);
-    if(!error && data) shared = data.map(toListingItem);
-  } else { shared = localListings().map(toListingItem); }
-  items = [...shared, ...seedItems];
-  selectedItem = items[0] || selectedItem;
-  renderFeed(); renderDetail(); renderFridge();
+  let shared=[];
+  if(sb){ const {data,error}=await sb.from('listings').select('*').order('created_at',{ascending:false}).limit(50); if(!error&&data) shared=data.map(toListingItem); }
+  else { shared=localListings().map(toListingItem); }
+  items=[...shared,...seedItems]; selectedItem=items[0]||selectedItem;
+  renderFeed(); renderDetail(); renderMyPage(); renderExplore();
 }
+
+// 나눔 체크 ↔ 가격 연동
+function onShareToggle(){ const chk=document.getElementById('listing-share-check'); const p=document.getElementById('listing-price'); if(chk.checked){ p.value='0'; p.disabled=true; } else { p.disabled=false; if(p.value==='0') p.value=''; } }
+function onPriceInput(){ const chk=document.getElementById('listing-share-check'); const p=document.getElementById('listing-price'); const val=Number(String(p.value).replace(/[^0-9]/g,''))||0; if(val>0){ chk.checked=false; } }
 
 async function submitListing(){
   if(!currentUser){ showHint('먼저 로그인하세요'); nav('login'); return; }
-  const baseFood = document.getElementById('listing-base-food').value.trim() || '식품';
-  const shelfLifeDays = Number(document.getElementById('listing-shelf-life').value || 7);
-  const purchaseDateInput = document.getElementById('listing-purchase-date');
-  const purchaseDate = (purchaseDateInput && purchaseDateInput.value) ? purchaseDateInput.value : new Date().toISOString().slice(0,10);
-  const daysSincePurchase = Math.max(0, Math.floor((Date.now() - new Date(purchaseDate).getTime()) / (1000*60*60*24)));
-  const remainingDays = Math.max(1, shelfLifeDays - daysSincePurchase);
-  const expiry = new Date(purchaseDate); expiry.setDate(expiry.getDate() + shelfLifeDays);
-  const listing = {
-    id: `user-${Date.now()}`, emoji: '🧺',
-    itemName: document.getElementById('listing-name').value.trim() || `${baseFood} 나눔`,
-    baseFood, category: '식품', quantity: document.getElementById('listing-quantity').value.trim() || '1',
-    tradeType: document.querySelector('#screen-register .row .chip.on')?.textContent?.trim() || '나눔',
-    priceKrw: Number(document.getElementById('listing-price').value || 0),
-    storageType: '냉장', purchaseDate, shelfLifeDays, remainingDays,
-    expiryDate: expiry.toISOString().slice(0,10), freshnessScore: 82,
-    location: document.getElementById('listing-location').value.trim() || currentUser.neighborhood,
-    distanceM: 100, listingAge: '방금 전', purchaseFrequency: '주 1회',
-    preservationMethod: document.getElementById('listing-storage-method').value.trim() || '냉장 보관',
-    storageTips: '서늘하고 건조한 곳에 보관', expiryBasis: '구매일 기준 추정',
-    sourceName: '사용자 등록', sourceUrl: '#', aiUsage: '사용자 직접 입력 또는 OCR 자동완성',
-    datasetFields: '품목명, 구매일, 보관방법, 소비기한', ownerNickname: currentUser.nickname, ownerUserid: currentUser.userid
-  };
-  if(sb){
-    await sb.from('listings').insert({
-      id: listing.id, owner_nickname: listing.ownerNickname, owner_userid: listing.ownerUserid,
-      item_name: listing.itemName, base_food: listing.baseFood, category: listing.category,
-      quantity: listing.quantity, trade_type: listing.tradeType, price_krw: listing.priceKrw,
-      storage_type: listing.storageType, purchase_date: listing.purchaseDate,
-      shelf_life_days: listing.shelfLifeDays, remaining_days: listing.remainingDays,
-      expiry_date: listing.expiryDate, preservation_method: listing.preservationMethod, location: listing.location
-    });
-  } else { const rows = localListings(); rows.unshift(listing); saveLocalListings(rows); }
-  await refreshSharedListings();
-  selectedItem = items.find(item => item.id === listing.id) || listing;
-  showHint('등록 완료'); nav('detail');
+  const baseFood=document.getElementById('listing-base-food').value.trim()||'식품';
+  const isShare=document.getElementById('listing-share-check').checked;
+  const priceKrw=isShare?0:(Number(String(document.getElementById('listing-price').value).replace(/[^0-9]/g,''))||0);
+  const shelfLifeDays=Number(document.getElementById('listing-shelf-life').value||7);
+  const pdi=document.getElementById('listing-purchase-date');
+  const purchaseDate=(pdi&&pdi.value)?pdi.value:new Date().toISOString().slice(0,10);
+  const ds=Math.max(0,Math.floor((Date.now()-new Date(purchaseDate).getTime())/(864e5)));
+  const remainingDays=Math.max(1,shelfLifeDays-ds);
+  const exp=new Date(purchaseDate); exp.setDate(exp.getDate()+shelfLifeDays);
+  const listing={ id:`user-${Date.now()}`, emoji:'🧺', itemName:document.getElementById('listing-name').value.trim()||`${baseFood} 나눔`,
+    baseFood, category:'식품', quantity:document.getElementById('listing-quantity').value.trim()||'1',
+    tradeType:isShare?'나눔':'판매', priceKrw, storageType:'냉장', purchaseDate, shelfLifeDays, remainingDays,
+    expiryDate:exp.toISOString().slice(0,10), freshnessScore:82, location:document.getElementById('listing-location').value.trim()||currentUser.neighborhood,
+    distanceM:100, listingAge:'방금 전', purchaseFrequency:'주 1회', preservationMethod:document.getElementById('listing-storage-method').value.trim()||'냉장 보관',
+    storageTips:'서늘한 곳 보관', expiryBasis:'구매일 기준 추정', sourceName:'사용자 등록', sourceUrl:'#',
+    status:'open', ownerNickname:currentUser.nickname, ownerUserid:currentUser.userid };
+  await insertListing(listing);
+  await refreshSharedListings(); showHint('등록 완료'); nav('mypage');
+}
+async function insertListing(listing){
+  if(sb){ await sb.from('listings').insert({ id:listing.id, owner_nickname:listing.ownerNickname, owner_userid:listing.ownerUserid,
+    item_name:listing.itemName, base_food:listing.baseFood, category:listing.category, quantity:listing.quantity,
+    trade_type:listing.tradeType, price_krw:listing.priceKrw, storage_type:listing.storageType, purchase_date:listing.purchaseDate,
+    shelf_life_days:listing.shelfLifeDays, remaining_days:listing.remainingDays, expiry_date:listing.expiryDate,
+    preservation_method:listing.preservationMethod, location:listing.location, status:listing.status }); }
+  else { const r=localListings(); r.unshift(listing); saveLocalListings(r); }
 }
 
-function renderFeed(){
-  const feed = document.getElementById('feed-list');
-  if(!feed) return;
-  feed.innerHTML = items.slice(0, 6).map(item => `
-    <div class="card" onclick="selectItem('${item.id}')">
-      <div class="row" style="gap:12px">
-        <div class="thumb">${item.emoji}</div>
-        <div style="flex:1">
-          <div class="row" style="justify-content:space-between">
-            <b style="font-size:14px">${item.itemName}</b>
-            <span class="score" style="width:48px;height:48px"><b style="font-size:14px">${item.freshnessScore}</b><span>신선도</span></span>
-          </div>
-          <div class="meta">📍 ${item.distanceM}m · ${item.location} · ${item.listingAge}${item.ownerNickname ? ' · '+item.ownerNickname : ''}</div>
-          <div style="margin-top:6px"><span class="badge">${priceLabel(item)}</span>${ddayBadge(item)}<span class="badge gray">${item.category}</span></div>
-        </div>
-      </div>
-    </div>`).join('') || '<div class="card static empty-state">등록된 매물이 없습니다.</div>';
-}
+// 홈/탐색 피드: 남의 글만
+function feedCard(item){ const done=item.status==='done'; return `<div class="card ${done?'done':''}" onclick="selectItem('${item.id}')">
+  <div class="row" style="gap:12px"><div class="thumb">${item.emoji}</div>
+    <div style="flex:1"><div class="row" style="justify-content:space-between"><b style="font-size:14px">${item.itemName}</b><span class="score" style="width:48px;height:48px"><b style="font-size:14px">${item.freshnessScore}</b><span>신선도</span></span></div>
+      <div class="meta">📍 ${item.location} · ${item.listingAge}${item.ownerNickname?' · '+item.ownerNickname:''}</div>
+      <div style="margin-top:6px">${done?'<span class="badge gray">거래완료</span>':`<span class="badge">${priceLabel(item)}</span>`}${ddayBadge(item)}</div></div></div></div>`; }
+function renderFeed(){ const f=document.getElementById('feed-list'); if(!f) return; const list=otherItems().filter(i=>i.status!=='done').slice(0,8); f.innerHTML=list.map(feedCard).join('')||'<div class="card static empty-state">이웃의 나눔 글이 아직 없어요.</div>'; }
+function renderExplore(){ const e=document.getElementById('explore-list'); if(!e) return; const list=otherItems().filter(i=>i.status!=='done').slice(0,10); e.innerHTML=list.map(feedCard).join('')||'<div class="card static empty-state">표시할 글이 없어요.</div>'; }
 
 function renderDetail(){
   if(!selectedItem) return;
-  const hero = document.getElementById('detail-hero');
-  const card = document.getElementById('detail-card');
-  const storage = document.getElementById('storage-card');
-  if(hero) hero.textContent = selectedItem.emoji;
-  if(card){
-    card.innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <div><b style="font-size:16px">${selectedItem.itemName}</b>
-          <div class="meta">${selectedItem.location} · ${selectedItem.distanceM}m · ${selectedItem.listingAge}${selectedItem.ownerNickname ? ' · 판매자 '+selectedItem.ownerNickname : ''}</div></div>
-        <div class="score"><b>${selectedItem.freshnessScore}</b><span>신선도</span></div>
-      </div>
-      <div class="pill-row"><span class="badge">${priceLabel(selectedItem)}</span>${ddayBadge(selectedItem)}<span class="badge gray">${selectedItem.category}</span></div>
-      <p style="font-size:12px;line-height:1.6;margin:10px 0 0">신선한 ${selectedItem.baseFood} 나눔합니다. 필요한 이웃 분께 드려요 :)</p>`;
-  }
-  if(storage){
-    storage.innerHTML = `
-      <div class="kv"><span>기본 식품</span><b>${selectedItem.baseFood}</b></div>
-      <div class="kv"><span>소비기한</span><b>약 ${selectedItem.shelfLifeDays}일 · ${selectedItem.expiryDate}</b></div>
-      <div class="kv"><span>구매 빈도</span><b>${selectedItem.purchaseFrequency}</b></div>
-      <div class="kv"><span>보관 방식</span><b>${selectedItem.storageType}</b></div>
-      <div class="data-note"><b>보관 방법</b> ${selectedItem.preservationMethod}</div>
-      <div class="data-note"><b>팁</b> ${selectedItem.storageTips}</div>
-      <div class="data-note"><b>기준</b> ${selectedItem.expiryBasis}<br><a class="source-link" href="${selectedItem.sourceUrl}" target="_blank" rel="noreferrer">${selectedItem.sourceName}</a></div>`;
-  }
-  const seller = document.getElementById('detail-seller');
-  const sellerMeta = document.getElementById('detail-seller-meta');
-  if(seller) seller.textContent = selectedItem.ownerNickname || '판매자';
-  if(sellerMeta) sellerMeta.innerHTML = `<span class="stars">★★★★★</span> 신규 · 거래 0회`;
+  const hero=document.getElementById('detail-hero'), card=document.getElementById('detail-card'), st=document.getElementById('storage-card');
+  if(hero) hero.textContent=selectedItem.emoji;
+  if(card) card.innerHTML=`<div class="row" style="justify-content:space-between"><div><b style="font-size:16px">${selectedItem.itemName}</b><div class="meta">${selectedItem.location} · ${selectedItem.listingAge}${selectedItem.ownerNickname?' · 판매자 '+selectedItem.ownerNickname:''}</div></div><div class="score"><b>${selectedItem.freshnessScore}</b><span>신선도</span></div></div>
+    <div class="pill-row">${selectedItem.status==='done'?'<span class="badge gray">거래완료</span>':`<span class="badge">${priceLabel(selectedItem)}</span>`}${ddayBadge(selectedItem)}</div>
+    <p style="font-size:12px;line-height:1.6;margin:10px 0 0">신선한 ${selectedItem.baseFood} ${selectedItem.tradeType}합니다 :)</p>`;
+  if(st) st.innerHTML=`<div class="kv"><span>기본 식품</span><b>${selectedItem.baseFood}</b></div><div class="kv"><span>소비기한</span><b>약 ${selectedItem.shelfLifeDays}일 · ${selectedItem.expiryDate}</b></div><div class="kv"><span>보관</span><b>${selectedItem.storageType}</b></div><div class="data-note"><b>보관 방법</b> ${selectedItem.preservationMethod}</div>`;
+  const s=document.getElementById('detail-seller'), sm=document.getElementById('detail-seller-meta');
+  if(s) s.textContent=selectedItem.ownerNickname||'판매자';
+  if(sm) sm.innerHTML=`<span class="stars">★★★★★</span> 신규 · 거래 0회`;
 }
-function startChatFromDetail(){
-  if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; }
-  if(selectedItem && selectedItem.ownerUserid && selectedItem.ownerUserid !== currentUser.userid){
-    nav('chat'); enterChatRoom(selectedItem.id, selectedItem.ownerUserid, selectedItem.ownerNickname || '판매자');
-  } else { nav('chat'); }
+function startChatFromDetail(){ if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; } if(selectedItem&&selectedItem.ownerUserid&&selectedItem.ownerUserid!==currentUser.userid){ nav('chat'); enterChatRoom(selectedItem.id,selectedItem.ownerUserid,selectedItem.ownerNickname||'판매자'); } else { nav('chat'); } }
+
+// ===== 마이페이지: 내 글 관리 =====
+function renderMyPage(){
+  const pn=document.getElementById('profile-name'), pm=document.getElementById('profile-meta');
+  const mine=myItemsList();
+  const shareCount=mine.length, totalKg=+(shareCount*0.5).toFixed(1), co2=+(totalKg*2.5).toFixed(1);
+  if(pn) pn.textContent=`${userLabel()} 님`;
+  if(pm) pm.textContent=`${currentUser?.neighborhood||'우리 동네'} · 거래 ${mine.filter(i=>i.status==='done').length}회`;
+  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
+  set('profile-temp','신뢰온도 36.5℃'); set('stat-share',shareCount); set('stat-receive',0); set('stat-rating',0);
+  set('env-month',`${totalKg} kg`); set('env-total',`${totalKg} kg`); set('env-co2',`약 ${co2} kg`);
+  // 동네 셀렉트 채우기
+  populateMyGuOptions();
+  const box=document.getElementById('my-listings'); if(!box) return;
+  if(!mine.length){ box.innerHTML='<div class="card static empty-state">아직 올린 글이 없어요.</div>'; return; }
+  box.innerHTML=mine.map(it=>{
+    const done=it.status==='done';
+    return `<div class="card static ${done?'done':''}">
+      <div class="row" style="gap:10px"><div class="thumb" style="width:42px;height:42px;font-size:18px">${it.emoji}</div>
+        <div style="flex:1">
+          <input class="ocr-edit" id="edit-name-${it.id}" value="${escapeHTML(it.itemName)}" ${done?'disabled':''}/>
+          <div class="row" style="margin-top:6px;gap:6px;align-items:center">
+            <label style="font-size:11px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="edit-share-${it.id}" ${it.priceKrw?'':'checked'} ${done?'disabled':''} onchange="onEditShareToggle('${it.id}')"/>나눔</label>
+            <input class="ocr-edit" id="edit-price-${it.id}" style="flex:1" value="${it.priceKrw||''}" placeholder="가격" inputmode="numeric" ${it.priceKrw?'':'disabled'} ${done?'disabled':''} oninput="onEditPriceInput('${it.id}')"/><span class="meta">원</span>
+          </div>
+          ${done?'<div style="margin-top:6px"><span class="badge gray">거래완료</span></div>':''}
+        </div></div>
+      <div class="row" style="gap:6px;margin-top:10px">
+        ${done?'':`<button class="btn sm" onclick="saveMyEdit('${it.id}')">수정저장</button>`}
+        ${done?'':`<button class="btn sm ghost" onclick="completeTrade('${it.id}')">거래완료</button>`}
+        <button class="btn sm danger" onclick="deleteMyListing('${it.id}')">삭제</button>
+      </div></div>`;
+  }).join('');
+}
+function onEditShareToggle(id){ const chk=document.getElementById('edit-share-'+id); const p=document.getElementById('edit-price-'+id); if(chk.checked){ p.value=''; p.disabled=true; } else { p.disabled=false; } }
+function onEditPriceInput(id){ const chk=document.getElementById('edit-share-'+id); const p=document.getElementById('edit-price-'+id); if((Number(String(p.value).replace(/[^0-9]/g,''))||0)>0) chk.checked=false; }
+async function saveMyEdit(id){
+  const name=(document.getElementById('edit-name-'+id).value||'').trim()||'식품';
+  const isShare=document.getElementById('edit-share-'+id).checked;
+  const price=isShare?0:(Number(String(document.getElementById('edit-price-'+id).value).replace(/[^0-9]/g,''))||0);
+  if(sb){ await sb.from('listings').update({ item_name:name, price_krw:price, trade_type:isShare?'나눔':'판매' }).eq('id',id); }
+  else { const r=localListings().map(x=>x.id===id?{...x,itemName:name,priceKrw:price,tradeType:isShare?'나눔':'판매'}:x); saveLocalListings(r); }
+  await refreshSharedListings(); showHint('수정 저장됨'); nav('mypage');
+}
+async function completeTrade(id){
+  if(sb){ await sb.from('listings').update({ status:'done' }).eq('id',id); }
+  else { const r=localListings().map(x=>x.id===id?{...x,status:'done'}:x); saveLocalListings(r); }
+  await refreshSharedListings(); showHint('거래완료 처리됨'); nav('mypage');
+}
+async function deleteMyListing(id){
+  if(!confirm('이 글을 삭제할까요?')) return;
+  if(sb){ await sb.from('listings').delete().eq('id',id); }
+  else { saveLocalListings(localListings().filter(x=>x.id!==id)); }
+  await refreshSharedListings(); showHint('삭제됨'); nav('mypage');
+}
+function populateMyGuOptions(){ const sel=document.getElementById('my-gu'); if(!sel||sel.dataset.filled) return; const keys=Object.keys(SEOUL_DISTRICTS).sort((a,b)=>a.localeCompare(b,'ko')); sel.innerHTML='<option value="">자치구</option>'+keys.map(g=>`<option value="${g}" ${currentUser&&currentUser.gu===g?'selected':''}>${g}</option>`).join(''); sel.dataset.filled='1'; if(currentUser&&currentUser.gu) updateMyDongOptions(); }
+function updateMyDongOptions(){ const gu=document.getElementById('my-gu').value; const sel=document.getElementById('my-dong'); if(!sel) return; if(!gu){ sel.innerHTML='<option value="">동</option>'; return; } const dongs=[...new Set(SEOUL_DISTRICTS[gu]||[])]; sel.innerHTML='<option value="">동 선택</option>'+dongs.map(d=>`<option value="${d}" ${currentUser&&currentUser.dong===d?'selected':''}>${d}</option>`).join(''); }
+async function updateMyNeighborhood(){
+  const gu=document.getElementById('my-gu').value, dong=document.getElementById('my-dong').value;
+  if(!gu||!dong){ showHint('자치구와 동을 선택하세요'); return; }
+  const neighborhood=`${gu} ${dong}`;
+  currentUser.gu=gu; currentUser.dong=dong; currentUser.neighborhood=neighborhood;
+  localStorage.setItem('freshshare_user',JSON.stringify(currentUser));
+  if(sb){ try{ await sb.from('profiles').update({gu,dong,neighborhood}).eq('userid',currentUser.userid); }catch(e){} }
+  const hc=document.querySelector('#screen-home .header .chip'); if(hc) hc.innerHTML=`📍 ${gu} ${dong}`;
+  const ll=document.getElementById('listing-location'); if(ll) ll.value=neighborhood;
+  showHint('동네가 변경되었습니다'); renderMyPage();
 }
 
 // ===== 채팅 =====
-let activeRoom = null;
-function allMessages(){ return JSON.parse(localStorage.getItem('freshshare_messages') || '[]'); }
-function saveAllMessages(arr){ localStorage.setItem('freshshare_messages', JSON.stringify(arr)); }
-function makeRoomId(listingId, a, b){ const [x, y] = [a, b].sort(); return `${listingId}::${x}::${y}`; }
-function getRoomMessages(listingId, peerUserid){ if(!currentUser) return []; const rid = makeRoomId(listingId, currentUser.userid, peerUserid); return allMessages().filter(m => m.roomId === rid).sort((a,b) => a.ts - b.ts); }
-function listMyRooms(){
-  if(!currentUser) return [];
-  const msgs = allMessages(); const rooms = {};
-  msgs.forEach(m => {
-    if(m.from === currentUser.userid || m.to === currentUser.userid){
-      const peer = m.from === currentUser.userid ? m.to : m.from;
-      const peerNick = m.from === currentUser.userid ? m.toNick : m.fromNick;
-      const key = `${m.listingId}::${peer}`;
-      if(!rooms[key] || rooms[key].lastTs < m.ts){ rooms[key] = { listingId: m.listingId, peerUserid: peer, peerNick: peerNick || peer, lastBody: m.body, lastTs: m.ts, lastFromMe: m.from === currentUser.userid, unread: 0 }; }
-    }
-  });
-  const reads = JSON.parse(localStorage.getItem('freshshare_reads_'+currentUser.userid) || '{}');
-  Object.values(rooms).forEach(r => { const rid = makeRoomId(r.listingId, currentUser.userid, r.peerUserid); const lastRead = reads[rid] || 0; r.unread = msgs.filter(m => m.roomId === rid && m.from !== currentUser.userid && m.ts > lastRead).length; });
-  return Object.values(rooms).sort((a,b) => b.lastTs - a.lastTs);
-}
-function markRoomRead(listingId, peerUserid){ if(!currentUser) return; const rid = makeRoomId(listingId, currentUser.userid, peerUserid); const reads = JSON.parse(localStorage.getItem('freshshare_reads_'+currentUser.userid) || '{}'); reads[rid] = Date.now(); localStorage.setItem('freshshare_reads_'+currentUser.userid, JSON.stringify(reads)); }
-function totalUnreadCount(){ return listMyRooms().reduce((sum, r) => sum + r.unread, 0); }
-function findListingById(id){ return items.find(it => it.id === id) || null; }
+let activeRoom=null;
+function allMessages(){ return JSON.parse(localStorage.getItem('freshshare_messages')||'[]'); }
+function saveAllMessages(a){ localStorage.setItem('freshshare_messages',JSON.stringify(a)); }
+function makeRoomId(l,a,b){ const [x,y]=[a,b].sort(); return `${l}::${x}::${y}`; }
+function getRoomMessages(l,p){ if(!currentUser) return []; const rid=makeRoomId(l,currentUser.userid,p); return allMessages().filter(m=>m.roomId===rid).sort((a,b)=>a.ts-b.ts); }
+function listMyRooms(){ if(!currentUser) return []; const msgs=allMessages(); const rooms={}; msgs.forEach(m=>{ if(m.from===currentUser.userid||m.to===currentUser.userid){ const peer=m.from===currentUser.userid?m.to:m.from; const pn=m.from===currentUser.userid?m.toNick:m.fromNick; const k=`${m.listingId}::${peer}`; if(!rooms[k]||rooms[k].lastTs<m.ts) rooms[k]={listingId:m.listingId,peerUserid:peer,peerNick:pn||peer,lastBody:m.body,lastTs:m.ts,lastFromMe:m.from===currentUser.userid}; } }); return Object.values(rooms).sort((a,b)=>b.lastTs-a.lastTs); }
+function findListingById(id){ return items.find(i=>i.id===id)||null; }
+async function refreshChatList(){ if(!currentUser){ document.getElementById('chat-rooms').innerHTML='<div class="card static empty-state">로그인이 필요합니다</div>'; document.getElementById('chat-new-targets').innerHTML=''; return; } if(sb){ try{ const {data}=await sb.from('messages').select('*').or(`from_userid.eq.${currentUser.userid},to_userid.eq.${currentUser.userid}`).order('ts',{ascending:true}).limit(500); if(data){ const c=allMessages(); const k=new Set(c.map(m=>m.id)); let add=0; data.forEach(r=>{ if(!k.has(r.id)){ c.push({id:r.id,roomId:makeRoomId(r.listing_id,r.from_userid,r.to_userid),listingId:r.listing_id,from:r.from_userid,fromNick:r.from_nick,to:r.to_userid,toNick:r.to_nick,body:r.body,ts:r.ts}); add++; } }); if(add) saveAllMessages(c); } }catch(e){} } renderChatRooms(); renderNewChatTargets(); }
+function renderChatRooms(){ const box=document.getElementById('chat-rooms'); if(!box) return; const rooms=listMyRooms(); if(!rooms.length){ box.innerHTML='<div class="card static empty-state">진행 중인 채팅이 없습니다.</div>'; return; } box.innerHTML=rooms.map(r=>{ const l=findListingById(r.listingId)||{emoji:'🧺',itemName:'(삭제된 매물)'}; const t=new Date(r.lastTs).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); const pv=(r.lastFromMe?'나: ':'')+(r.lastBody.length>24?r.lastBody.slice(0,24)+'…':r.lastBody); return `<div class="card" onclick="enterChatRoom('${r.listingId}','${r.peerUserid}','${(r.peerNick||'').replace(/'/g,"\\'")}')"><div class="row" style="gap:10px"><div class="thumb" style="width:42px;height:42px;font-size:18px">${l.emoji}</div><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><b style="font-size:12px">@${r.peerUserid} (${r.peerNick||'?'})</b><span class="meta" style="font-size:10px">${t}</span></div><div class="meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.itemName} · ${pv}</div></div></div></div>`; }).join(''); }
+function renderNewChatTargets(){ const box=document.getElementById('chat-new-targets'); if(!box) return; const o=otherItems().filter(i=>i.ownerUserid&&i.status!=='done').slice(0,8); if(!o.length){ box.innerHTML='<div class="meta" style="padding:8px">대화 가능한 매물이 없습니다.</div>'; return; } box.innerHTML=o.map(it=>`<div class="card" onclick="enterChatRoom('${it.id}','${it.ownerUserid}','${(it.ownerNickname||'').replace(/'/g,"\\'")}')"><div class="row" style="gap:10px"><div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div><div style="flex:1"><b style="font-size:12px">${it.itemName}</b><div class="meta">@${it.ownerUserid} (${it.ownerNickname||'?'}) · ${it.location||''}</div></div></div></div>`).join(''); }
+function enterChatRoom(l,p,pn){ if(!currentUser){ showHint('로그인이 필요'); nav('login'); return; } if(p===currentUser.userid){ showHint('내 매물엔 채팅 불가'); return; } const listing=findListingById(l); activeRoom={listingId:l,peerUserid:p,peerNick:pn,listing}; selectedItem=listing||selectedItem; document.getElementById('chat-list-view').style.display='none'; document.getElementById('chat-room-view').style.display='flex'; document.getElementById('chat-title').textContent=`@${p} (${pn||'?'})`; const s=document.getElementById('chat-item-summary'); s.textContent=listing?`${listing.emoji} ${listing.itemName} · ${listing.tradeType||''}`:'(삭제된 매물)'; renderChatMessages(); }
+function exitChatRoom(){ activeRoom=null; document.getElementById('chat-list-view').style.display='block'; document.getElementById('chat-room-view').style.display='none'; document.getElementById('chat-title').textContent='채팅'; refreshChatList(); }
+function renderChatMessages(){ const box=document.getElementById('chat-messages'); if(!box||!activeRoom) return; const msgs=getRoomMessages(activeRoom.listingId,activeRoom.peerUserid); if(!msgs.length){ box.innerHTML='<div class="empty-state">아직 메시지가 없습니다.<br>먼저 인사를 건네보세요!</div>'; return; } box.innerHTML=msgs.map(m=>{ const mine=m.from===currentUser.userid; const t=new Date(m.ts).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}); return `<div class="bubble ${mine?'me':'you'}">${!mine?`<b style="font-size:10px;opacity:.7">${m.fromNick||m.from}</b><br>`:''}${escapeHTML(m.body)}<div style="font-size:9px;opacity:.6;text-align:${mine?'left':'right'};margin-top:2px">${t}</div></div>`; }).join(''); box.scrollTop=box.scrollHeight; }
+function escapeHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function sendChatMessage(){ if(!currentUser){ showHint('로그인 필요'); nav('login'); return; } if(!activeRoom){ showHint('채팅방 선택'); return; } const inp=document.getElementById('chat-input'); const txt=(inp.value||'').trim(); if(!txt) return; inp.value=''; const msg={id:'m-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),roomId:makeRoomId(activeRoom.listingId,currentUser.userid,activeRoom.peerUserid),listingId:activeRoom.listingId,from:currentUser.userid,fromNick:currentUser.nickname,to:activeRoom.peerUserid,toNick:activeRoom.peerNick,body:txt,ts:Date.now()}; const all=allMessages(); all.push(msg); saveAllMessages(all); if(sb){ try{ await sb.from('messages').insert({id:msg.id,listing_id:msg.listingId,from_userid:msg.from,from_nick:msg.fromNick,to_userid:msg.to,to_nick:msg.toNick,body:msg.body,ts:msg.ts}); }catch(e){} } renderChatMessages(); }
+async function renderChat(){ if(!activeRoom){ document.getElementById('chat-list-view').style.display='block'; document.getElementById('chat-room-view').style.display='none'; } await refreshChatList(); }
 
-async function refreshChatList(showHintFlag){
-  if(!currentUser){ document.getElementById('chat-rooms').innerHTML = '<div class="card static empty-state">로그인이 필요합니다</div>'; document.getElementById('chat-new-targets').innerHTML = ''; return; }
-  if(sb){
-    try{
-      const { data } = await sb.from('messages').select('*').or(`from_userid.eq.${currentUser.userid},to_userid.eq.${currentUser.userid}`).order('ts', { ascending:true }).limit(500);
-      if(data){
-        const cached = allMessages(); const known = new Set(cached.map(m => m.id)); let added = 0;
-        data.forEach(row => { if(!known.has(row.id)){ cached.push({ id: row.id, roomId: makeRoomId(row.listing_id, row.from_userid, row.to_userid), listingId: row.listing_id, from: row.from_userid, fromNick: row.from_nick, to: row.to_userid, toNick: row.to_nick, body: row.body, ts: row.ts }); added++; } });
-        if(added) saveAllMessages(cached);
-      }
-    }catch(e){}
-  }
-  renderChatRooms(); renderNewChatTargets();
-  if(showHintFlag) showHint(`안 읽은 메시지 ${totalUnreadCount()}개`);
-}
-function renderChatRooms(){
-  const box = document.getElementById('chat-rooms');
-  if(!box) return;
-  const rooms = listMyRooms();
-  if(!rooms.length){ box.innerHTML = '<div class="card static empty-state">진행 중인 채팅이 없습니다.<br>아래에서 새 채팅을 시작하세요.</div>'; return; }
-  box.innerHTML = rooms.map(r => {
-    const listing = findListingById(r.listingId) || { emoji:'🧺', itemName:'(삭제된 매물)' };
-    const timeStr = new Date(r.lastTs).toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
-    const preview = (r.lastFromMe ? '나: ' : '') + (r.lastBody.length > 24 ? r.lastBody.slice(0,24)+'…' : r.lastBody);
-    const unreadBadge = r.unread > 0 ? `<span class="badge danger" style="margin-left:6px">${r.unread}</span>` : '';
-    return `<div class="card" onclick="enterChatRoom('${r.listingId}', '${r.peerUserid}', '${(r.peerNick||'').replace(/'/g,"\\'")}')">
-        <div class="row" style="gap:10px"><div class="thumb" style="width:42px;height:42px;font-size:18px">${listing.emoji}</div>
-          <div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><b style="font-size:12px">@${r.peerUserid} (${r.peerNick||'?'})${unreadBadge}</b><span class="meta" style="font-size:10px">${timeStr}</span></div>
-            <div class="meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${listing.itemName} · ${preview}</div></div></div></div>`;
-  }).join('');
-}
-function renderNewChatTargets(){
-  const box = document.getElementById('chat-new-targets');
-  if(!box) return;
-  const others = items.filter(it => it.ownerUserid && it.ownerUserid !== currentUser.userid).slice(0, 8);
-  if(!others.length){ box.innerHTML = '<div class="meta" style="padding:8px">대화 가능한 매물이 없습니다. 다른 사용자가 등록하면 표시됩니다.</div>'; return; }
-  box.innerHTML = others.map(it => `
-    <div class="card" onclick="enterChatRoom('${it.id}', '${it.ownerUserid}', '${(it.ownerNickname||'').replace(/'/g,"\\'")}')">
-      <div class="row" style="gap:10px"><div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
-        <div style="flex:1"><b style="font-size:12px">${it.itemName}</b><div class="meta">@${it.ownerUserid} (${it.ownerNickname||'?'}) · ${it.location||''}</div></div></div></div>`).join('');
-}
-function enterChatRoom(listingId, peerUserid, peerNick){
-  if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; }
-  if(peerUserid === currentUser.userid){ showHint('내 매물에는 채팅할 수 없습니다'); return; }
-  const listing = findListingById(listingId);
-  activeRoom = { listingId, peerUserid, peerNick, listing };
-  selectedItem = listing || selectedItem;
-  document.getElementById('chat-list-view').style.display = 'none';
-  document.getElementById('chat-room-view').style.display = 'flex';
-  document.getElementById('chat-title').textContent = `@${peerUserid} (${peerNick||'?'})`;
-  const sum = document.getElementById('chat-item-summary');
-  sum.textContent = listing ? `${listing.emoji} ${listing.itemName} · ${listing.tradeType||''} · ${listing.location||''}` : `(삭제된 매물) 대화 이력`;
-  renderChatMessages(); markRoomRead(listingId, peerUserid);
-}
-function exitChatRoom(){
-  activeRoom = null;
-  document.getElementById('chat-list-view').style.display = 'block';
-  document.getElementById('chat-room-view').style.display = 'none';
-  document.getElementById('chat-title').textContent = '채팅';
-  refreshChatList(false);
-}
-function renderChatMessages(){
-  const box = document.getElementById('chat-messages');
-  if(!box || !activeRoom) return;
-  const msgs = getRoomMessages(activeRoom.listingId, activeRoom.peerUserid);
-  if(!msgs.length){ box.innerHTML = `<div class="empty-state">아직 메시지가 없습니다.<br>먼저 인사를 건네보세요!</div>`; return; }
-  box.innerHTML = msgs.map(m => {
-    const mine = m.from === currentUser.userid;
-    const time = new Date(m.ts).toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
-    return `<div class="bubble ${mine ? 'me' : 'you'}">${!mine ? `<b style="font-size:10px;opacity:.7">${m.fromNick||m.from}</b><br>` : ''}${escapeHTML(m.body)}<div style="font-size:9px;opacity:.6;text-align:${mine?'left':'right'};margin-top:2px">${time}</div></div>`;
-  }).join('');
-  box.scrollTop = box.scrollHeight;
-}
-function escapeHTML(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-async function sendChatMessage(){
-  if(!currentUser){ showHint('로그인이 필요합니다'); nav('login'); return; }
-  if(!activeRoom){ showHint('채팅방을 먼저 선택하세요'); return; }
-  const input = document.getElementById('chat-input');
-  const text = (input.value || '').trim();
-  if(!text) return; input.value = '';
-  const msg = { id: 'm-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), roomId: makeRoomId(activeRoom.listingId, currentUser.userid, activeRoom.peerUserid), listingId: activeRoom.listingId, from: currentUser.userid, fromNick: currentUser.nickname, to: activeRoom.peerUserid, toNick: activeRoom.peerNick, body: text, ts: Date.now() };
-  const all = allMessages(); all.push(msg); saveAllMessages(all);
-  if(sb){ try{ await sb.from('messages').insert({ id: msg.id, listing_id: msg.listingId, from_userid: msg.from, from_nick: msg.fromNick, to_userid: msg.to, to_nick: msg.toNick, body: msg.body, ts: msg.ts }); }catch(e){} }
-  renderChatMessages(); markRoomRead(activeRoom.listingId, activeRoom.peerUserid);
-}
-async function renderChat(){ if(!activeRoom){ document.getElementById('chat-list-view').style.display = 'block'; document.getElementById('chat-room-view').style.display = 'none'; } await refreshChatList(false); }
-
-function renderFridge(){
-  const label = document.getElementById('fridge-label');
-  const fridge = document.getElementById('fridge-list');
-  const profileName = document.getElementById('profile-name');
-  const profileMeta = document.getElementById('profile-meta');
-  const myItems = currentUser ? items.filter(it => it.ownerUserid === currentUser.userid) : [];
-  const shareCount = myItems.length, receiveCount = 0, ratingVal = 0;
-  const KG_PER_ITEM = 0.5;
-  const totalKg = +(shareCount * KG_PER_ITEM).toFixed(1);
-  const co2Kg = +(totalKg * 2.5).toFixed(1);
-  if(profileName) profileName.textContent = `${userLabel()} 님`;
-  if(profileMeta) profileMeta.textContent = `${currentUser?.neighborhood || '우리 동네'} · 거래 ${receiveCount}회`;
-  const tempEl = document.getElementById('profile-temp'); if(tempEl) tempEl.textContent = '신뢰온도 36.5℃';
-  const sShare = document.getElementById('stat-share'); if(sShare) sShare.textContent = shareCount;
-  const sRecv = document.getElementById('stat-receive'); if(sRecv) sRecv.textContent = receiveCount;
-  const sRate = document.getElementById('stat-rating'); if(sRate) sRate.textContent = ratingVal;
-  const envMonth = document.getElementById('env-month'); if(envMonth) envMonth.textContent = `${totalKg} kg`;
-  const envTotal = document.getElementById('env-total'); if(envTotal) envTotal.textContent = `${totalKg} kg`;
-  const envCo2 = document.getElementById('env-co2'); if(envCo2) envCo2.textContent = `약 ${co2Kg} kg`;
-  if(label) label.textContent = `우리 동네 냉장고 (${items.length})`;
-  if(!fridge) return;
-  fridge.innerHTML = items.map(item => {
-    const badge = item.remainingDays <= 2 ? 'badge danger' : item.remainingDays <= 5 ? 'badge warn' : 'badge';
-    return `<div class="card" onclick="selectItem('${item.id}')"><div class="row" style="gap:10px"><div class="thumb" style="width:48px;height:48px;font-size:20px">${item.emoji}</div>
-        <div style="flex:1"><b style="font-size:12px">${item.itemName}</b><div class="meta">${item.purchaseDate} 구매 · ${item.storageType} · ${item.purchaseFrequency}</div></div>
-        <span class="${badge}">D-${item.remainingDays}</span></div></div>`;
-  }).join('') || '<div class="card static empty-state">등록된 식재료가 없습니다.</div>';
-}
-
-// ===== 백엔드 OCR 연동 =====
-let _uploadedImageFile = null;
-let _ocrLastResults = [];
-function handlePhotoUpload(event){
-  const file = event.target.files && event.target.files[0];
-  if(!file) return;
-  _uploadedImageFile = file;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = document.getElementById('photo-preview'); if(img){ img.src = e.target.result; img.style.display = 'block'; }
-    const ph = document.getElementById('photo-placeholder'); if(ph) ph.style.display = 'none';
-    const reBtn = document.getElementById('btn-reanalyze'); if(reBtn) reBtn.disabled = false;
-    showHint('사진 업로드 완료. AI로 분석 버튼을 눌러주세요');
-  };
-  reader.readAsDataURL(file);
-}
-function updateOcrSelection(){
-  const checks = document.querySelectorAll('.ocr-check'); let count = 0;
-  checks.forEach(c => { if(c.checked) count++; });
-  const countEl = document.getElementById('ai-selected-count'); if(countEl) countEl.textContent = count;
-  const confirmBtn = document.getElementById('btn-confirm-ai'); if(confirmBtn) confirmBtn.disabled = count === 0;
-}
-function setAllOcrChecks(state){ document.querySelectorAll('.ocr-check').forEach(c => { c.checked = state; }); updateOcrSelection(); }
-function updateOcrResult(idx, field, value){
-  if(_ocrLastResults[idx]){
-    if(field === 'priceKrw'){ _ocrLastResults[idx].priceKrw = Number(String(value).replace(/[^0-9]/g, '')) || 0; }
-    else { _ocrLastResults[idx][field] = value; }
-  }
-}
+// ===== OCR =====
+let _uploadedImageFile=null, _ocrLastResults=[];
+function handlePhotoUpload(e){ const f=e.target.files&&e.target.files[0]; if(!f) return; _uploadedImageFile=f; const rd=new FileReader(); rd.onload=ev=>{ const img=document.getElementById('photo-preview'); if(img){ img.src=ev.target.result; img.style.display='block'; } const ph=document.getElementById('photo-placeholder'); if(ph) ph.style.display='none'; document.getElementById('btn-reanalyze').disabled=false; showHint('업로드 완료. AI 분석을 누르세요'); }; rd.readAsDataURL(f); }
+function updateOcrSelection(){ const c=document.querySelectorAll('.ocr-check'); let n=0; c.forEach(x=>{if(x.checked)n++;}); const el=document.getElementById('ai-selected-count'); if(el) el.textContent=n; const b=document.getElementById('btn-confirm-ai'); if(b) b.disabled=n===0; }
+function setAllOcrChecks(s){ document.querySelectorAll('.ocr-check').forEach(c=>c.checked=s); updateOcrSelection(); }
+function updateOcrResult(i,f,v){ if(_ocrLastResults[i]){ if(f==='priceKrw') _ocrLastResults[i].priceKrw=Number(String(v).replace(/[^0-9]/g,''))||0; else _ocrLastResults[i][f]=v; } }
 async function runAIRecognition(){
   if(!_uploadedImageFile){ showHint('먼저 사진을 업로드하세요'); return; }
-  const backendUrl = (window.FRESHSHARE_CONFIG || {}).backendUrl;
-  if(!backendUrl){ showHint('config.js에 backendUrl(ngrok 주소)을 설정하세요'); return; }
-  const statusCard = document.getElementById('ai-status-card');
-  const statusText = document.getElementById('ai-status-text');
-  const bar = document.getElementById('ai-progress-bar');
-  if(statusCard) statusCard.style.display = 'block';
-  if(statusText) statusText.textContent = '백엔드 AI 모델로 분석 중...';
-  if(bar) bar.style.width = '40%';
+  const url=(window.FRESHSHARE_CONFIG||{}).backendUrl; if(!url){ showHint('config.js에 backendUrl 설정'); return; }
+  const sc=document.getElementById('ai-status-card'), tx=document.getElementById('ai-status-text'), bar=document.getElementById('ai-progress-bar');
+  sc.style.display='block'; tx.textContent='AI 분석 중...'; bar.style.width='40%';
   try{
-    const form = new FormData(); form.append('file', _uploadedImageFile);
-    const resp = await fetch(backendUrl.replace(/\/$/, '') + '/ocr', { method: 'POST', body: form, headers: { 'ngrok-skip-browser-warning': 'true' } });
-    if(!resp.ok) throw new Error('서버 응답 오류 ' + resp.status);
-    const data = await resp.json();
-    if(bar) bar.style.width = '100%';
-    const results = (data.items || []).map(it => ({ name: it.name, priceKrw: it.priceKrw || 0, emoji: '🧾' }));
-    _ocrLastResults = results;
-    const box = document.getElementById('ai-results');
-    const toolbar = document.getElementById('ai-result-toolbar');
-    const empty = document.getElementById('ai-empty');
-    if(empty) empty.style.display = 'none';
-    if(toolbar) toolbar.style.display = results.length ? 'flex' : 'none';
-    if(box){
-      box.innerHTML = results.length
-        ? results.map((it,i)=>`<div class="card static"><div class="row" style="gap:10px;align-items:center">
-            <input type="checkbox" class="ocr-check" data-idx="${i}" checked onchange="updateOcrSelection()"/>
-            <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
-            <div style="flex:1"><input class="ocr-edit" value="${escapeHTML(it.name)}" oninput="updateOcrResult(${i}, 'name', this.value)" placeholder="품목명"/>
-              <div class="row" style="margin-top:6px;gap:6px;align-items:center"><input class="ocr-edit" style="flex:1" value="${it.priceKrw || ''}" oninput="updateOcrResult(${i}, 'priceKrw', this.value)" placeholder="가격(숫자)" inputmode="numeric"/><span class="meta">원</span></div></div></div></div>`).join('')
-        : '<div class="card static empty-state">인식된 품목이 없습니다. 다시 촬영해 주세요.</div>';
-    }
-    updateOcrSelection();
-    if(statusText) statusText.textContent = `분석 완료: 품목 ${results.length}개 인식 (체크해서 등록하세요)`;
-    showHint(`AI 분석 완료: ${results.length}개 품목`);
-  }catch(e){
-    console.error(e);
-    if(statusText) statusText.textContent = '백엔드 연결 실패: config.js의 backendUrl과 ngrok 실행 상태를 확인하세요';
-    if(bar) bar.style.width = '0%';
-    showHint('백엔드 연결 실패');
-  }
+    const form=new FormData(); form.append('file',_uploadedImageFile);
+    const resp=await fetch(url.replace(/\/$/,'')+'/ocr',{method:'POST',body:form,headers:{'ngrok-skip-browser-warning':'true'}});
+    if(!resp.ok) throw new Error('서버 오류 '+resp.status);
+    const data=await resp.json(); bar.style.width='100%';
+    const results=(data.items||[]).map(it=>({name:it.name,priceKrw:it.priceKrw||0,emoji:'🧾'})); _ocrLastResults=results;
+    document.getElementById('ai-empty').style.display='none';
+    document.getElementById('ai-result-toolbar').style.display=results.length?'flex':'none';
+    const box=document.getElementById('ai-results');
+    box.innerHTML=results.length?results.map((it,i)=>`<div class="card static"><div class="row" style="gap:10px;align-items:center"><input type="checkbox" class="ocr-check" data-idx="${i}" checked onchange="updateOcrSelection()"/><div class="thumb" style="width:38px;height:38px;font-size:16px">🧾</div><div style="flex:1"><input class="ocr-edit" value="${escapeHTML(it.name)}" oninput="updateOcrResult(${i},'name',this.value)" placeholder="품목명"/><div class="row" style="margin-top:6px;gap:6px;align-items:center"><input class="ocr-edit" style="flex:1" value="${it.priceKrw||''}" oninput="updateOcrResult(${i},'priceKrw',this.value)" placeholder="가격" inputmode="numeric"/><span class="meta">원</span></div></div></div></div>`).join(''):'<div class="card static empty-state">인식된 품목이 없습니다.</div>';
+    updateOcrSelection(); tx.textContent=`분석 완료: ${results.length}개 품목`; showHint(`${results.length}개 인식`);
+  }catch(e){ console.error(e); tx.textContent='연결 실패: backendUrl·ngrok 확인'; bar.style.width='0%'; showHint('백엔드 연결 실패'); }
 }
 async function confirmAIResult(){
   if(!currentUser){ showHint('먼저 로그인하세요'); nav('login'); return; }
-  const checks = document.querySelectorAll('.ocr-check'); const selected = [];
-  checks.forEach(c => { if(c.checked){ const idx = Number(c.dataset.idx); if(_ocrLastResults[idx]) selected.push(_ocrLastResults[idx]); } });
-  if(!selected.length){ showHint('등록할 품목을 하나 이상 선택하세요'); return; }
-  const today = new Date().toISOString().slice(0,10);
-  const shelfLifeDays = 7;
-  const expiry = new Date(today); expiry.setDate(expiry.getDate() + shelfLifeDays);
-  const expiryStr = expiry.toISOString().slice(0,10);
-  const rows = sb ? null : localListings();
-  let count = 0;
-  for(const it of selected){
-    const name = (it.name || '식품').trim() || '식품';
-    const listing = {
-      id: `user-${Date.now()}-${count}`, emoji: '🧾', itemName: name, baseFood: name, category: '식품', quantity: '1',
-      tradeType: '나눔', priceKrw: Number(it.priceKrw || 0), storageType: '냉장', purchaseDate: today, shelfLifeDays,
-      remainingDays: shelfLifeDays, expiryDate: expiryStr, freshnessScore: 82, location: currentUser.neighborhood, distanceM: 100,
-      listingAge: '방금 전', purchaseFrequency: '주 1회', preservationMethod: '냉장 보관', storageTips: '서늘하고 건조한 곳에 보관',
-      expiryBasis: '구매일 기준 추정', sourceName: '영수증 OCR', sourceUrl: '#', aiUsage: '영수증 OCR 자동 인식',
-      datasetFields: '품목명, 가격, 구매일', ownerNickname: currentUser.nickname, ownerUserid: currentUser.userid
-    };
-    if(sb){
-      try{ await sb.from('listings').insert({ id: listing.id, owner_nickname: listing.ownerNickname, owner_userid: listing.ownerUserid, item_name: listing.itemName, base_food: listing.baseFood, category: listing.category, quantity: listing.quantity, trade_type: listing.tradeType, price_krw: listing.priceKrw, storage_type: listing.storageType, purchase_date: listing.purchaseDate, shelf_life_days: listing.shelfLifeDays, remaining_days: listing.remainingDays, expiry_date: listing.expiryDate, preservation_method: listing.preservationMethod, location: listing.location }); }catch(e){ console.error(e); }
-    } else { rows.unshift(listing); }
-    count++;
-  }
-  if(!sb) saveLocalListings(rows);
-  await refreshSharedListings();
-  showHint(`${count}개 품목이 등록되었습니다`);
-  nav('home');
+  const sel=[]; document.querySelectorAll('.ocr-check').forEach(c=>{ if(c.checked){ const i=Number(c.dataset.idx); if(_ocrLastResults[i]) sel.push(_ocrLastResults[i]); } });
+  if(!sel.length){ showHint('품목을 하나 이상 선택하세요'); return; }
+  const today=new Date().toISOString().slice(0,10), sl=7; const exp=new Date(today); exp.setDate(exp.getDate()+sl); const es=exp.toISOString().slice(0,10);
+  let n=0;
+  for(const it of sel){ const name=(it.name||'식품').trim()||'식품'; const price=Number(it.priceKrw||0);
+    await insertListing({ id:`user-${Date.now()}-${n}`, emoji:'🧾', itemName:name, baseFood:name, category:'식품', quantity:'1',
+      tradeType:price>0?'판매':'나눔', priceKrw:price, storageType:'냉장', purchaseDate:today, shelfLifeDays:sl, remainingDays:sl,
+      expiryDate:es, freshnessScore:82, location:currentUser.neighborhood, distanceM:100, listingAge:'방금 전', purchaseFrequency:'주 1회',
+      preservationMethod:'냉장 보관', storageTips:'서늘한 곳 보관', expiryBasis:'구매일 기준 추정', sourceName:'영수증 OCR', sourceUrl:'#',
+      status:'open', ownerNickname:currentUser.nickname, ownerUserid:currentUser.userid }); n++; }
+  await refreshSharedListings(); showHint(`${n}개 품목 등록됨`); nav('mypage');
 }
 
 // ===== 서울 자치구/동 =====
 const SEOUL_DISTRICTS = {
-  '강남구':['역삼1동','역삼2동','삼성1동','삼성2동','대치1동','대치2동','대치4동','청담동','논현1동','논현2동','신사동','압구정동','세곡동','일원본동','수서동','개포1동','개포2동','도곡1동','도곡2동'],
-  '강동구':['천호1동','천호2동','천호3동','성내1동','성내2동','성내3동','길동','둔촌1동','둔촌2동','암사1동','암사2동','암사3동','명일1동','명일2동','고덕1동','고덕2동','상일동','강일동'],
-  '강북구':['미아동','번1동','번2동','번3동','수유1동','수유2동','수유3동','우이동','인수동','삼각산동','송중동','송천동'],
-  '강서구':['화곡1동','화곡2동','화곡3동','화곡본동','등촌1동','등촌2동','등촌3동','가양1동','가양2동','발산1동','우장산동','공항동','방화1동','방화2동'],
-  '관악구':['보라매동','은천동','성현동','중앙동','청림동','행운동','낙성대동','청룡동','신림동','난향동','조원동','대학동','삼성동','미성동','난곡동'],
-  '광진구':['중곡1동','중곡2동','중곡3동','중곡4동','능동','구의1동','구의2동','구의3동','광장동','자양1동','자양2동','자양3동','자양4동','화양동','군자동'],
-  '구로구':['신도림동','구로1동','구로2동','구로3동','구로4동','구로5동','가리봉동','고척1동','고척2동','개봉1동','개봉2동','개봉3동','오류1동','오류2동','수궁동','항동'],
-  '금천구':['가산동','독산1동','독산2동','독산3동','독산4동','시흥1동','시흥2동','시흥3동','시흥4동','시흥5동'],
-  '노원구':['월계1동','월계2동','월계3동','공릉1동','공릉2동','하계1동','하계2동','중계본동','중계1동','중계4동','중계2·3동','상계1동','상계2동','상계3·4동','상계5동','상계6·7동','상계8동','상계9동','상계10동'],
-  '도봉구':['쌍문1동','쌍문2동','쌍문3동','쌍문4동','방학1동','방학2동','방학3동','창1동','창2동','창3동','창4동','창5동','도봉1동','도봉2동'],
-  '동대문구':['용신동','제기동','전농1동','전농2동','답십리1동','답십리2동','장안1동','장안2동','청량리동','회기동','휘경1동','휘경2동','이문1동','이문2동'],
-  '동작구':['노량진1동','노량진2동','상도1동','상도2동','상도3동','상도4동','흑석동','사당1동','사당2동','사당3동','사당4동','대방동','신대방1동','신대방2동'],
-  '마포구':['공덕동','아현동','도화동','용강동','대흥동','염리동','신수동','서강동','서교동','합정동','망원1동','망원2동','연남동','성산1동','성산2동','상암동'],
-  '서대문구':['충현동','천연동','북아현동','신촌동','연희동','홍제1동','홍제2동','홍제3동','홍은1동','홍은2동','남가좌1동','남가좌2동','북가좌1동','북가좌2동'],
-  '서초구':['서초1동','서초2동','서초3동','서초4동','잠원동','반포본동','반포1동','반포2동','반포3동','반포4동','방배본동','방배1동','방배2동','방배3동','방배4동','양재1동','양재2동','내곡동'],
-  '성동구':['왕십리도선동','왕십리2동','마장동','사근동','행당1동','행당2동','응봉동','금호1가동','금호2·3가동','금호4가동','옥수동','성수1가1동','성수1가2동','성수2가1동','성수2가3동','송정동','용답동'],
-  '성북구':['성북동','삼선동','동선동','돈암1동','돈암2동','안암동','보문동','정릉1동','정릉2동','정릉3동','정릉4동','길음1동','길음2동','종암동','월곡1동','월곡2동','장위1동','장위2동','장위3동','석관동'],
-  '송파구':['풍납1동','풍납2동','거여1동','거여2동','마천1동','마천2동','방이1동','방이2동','오금동','송파1동','송파2동','석촌동','삼전동','가락1동','가락2동','문정1동','문정2동','장지동','위례동','잠실본동','잠실2동','잠실3동','잠실4동','잠실6동','잠실7동'],
-  '양천구':['목1동','목2동','목3동','목4동','목5동','신월1동','신월2동','신월3동','신월4동','신월5동','신월6동','신월7동','신정1동','신정2동','신정3동','신정4동','신정6동','신정7동'],
-  '영등포구':['영등포본동','영등포동','여의동','당산1동','당산2동','도림동','문래동','양평1동','양평2동','신길1동','신길3동','신길4동','신길5동','신길6동','신길7동','대림1동','대림2동','대림3동'],
-  '용산구':['후암동','용산2가동','남영동','청파동','원효로1동','원효로2동','효창동','용문동','한강로동','이촌1동','이촌2동','이태원1동','이태원2동','한남동','서빙고동','보광동'],
-  '은평구':['녹번동','불광1동','불광2동','갈현1동','갈현2동','구산동','대조동','응암1동','응암2동','응암3동','역촌동','신사1동','신사2동','증산동','수색동','진관동'],
-  '종로구':['청운효자동','사직동','삼청동','부암동','평창동','무악동','교남동','가회동','종로1·2·3·4가동','종로5·6가동','이화동','혜화동','창신1동','창신2동','창신3동','숭인1동','숭인2동'],
-  '중구':['소공동','회현동','명동','필동','장충동','광희동','을지로동','신당동','다산동','약수동','청구동','신당5동','동화동','황학동','중림동'],
-  '중랑구':['면목본동','면목2동','면목4동','면목5동','면목7동','면목3·8동','상봉1동','상봉2동','중화1동','중화2동','묵1동','묵2동','망우본동','망우3동','신내1동','신내2동']
+  '강남구':['역삼1동','역삼2동','삼성1동','삼성2동','대치1동','청담동','논현1동','논현2동','신사동','압구정동','수서동','개포1동','도곡1동'],
+  '강동구':['천호1동','천호2동','성내1동','길동','둔촌1동','암사1동','명일1동','고덕1동','상일동','강일동'],
+  '강북구':['미아동','번1동','수유1동','우이동','삼각산동','송중동'],
+  '강서구':['화곡1동','등촌1동','가양1동','발산1동','우장산동','공항동','방화1동'],
+  '관악구':['보라매동','은천동','중앙동','행운동','낙성대동','청룡동','신림동','대학동','삼성동','난곡동'],
+  '광진구':['중곡1동','능동','구의1동','광장동','자양1동','화양동','군자동'],
+  '구로구':['신도림동','구로1동','가리봉동','고척1동','개봉1동','오류1동','수궁동','항동'],
+  '금천구':['가산동','독산1동','시흥1동'],
+  '노원구':['월계1동','공릉1동','하계1동','중계본동','중계1동','상계1동','상계2동'],
+  '도봉구':['쌍문1동','방학1동','창1동','도봉1동'],
+  '동대문구':['용신동','제기동','전농1동','답십리1동','장안1동','청량리동','회기동','휘경1동','이문1동'],
+  '동작구':['노량진1동','상도1동','흑석동','사당1동','대방동','신대방1동'],
+  '마포구':['공덕동','아현동','도화동','용강동','대흥동','염리동','신수동','서교동','합정동','망원1동','연남동','성산1동','상암동'],
+  '서대문구':['충현동','천연동','북아현동','신촌동','연희동','홍제1동','홍은1동','남가좌1동','북가좌1동'],
+  '서초구':['서초1동','서초2동','잠원동','반포본동','반포1동','방배본동','방배1동','양재1동','내곡동'],
+  '성동구':['왕십리도선동','마장동','사근동','행당1동','응봉동','금호1가동','옥수동','성수1가1동','송정동','용답동'],
+  '성북구':['성북동','삼선동','동선동','돈암1동','안암동','보문동','정릉1동','길음1동','종암동','월곡1동','장위1동','석관동'],
+  '송파구':['풍납1동','거여1동','마천1동','방이1동','오금동','송파1동','석촌동','삼전동','가락1동','문정1동','장지동','위례동','잠실본동','잠실2동'],
+  '양천구':['목1동','목2동','신월1동','신정1동'],
+  '영등포구':['영등포본동','여의동','당산1동','도림동','문래동','양평1동','신길1동','대림1동'],
+  '용산구':['후암동','남영동','청파동','원효로1동','효창동','용문동','한강로동','이촌1동','이태원1동','한남동','서빙고동','보광동'],
+  '은평구':['녹번동','불광1동','갈현1동','구산동','대조동','응암1동','역촌동','신사1동','증산동','수색동','진관동'],
+  '종로구':['청운효자동','사직동','삼청동','부암동','평창동','무악동','교남동','가회동','종로1·2·3·4가동','이화동','혜화동','창신1동','숭인1동'],
+  '중구':['소공동','회현동','명동','필동','장충동','광희동','을지로동','신당동','다산동','약수동','청구동','동화동','황학동','중림동'],
+  '중랑구':['면목본동','면목2동','상봉1동','중화1동','묵1동','망우본동','신내1동']
 };
-function populateGuOptions(){
-  const sel = document.getElementById('login-gu'); if(!sel) return;
-  const keys = Object.keys(SEOUL_DISTRICTS).sort((a,b)=>a.localeCompare(b,'ko'));
-  sel.innerHTML = '<option value="">자치구 선택</option>' + keys.map(g => `<option value="${g}">${g}</option>`).join('');
-}
-function updateDongOptions(){
-  const gu = document.getElementById('login-gu').value; const sel = document.getElementById('login-dong'); if(!sel) return;
-  if(!gu){ sel.innerHTML = '<option value="">먼저 자치구를 선택하세요</option>'; return; }
-  const dongs = [...new Set(SEOUL_DISTRICTS[gu] || [])].sort((a,b)=>a.localeCompare(b,'ko'));
-  sel.innerHTML = '<option value="">동 선택</option>' + dongs.map(d => `<option value="${d}">${d}</option>`).join('');
-}
-async function detectLocation(){
-  const status = document.getElementById('geo-status'); if(!status) return;
-  if(!navigator.geolocation){ status.textContent = '이 브라우저는 위치 감지를 지원하지 않습니다.'; return; }
-  status.textContent = '위치를 확인하는 중...';
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const { latitude, longitude } = pos.coords;
-    try {
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ko`;
-      const resp = await fetch(url, { headers: { 'Accept':'application/json' }}); const data = await resp.json();
-      const addr = data.address || {};
-      let gu = addr.borough || addr.city_district || addr.county || ''; let dong = addr.quarter || addr.neighbourhood || addr.suburb || '';
-      const matchGu = Object.keys(SEOUL_DISTRICTS).find(g => gu && gu.includes(g));
-      if(matchGu){
-        document.getElementById('login-gu').value = matchGu; updateDongOptions();
-        if(dong){
-          const dongClean = dong.replace(/\s+/g,'');
-          const matchDong = SEOUL_DISTRICTS[matchGu].find(d => d.includes(dongClean) || dongClean.includes(d.replace(/[0-9]/g,'')));
-          if(matchDong){ document.getElementById('login-dong').value = matchDong; status.innerHTML = `감지된 위치: <b>${matchGu} ${matchDong}</b>`; }
-          else { status.innerHTML = `자치구 감지: <b>${matchGu}</b> (동은 직접 선택)`; }
-        } else { status.innerHTML = `자치구 감지: <b>${matchGu}</b>`; }
-      } else { status.innerHTML = `서울 외 지역이거나 인식 실패 (${gu||'알 수 없음'}). 직접 선택하세요.`; }
-    } catch(e){ status.textContent = '위치 변환 실패. 직접 선택하세요.'; }
-  }, () => { status.textContent = '위치 권한이 거부되었습니다.'; }, { enableHighAccuracy:false, timeout:8000, maximumAge:60000 });
-}
+function populateGuOptions(){ const sel=document.getElementById('login-gu'); if(!sel) return; const keys=Object.keys(SEOUL_DISTRICTS).sort((a,b)=>a.localeCompare(b,'ko')); sel.innerHTML='<option value="">자치구 선택</option>'+keys.map(g=>`<option value="${g}">${g}</option>`).join(''); }
+function updateDongOptions(){ const gu=document.getElementById('login-gu').value; const sel=document.getElementById('login-dong'); if(!sel) return; if(!gu){ sel.innerHTML='<option value="">먼저 자치구를 선택하세요</option>'; return; } const d=[...new Set(SEOUL_DISTRICTS[gu]||[])]; sel.innerHTML='<option value="">동 선택</option>'+d.map(x=>`<option value="${x}">${x}</option>`).join(''); }
+async function detectLocation(){ const st=document.getElementById('geo-status'); if(!st) return; if(!navigator.geolocation){ st.textContent='위치 감지 미지원'; return; } st.textContent='위치 확인 중...'; navigator.geolocation.getCurrentPosition(async p=>{ const {latitude,longitude}=p.coords; try{ const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ko`,{headers:{'Accept':'application/json'}}); const d=await r.json(); const a=d.address||{}; let gu=a.borough||a.city_district||a.county||'',dong=a.quarter||a.neighbourhood||a.suburb||''; const mg=Object.keys(SEOUL_DISTRICTS).find(g=>gu&&gu.includes(g)); if(mg){ document.getElementById('login-gu').value=mg; updateDongOptions(); st.innerHTML=`감지: <b>${mg}</b> (동은 직접 선택)`; } else { st.innerHTML='서울 외/인식 실패. 직접 선택'; } }catch(e){ st.textContent='변환 실패. 직접 선택'; } },()=>{ st.textContent='위치 권한 거부됨'; },{enableHighAccuracy:false,timeout:8000}); }
 
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    if((chip.parentElement.classList.contains('row') || chip.parentElement.classList.contains('pill-row')) && !chip.onclick){
-      Array.from(chip.parentElement.querySelectorAll('.chip')).forEach(c => c.classList.remove('on')); chip.classList.add('on');
-    }
-  });
-});
-document.querySelectorAll('.tabs .tab').forEach(tab => {
-  tab.addEventListener('click', () => { if(!tab.onclick){ Array.from(tab.parentElement.querySelectorAll('.tab')).forEach(t => t.classList.remove('on')); tab.classList.add('on'); } });
-});
+document.querySelectorAll('.chip').forEach(chip=>{ chip.addEventListener('click',()=>{ if((chip.parentElement.classList.contains('row')||chip.parentElement.classList.contains('pill-row'))&&!chip.onclick){ Array.from(chip.parentElement.querySelectorAll('.chip')).forEach(c=>c.classList.remove('on')); chip.classList.add('on'); } }); });
+document.querySelectorAll('.tabs .tab').forEach(tab=>{ tab.addEventListener('click',()=>{ if(!tab.onclick){ Array.from(tab.parentElement.querySelectorAll('.tab')).forEach(t=>t.classList.remove('on')); tab.classList.add('on'); } }); });
 
 function bootDataset(){
-  const mode = document.getElementById('storage-mode'); if(mode) mode.textContent = sb ? 'Supabase 연결됨' : '이 브라우저 저장';
+  const m=document.getElementById('storage-mode'); if(m) m.textContent = sb?'Supabase 연결됨':'이 브라우저 저장';
   populateGuOptions(); switchAuthMode('signin');
-  if(currentUser){
-    const listingLoc = document.getElementById('listing-location'); if(listingLoc) listingLoc.value = currentUser.neighborhood;
-    const homeChip = document.querySelector('#screen-home .header .chip');
-    if(homeChip && currentUser.gu && currentUser.dong) homeChip.innerHTML = `📍 ${currentUser.gu} ${currentUser.dong}`;
-  }
-  refreshSharedListings(); renderFeed(); renderDetail(); renderFridge(); renderChat(); updateRecommendVisibility();
-  const pd = document.getElementById('listing-purchase-date'); if(pd && !pd.value) pd.value = new Date().toISOString().slice(0,10);
+  if(currentUser){ const ll=document.getElementById('listing-location'); if(ll) ll.value=currentUser.neighborhood; const hc=document.querySelector('#screen-home .header .chip'); if(hc&&currentUser.gu) hc.innerHTML=`📍 ${currentUser.gu} ${currentUser.dong}`; }
+  refreshSharedListings(); renderChat(); updateRecommendVisibility();
+  const pd=document.getElementById('listing-purchase-date'); if(pd&&!pd.value) pd.value=new Date().toISOString().slice(0,10);
   refreshAccountList();
-  setInterval(() => {
-    if(currentUser && document.getElementById('screen-chat')?.classList.contains('active') && !activeRoom){ refreshChatList(false); }
-    else if(currentUser && activeRoom && document.getElementById('screen-chat')?.classList.contains('active')){ renderChatMessages(); }
-  }, 5000);
+  setInterval(()=>{ if(currentUser&&document.getElementById('screen-chat')?.classList.contains('active')){ if(activeRoom) renderChatMessages(); else refreshChatList(); } },5000);
   if(currentUser) nav('home');
 }
 bootDataset();
