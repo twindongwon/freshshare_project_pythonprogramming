@@ -80,12 +80,14 @@ h4{margin:6px 0}
 .camera-view{background:#1F3D3A;border-radius:var(--r-lg);height:300px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:50px;margin-bottom:14px;box-shadow:var(--shadow-in)}
 .hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:10px 18px;border-radius:99px;box-shadow:var(--shadow-out);z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%;text-align:center}
 .hint.show{opacity:1}
+.ocr-check{width:18px;height:18px;accent-color:var(--teal2);cursor:pointer}
+.ocr-edit{background:var(--inset);box-shadow:var(--shadow-in);border:none;border-radius:8px;padding:6px 8px;font-size:12px;color:var(--ink);outline:none;width:100%}
 </style></head>
 <body>
 
 <div class="guide">
   <h1>🥬 FreshShare — 동네 신선식품 나눔 프로토타입</h1>
-  <p><b>영수증 사진</b>을 올리면 데탑 백엔드의 <b>Donut AI 모델</b>이 품목과 가격을 자동으로 읽어 등록을 도와줍니다.</p>
+  <p><b>영수증 사진</b>을 올리면 데탑 백엔드의 AI 모델이 품목과 가격을 자동으로 읽어 등록을 도와줍니다.</p>
   <div class="legend">
     <span>로그인 (자치구/동)</span>
     <span>홈 피드</span>
@@ -210,8 +212,8 @@ h4{margin:6px 0}
     <span class="chip">방울토마토</span><span class="chip">계란</span><span class="chip">두부</span><span class="chip">우유</span><span class="chip">당근</span>
   </div>
 
-  <span class="label" style="margin-top:14px">우리 동네 추천</span>
-  <div class="card" onclick="nav('detail')">
+  <span class="label" style="margin-top:14px" id="recommend-label">우리 동네 추천</span>
+  <div class="card" id="recommend-card" onclick="nav('detail')">
     <div class="row" style="gap:12px">
       <div class="thumb">🍅</div>
       <div style="flex:1">
@@ -318,20 +320,26 @@ h4{margin:6px 0}
     <div class="bar" style="margin-top:10px"><i id="ai-progress-bar" style="width:10%;transition:width .4s"></i></div>
   </div>
 
-  <span class="label" id="ai-result-label" style="display:none">AI 인식 품목</span>
+  <div class="row" id="ai-result-toolbar" style="display:none;justify-content:space-between;align-items:center;margin-top:6px">
+    <span class="label" style="margin:0">AI 인식 품목 <span id="ai-selected-count">0</span>개 선택됨</span>
+    <div class="row" style="gap:6px">
+      <span class="chip" onclick="setAllOcrChecks(true)">전체선택</span>
+      <span class="chip" onclick="setAllOcrChecks(false)">전체해제</span>
+    </div>
+  </div>
   <div id="ai-results"></div>
 
   <div class="card static" id="ai-empty" style="text-align:center;padding:18px">
     <div style="font-size:11px;color:var(--muted);line-height:1.6">
       위 <b>사진 촬영/업로드</b> 버튼으로 영수증을 올리면<br>
-      데탑 백엔드의 <b>Donut 모델</b>이 품목과 가격을<br>
+      데탑 백엔드의 <b>AI 모델</b>이 품목과 가격을<br>
       자동으로 읽어 아래에 표시합니다.
     </div>
   </div>
 
   <div class="row" style="gap:8px;margin-top:8px">
     <button class="btn ghost" style="flex:1" onclick="nav('register')">취소</button>
-    <button class="btn" style="flex:2" id="btn-confirm-ai" onclick="confirmAIResult()" disabled>등록 화면에 채우기</button>
+    <button class="btn" style="flex:2" id="btn-confirm-ai" onclick="confirmAIResult()" disabled>선택 품목 등록</button>
   </div>
 
   <div class="bottom-nav" style="margin-top:14px">
@@ -362,8 +370,8 @@ h4{margin:6px 0}
     <div class="row" style="gap:10px">
       <div class="thumb" style="width:44px;height:44px;font-size:18px">👤</div>
       <div style="flex:1">
-        <b style="font-size:13px">freshneighbor</b>
-        <div class="meta"><span class="stars">★★★★★</span> 4.9 · 거래 23회</div>
+        <b style="font-size:13px" id="detail-seller">판매자</b>
+        <div class="meta" id="detail-seller-meta"><span class="stars">★★★★★</span> 신규 · 거래 0회</div>
       </div>
       <span class="badge">신뢰</span>
     </div>
@@ -432,14 +440,14 @@ h4{margin:6px 0}
       <div class="thumb" style="font-size:30px">👤</div>
       <div style="flex:1">
         <b style="font-size:15px" id="profile-name">사용자 님</b>
-        <div class="meta" id="profile-meta">우리 동네 · 거래 3회</div>
-        <div style="margin-top:6px"><span class="badge">신뢰온도 38℃</span></div>
+        <div class="meta" id="profile-meta">우리 동네 · 거래 0회</div>
+        <div style="margin-top:6px"><span class="badge" id="profile-temp">신뢰온도 36.5℃</span></div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center">
-      <div><b style="color:var(--teal2)">12</b><div class="meta">나눔</div></div>
-      <div><b style="color:var(--teal2)">8</b><div class="meta">받음</div></div>
-      <div><b style="color:var(--teal2)">4.9</b><div class="meta">평점</div></div>
+      <div><b style="color:var(--teal2)" id="stat-share">0</b><div class="meta">나눔</div></div>
+      <div><b style="color:var(--teal2)" id="stat-receive">0</b><div class="meta">받음</div></div>
+      <div><b style="color:var(--teal2)" id="stat-rating">0</b><div class="meta">평점</div></div>
     </div>
   </div>
   <button class="btn ghost block" style="margin-bottom:12px" onclick="logout()">로그아웃</button>
@@ -451,9 +459,9 @@ h4{margin:6px 0}
 
   <span class="label">환경 기여</span>
   <div class="card static">
-    <div class="kv"><span>이번 달 나눔</span><b style="color:var(--teal2)">2.4 kg</b></div>
-    <div class="kv"><span>누적 나눔</span><b>11.8 kg</b></div>
-    <div class="kv"><span>CO₂ 절감</span><b>약 7.2 kg</b></div>
+    <div class="kv"><span>이번 달 나눔</span><b style="color:var(--teal2)" id="env-month">0 kg</b></div>
+    <div class="kv"><span>누적 나눔</span><b id="env-total">0 kg</b></div>
+    <div class="kv"><span>CO₂ 절감</span><b id="env-co2">약 0 kg</b></div>
   </div>
 
   <div class="bottom-nav">
@@ -493,6 +501,15 @@ const sb = (window.supabase && config.supabaseUrl && config.supabaseAnonKey)
   : null;
 
 function userLabel(){ return currentUser?.nickname || '사용자'; }
+
+// 로그인 여부에 따라 "우리 동네 추천" 표시/숨김
+function updateRecommendVisibility(){
+  const recLabel = document.getElementById('recommend-label');
+  const recCard = document.getElementById('recommend-card');
+  const show = !!currentUser;
+  if(recLabel) recLabel.style.display = show ? 'block' : 'none';
+  if(recCard)  recCard.style.display = show ? 'block' : 'none';
+}
 
 function nav(target){
   screens.forEach(s => {
@@ -567,11 +584,12 @@ async function login(){
   if(homeChip) homeChip.innerHTML = `📍 ${currentUser.gu} ${currentUser.dong}`;
   await refreshSharedListings();
   renderFridge();
+  updateRecommendVisibility();
   showHint(`${currentUser.nickname} 님 환영합니다 (@${userid})`);
   nav('home');
 }
 
-function logout(){ localStorage.removeItem('freshshare_user'); currentUser = null; nav('login'); refreshAccountList(); }
+function logout(){ localStorage.removeItem('freshshare_user'); currentUser = null; updateRecommendVisibility(); nav('login'); refreshAccountList(); }
 
 function showHint(text){
   const h = document.getElementById('hint');
@@ -719,6 +737,11 @@ function renderDetail(){
       <div class="data-note"><b>팁</b> ${selectedItem.storageTips}</div>
       <div class="data-note"><b>기준</b> ${selectedItem.expiryBasis}<br><a class="source-link" href="${selectedItem.sourceUrl}" target="_blank" rel="noreferrer">${selectedItem.sourceName}</a></div>`;
   }
+  // 판매자 이름을 글 작성자 닉네임으로
+  const seller = document.getElementById('detail-seller');
+  const sellerMeta = document.getElementById('detail-seller-meta');
+  if(seller) seller.textContent = selectedItem.ownerNickname || '판매자';
+  if(sellerMeta) sellerMeta.innerHTML = `<span class="stars">★★★★★</span> 신규 · 거래 0회`;
 }
 
 // ===== 채팅 =====
@@ -876,8 +899,37 @@ function renderFridge(){
   const fridge = document.getElementById('fridge-list');
   const profileName = document.getElementById('profile-name');
   const profileMeta = document.getElementById('profile-meta');
+
+  // 내가 등록한 매물만 추려서 통계 계산
+  const myItems = currentUser ? items.filter(it => it.ownerUserid === currentUser.userid) : [];
+  const shareCount = myItems.length;                       // 나눔 개수 = 내가 올린 매물 수
+  const receiveCount = 0;                                  // 받음(아직 거래기록 없음 → 0)
+  const ratingVal = shareCount > 0 ? 0 : 0;                // 평점(거래 전이므로 0)
+
+  // 환경 기여: 매물 1건당 약 0.5kg로 단순 추정
+  const KG_PER_ITEM = 0.5;
+  const totalKg = +(shareCount * KG_PER_ITEM).toFixed(1);
+  const co2Kg = +(totalKg * 2.5).toFixed(1);               // 음식물 1kg당 약 2.5kg CO2 절감 추정
+
   if(profileName) profileName.textContent = `${userLabel()} 님`;
-  if(profileMeta) profileMeta.textContent = `${currentUser?.neighborhood || '우리 동네'} · 활동 중`;
+  if(profileMeta) profileMeta.textContent = `${currentUser?.neighborhood || '우리 동네'} · 거래 ${receiveCount}회`;
+
+  const tempEl = document.getElementById('profile-temp');
+  if(tempEl) tempEl.textContent = '신뢰온도 36.5℃';        // 기본 신뢰온도 36.5
+  const sShare = document.getElementById('stat-share');
+  const sRecv = document.getElementById('stat-receive');
+  const sRate = document.getElementById('stat-rating');
+  if(sShare) sShare.textContent = shareCount;
+  if(sRecv) sRecv.textContent = receiveCount;
+  if(sRate) sRate.textContent = ratingVal;
+
+  const envMonth = document.getElementById('env-month');
+  const envTotal = document.getElementById('env-total');
+  const envCo2 = document.getElementById('env-co2');
+  if(envMonth) envMonth.textContent = `${totalKg} kg`;
+  if(envTotal) envTotal.textContent = `${totalKg} kg`;
+  if(envCo2) envCo2.textContent = `약 ${co2Kg} kg`;
+
   if(label) label.textContent = `우리 동네 냉장고 (${items.length})`;
   if(!fridge) return;
   fridge.innerHTML = items.map(item => {
@@ -892,7 +944,7 @@ function renderFridge(){
   }).join('') || '<div class="card static empty-state">등록된 식재료가 없습니다.</div>';
 }
 
-// ===== 백엔드 Donut OCR 연동 =====
+// ===== 백엔드 OCR 연동 =====
 let _uploadedImageFile = null;
 let _ocrLastResults = [];
 
@@ -913,6 +965,32 @@ function handlePhotoUpload(event){
   reader.readAsDataURL(file);
 }
 
+// 체크박스 상태에 따라 선택 개수 갱신 + 등록 버튼 활성화
+function updateOcrSelection(){
+  const checks = document.querySelectorAll('.ocr-check');
+  let count = 0;
+  checks.forEach(c => { if(c.checked) count++; });
+  const countEl = document.getElementById('ai-selected-count');
+  if(countEl) countEl.textContent = count;
+  const confirmBtn = document.getElementById('btn-confirm-ai');
+  if(confirmBtn) confirmBtn.disabled = count === 0;
+}
+function setAllOcrChecks(state){
+  document.querySelectorAll('.ocr-check').forEach(c => { c.checked = state; });
+  updateOcrSelection();
+}
+// 사용자가 OCR 결과를 수정하면 _ocrLastResults에 반영
+function updateOcrResult(idx, field, value){
+  if(_ocrLastResults[idx]){
+    if(field === 'priceKrw'){
+      const num = Number(String(value).replace(/[^0-9]/g, '')) || 0;
+      _ocrLastResults[idx].priceKrw = num;
+    } else {
+      _ocrLastResults[idx][field] = value;
+    }
+  }
+}
+
 async function runAIRecognition(){
   if(!_uploadedImageFile){ showHint('먼저 사진을 업로드하세요'); return; }
   const backendUrl = (window.FRESHSHARE_CONFIG || {}).backendUrl;
@@ -921,7 +999,7 @@ async function runAIRecognition(){
   const statusText = document.getElementById('ai-status-text');
   const bar = document.getElementById('ai-progress-bar');
   if(statusCard) statusCard.style.display = 'block';
-  if(statusText) statusText.textContent = '백엔드 Donut 모델로 분석 중...';
+  if(statusText) statusText.textContent = '백엔드 AI 모델로 분석 중...';
   if(bar) bar.style.width = '40%';
   try{
     const form = new FormData();
@@ -937,22 +1015,29 @@ async function runAIRecognition(){
     const results = (data.items || []).map(it => ({ name: it.name, priceKrw: it.priceKrw || 0, emoji: '🧾' }));
     _ocrLastResults = results;
     const box = document.getElementById('ai-results');
-    const label = document.getElementById('ai-result-label');
+    const toolbar = document.getElementById('ai-result-toolbar');
     const empty = document.getElementById('ai-empty');
     if(empty) empty.style.display = 'none';
-    if(label) label.style.display = 'block';
+    if(toolbar) toolbar.style.display = results.length ? 'flex' : 'none';
     if(box){
       box.innerHTML = results.length
-        ? results.map(it=>`<div class="card static"><div class="row" style="gap:10px;align-items:center">
-            <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
-            <div style="flex:1"><b style="font-size:13px">${escapeHTML(it.name)}</b>
-              <div class="meta">${it.priceKrw ? it.priceKrw.toLocaleString('ko-KR')+'원' : '가격 미인식'}</div></div></div></div>`).join('')
+        ? results.map((it,i)=>`<div class="card static">
+            <div class="row" style="gap:10px;align-items:center">
+              <input type="checkbox" class="ocr-check" data-idx="${i}" checked onchange="updateOcrSelection()"/>
+              <div class="thumb" style="width:38px;height:38px;font-size:16px">${it.emoji}</div>
+              <div style="flex:1">
+                <input class="ocr-edit" value="${escapeHTML(it.name)}" oninput="updateOcrResult(${i}, 'name', this.value)" placeholder="품목명"/>
+                <div class="row" style="margin-top:6px;gap:6px;align-items:center">
+                  <input class="ocr-edit" style="flex:1" value="${it.priceKrw || ''}" oninput="updateOcrResult(${i}, 'priceKrw', this.value)" placeholder="가격(숫자)" inputmode="numeric"/>
+                  <span class="meta">원</span>
+                </div>
+              </div>
+            </div></div>`).join('')
         : '<div class="card static empty-state">인식된 품목이 없습니다. 다시 촬영해 주세요.</div>';
     }
-    const confirmBtn = document.getElementById('btn-confirm-ai');
-    if(confirmBtn) confirmBtn.disabled = results.length === 0;
-    if(statusText) statusText.textContent = `분석 완료: 품목 ${results.length}개 인식`;
-    showHint(`Donut 분석 완료: ${results.length}개 품목`);
+    updateOcrSelection();
+    if(statusText) statusText.textContent = `분석 완료: 품목 ${results.length}개 인식 (체크해서 등록하세요)`;
+    showHint(`AI 분석 완료: ${results.length}개 품목`);
   }catch(e){
     console.error(e);
     if(statusText) statusText.textContent = '백엔드 연결 실패: config.js의 backendUrl과 ngrok 실행 상태를 확인하세요';
@@ -961,18 +1046,61 @@ async function runAIRecognition(){
   }
 }
 
-function confirmAIResult(){
-  if(_ocrLastResults && _ocrLastResults.length){
-    const first = _ocrLastResults[0];
-    const nameInput = document.getElementById('listing-name');
-    const baseInput = document.getElementById('listing-base-food');
-    const priceInput = document.getElementById('listing-price');
-    if(nameInput) nameInput.value = first.name;
-    if(baseInput) baseInput.value = first.name;
-    if(priceInput && first.priceKrw) priceInput.value = first.priceKrw;
+// 체크된 품목들을 각각 매물로 등록
+async function confirmAIResult(){
+  if(!currentUser){ showHint('먼저 로그인하세요'); nav('login'); return; }
+  const checks = document.querySelectorAll('.ocr-check');
+  const selected = [];
+  checks.forEach(c => {
+    if(c.checked){
+      const idx = Number(c.dataset.idx);
+      if(_ocrLastResults[idx]) selected.push(_ocrLastResults[idx]);
+    }
+  });
+  if(!selected.length){ showHint('등록할 품목을 하나 이상 선택하세요'); return; }
+
+  const today = new Date().toISOString().slice(0,10);
+  const shelfLifeDays = 7;
+  const expiry = new Date(today); expiry.setDate(expiry.getDate() + shelfLifeDays);
+  const expiryStr = expiry.toISOString().slice(0,10);
+  const rows = sb ? null : localListings();
+  let count = 0;
+
+  for(const it of selected){
+    const name = (it.name || '식품').trim() || '식품';
+    const listing = {
+      id: `user-${Date.now()}-${count}`, emoji: '🧾',
+      itemName: name, baseFood: name, category: '식품', quantity: '1',
+      tradeType: '나눔', priceKrw: Number(it.priceKrw || 0),
+      storageType: '냉장', purchaseDate: today, shelfLifeDays,
+      remainingDays: shelfLifeDays, expiryDate: expiryStr, freshnessScore: 82,
+      location: currentUser.neighborhood, distanceM: 100, listingAge: '방금 전',
+      purchaseFrequency: '주 1회', preservationMethod: '냉장 보관',
+      storageTips: '서늘하고 건조한 곳에 보관', expiryBasis: '구매일 기준 추정',
+      sourceName: '영수증 OCR', sourceUrl: '#', aiUsage: '영수증 OCR 자동 인식',
+      datasetFields: '품목명, 가격, 구매일', ownerNickname: currentUser.nickname, ownerUserid: currentUser.userid
+    };
+    if(sb){
+      try{
+        await sb.from('listings').insert({
+          id: listing.id, owner_nickname: listing.ownerNickname, owner_userid: listing.ownerUserid,
+          item_name: listing.itemName, base_food: listing.baseFood, category: listing.category,
+          quantity: listing.quantity, trade_type: listing.tradeType, price_krw: listing.priceKrw,
+          storage_type: listing.storageType, purchase_date: listing.purchaseDate,
+          shelf_life_days: listing.shelfLifeDays, remaining_days: listing.remainingDays,
+          expiry_date: listing.expiryDate, preservation_method: listing.preservationMethod, location: listing.location
+        });
+      }catch(e){ console.error(e); }
+    } else {
+      rows.unshift(listing);
+    }
+    count++;
   }
-  showHint('등록 화면에 자동 입력했습니다');
-  nav('register');
+  if(!sb) saveLocalListings(rows);
+
+  await refreshSharedListings();
+  showHint(`${count}개 품목이 등록되었습니다`);
+  nav('home');
 }
 
 // ===== 서울 자치구/동 =====
@@ -1076,6 +1204,7 @@ function bootDataset(){
   }
   refreshSharedListings();
   renderFeed(); renderDetail(); renderFridge(); renderChat();
+  updateRecommendVisibility();
   if(items.length) showHint(`매물 ${items.length}개 불러옴`);
   const pd = document.getElementById('listing-purchase-date');
   if(pd && !pd.value) pd.value = new Date().toISOString().slice(0,10);
