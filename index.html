@@ -929,7 +929,12 @@ async function runAIRecognition(){
   try{
     const form = new FormData();
     form.append('file', _uploadedImageFile);
-    const resp = await fetch(backendUrl.replace(/\/$/, '') + '/ocr', { method: 'POST', body: form });
+    const resp = await fetch(backendUrl.replace(/\/$/, '') + '/ocr', {
+      method: 'POST',
+      body: form,
+      headers: { 'ngrok-skip-browser-warning': 'true' }
+    });
+
     if(!resp.ok) throw new Error('서버 응답 오류 ' + resp.status);
     const data = await resp.json();
     if(bar) bar.style.width = '100%';
